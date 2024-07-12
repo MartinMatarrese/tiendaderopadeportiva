@@ -49,7 +49,7 @@ function renderProductos () {
     const productoLista = document.getElementById('lista');
     productoLista.innerHTML = '';
     const peticion = async () => {
-        const respuesta = await fetch ('/productos.json');
+        const respuesta = await fetch ('https://raw.githubusercontent.com/MartinMatarrese/tiendaderopadeportiva/main/productos.json');
         const datos = await respuesta.json ();
         productos = datos;
         datos.forEach(producto => {
