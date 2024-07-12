@@ -17,7 +17,7 @@ function addToCarrito(productoid, cantidad) {
             timer: 1500
           });
         return;  
-    }
+    };
     if(carritoItem) {
         carritoItem.cantidad += cantidad;
         carritoItem.subTotal = carritoItem.cantidad * carritoItem.precio;
@@ -34,7 +34,7 @@ function addToCarrito(productoid, cantidad) {
                 subTotal: cantidad * producto.precio
             }
         )
-    }
+    };
     saveCarritoToLocalStorage();
     renderCarrito();
     Swal.fire({
@@ -88,11 +88,11 @@ function renderCarrito (){
 
 function saveCarritoToLocalStorage () {
     localStorage.setItem('carrito', JSON.stringify(productosCarrito));
-}
+};
 function loadCarritoFromLocalStorage () {
     const carritoData = localStorage.getItem('carrito');
     return carritoData ? JSON.parse(carritoData) :[];
-}
+};
 function eliminarCarrito(index) {
     productosCarrito.splice(index, 1);
     Swal.fire({
@@ -127,7 +127,7 @@ function eliminarCarrito(index) {
     });
     saveCarritoToLocalStorage();
     renderCarrito();
-}
+};
 document.addEventListener('DOMContentLoaded', () => {
     renderProductos();
     renderCarrito();
