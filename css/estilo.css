@@ -1,0 +1,109 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    background-color: beige;
+}
+header{
+    background-color: grey;
+    h1{
+        color: black;
+        text-align: center;
+    }
+    img{
+        width: 30px;
+    }
+    .navbar nav{
+        background-color: grey;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 50px;
+        height: 10px;
+        width: 100%;
+    }
+    .navbar nav ul{
+        display: flex;
+        justify-content: space-around;
+    }
+    li{
+        list-style: none;
+        a{
+            text-decoration: none;
+            color: black;
+        }
+        &:hover{
+            background-color: red;
+            color: black;
+            border-top: 100%;
+            transform: scale(1.1, 1.1);
+        }
+    }
+}
+main{
+    margin: 10px;
+    padding: 10px;
+
+    h2{
+        text-decoration: underline;
+        text-align: center;
+    }
+    h3{
+        font-size:large;
+    }
+    button{
+        background-color: blue;
+        color: white;
+        &:hover{
+            transform: scale(1.1, 1.1);;
+        }
+    }
+    img{
+        align-items: center;
+        width: 100px;
+    }
+    #lista{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        .cart{
+            border: 1px solid grey;
+            padding: 16px;
+            text-align: center;
+        }
+    }
+    #carrito{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        .cart{
+            border: 1px solid grey;
+            padding: 16px;
+            text-align: center;
+        }
+    }
+    #contacto{
+        align-items: center;
+    }
+    #formulario{
+        width: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+}
+footer{
+    padding: 20px;
+    text-align: center;
+    background-color: grey;
+    #redes{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 5px;
+        img{
+            width: 30px;
+        }
+    };
+};   

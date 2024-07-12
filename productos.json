@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "nombre": "Camiseta Titular de Independiente",
+        "descripcion": "Camista de Fútbol",
+        "precio": 20750,
+        "imagen": "image/imagen1.jpg",
+        "stock": 20
+    },
+    {
+        "id": 2,
+        "nombre": "Camiseta Suplente de Independiente",
+        "descripcion": "Camista de Fútbol",
+        "precio": 18568,
+        "imagen": "image/imagen2.png",
+        "stock": 15
+    },
+    {
+        "id": 3,
+        "nombre": "Short de Independiente",
+        "descripcion": "Short de Fútbol",
+        "precio": 18875,
+        "imagen": "image/imagen3.jpeg",
+        "stock": 17
+    },
+    {
+        "id": 4,
+        "nombre": "Campera de Independiente",
+        "descripcion": "campera de Fútbol",
+        "precio": 14356,
+        "imagen": "image/imagen4.jpeg",
+        "stock": 15
+    },
+    {
+        "id": 5,
+        "nombre": "Camiseta Titular de la Selección Argentina",
+        "descripcion": "Camiseta de Fútbol",
+        "precio": 45175,
+        "imagen": "image/imagen5.webp",
+        "stock": 10
+    },
+    {
+        "id": 6,
+        "nombre": "Camiseta Suplente de la Selección Argentina",
+        "descripcion": "Camiseta de Fútbol",
+        "precio": 48854,
+        "imagen": "image/imagen6.webp",
+        "stock": 25
+    },
+    {
+        "id": 7,
+        "nombre": "Botines para Cancha de 11",
+        "descripcion": "Botines",
+        "precio": 38865,
+        "imagen": "image/imagen7.jpg",
+        "stock": 30
+    },
+    {
+        "id": 8,
+        "nombre": "Botines para Cancha de 5",
+        "descripcion": "Botines",
+        "precio": 25875,
+        "imagen": "image/imagen8.webp",
+        "stock": 30
+    },
+    {
+        "id": 9,
+        "nombre": "Short de la Selección Argentina",
+        "descripcion": "short de Fútbol",
+        "precio": 15764,
+        "imagen": "image/imagen9.webp",
+        "stock": 28
+    },
+    {
+        "id": 10,
+        "nombre": "Campera de la Selección Argentina",
+        "descripcion": "campera de Fútbol",
+        "precio": 28984,
+        "imagen": "image/imagen3.jpeg",
+        "stock": 8
+    }
+]
