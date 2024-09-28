@@ -1,0 +1,39 @@
+.itemdetail{
+    margin: 50px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.itemdetail-header{
+    color: black;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.itemdetail-img{
+    width: 300px;
+    height: auto;
+    margin-bottom: 10px;
+    border: 2px double black;
+}
+
+.itemdetail-datos{
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+.itemdetail a{
+    text-decoration: none;
+    color: #007bff;
+}
+
+.itemdetail a:hover {
+    color: #0056b3;
+    transform: scale(1.1, 1.1);
+}

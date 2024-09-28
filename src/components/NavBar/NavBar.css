@@ -1,0 +1,32 @@
+.menu{
+    background-color: white;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+}
+.menu a{
+    text-decoration: none;
+}
+.menu a:hover{
+    transform: scale(1.1, 1.1);
+}
+.menu-inicio{
+    margin: 10px;
+    color: black;
+    font-size: 20px;
+}
+.menu-enlaces{
+    display: flex;
+    justify-content: center;
+}
+.menu-enlaces-categorias{
+    margin: 10px;
+    text-decoration: none;
+    color: black;
+    display: flex;
+}
+.menu-enlaces-categorias:hover{
+    color: red;
+    background-color: yellow;
+    border-radius: 50%;
+}

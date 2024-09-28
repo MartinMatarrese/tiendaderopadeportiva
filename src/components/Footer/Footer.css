@@ -1,0 +1,16 @@
+.footer {
+    padding: 20px;
+    text-align: center;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+}
+.redes {
+    margin: 10px;
+    width: 30px;
+}
+.redes:hover {
+    transform: scale(1.1, 1.1);
+}

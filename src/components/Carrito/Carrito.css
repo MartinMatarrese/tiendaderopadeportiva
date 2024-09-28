@@ -1,0 +1,21 @@
+.carrito-total {
+    display: flex;
+    justify-content: center;
+}
+.carrito-limpiar {
+    margin: 20px;
+    background-color: blue;
+    color: white;
+}
+.carrito-limpiar:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.vacio {
+    color: black;
+}
+
+.vacio-volver {
+    text-decoration: none;
+    color:  blue;
+}

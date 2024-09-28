@@ -1,0 +1,53 @@
+.itemcarrito {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin: 50px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.itemcarrito-titulo{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+.itemcarrito-precio, 
+.itemcarrito-cantidad, 
+.itemcarrito-subtotal {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #555;
+}
+.itemcarrito-x {
+    align-self: flex-center;
+    padding: 5px 10px;
+    border: none;
+    background-color: #ff4d4d;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+.itemcarrito-x:hover {
+    background-color: #ff3333;
+    transform: scale(1.1, 1.1);
+}
+.itemcarrito-volver {
+    margin: 20px;
+    margin-top: 15px;
+    color:  #007bff;
+    text-decoration: none;
+    font-size: 14px;
+}
+.itemcarrito-volver:hover {
+    text-decoration: underline;
+    transform: scale(1.1, 1.1);
+}

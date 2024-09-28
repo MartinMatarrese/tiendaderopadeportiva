@@ -1,0 +1,106 @@
+.itemlist{
+    margin: 50px;
+    padding: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 50px;
+    grid-auto-flow: row;
+    grid-template-areas: 
+    "item-ArkF17PP9YjtNVaTAhLy item-AkQZuepAUKbJcBrViFQ3"
+    "item-arDJAN9SwpNhh4hSPjtm item-PFB5yDvFKV5pyWdHH0LP"
+    "item-LXmZNogQxP65GENpTvPL item-nt3YDizW6Hbp1kR96u1B"
+    "item-QmftIxPH8SxAvpWWdu6f item-xWKTxFr4pqUtymgTpNzn"
+    "item-qkdVgQFtbAlIrMu6iPvV item-60iLvNelRvmvCBi7t7He";
+}
+
+.item-60iLvNelRvmvCBi7t7He { 
+    grid-area: item-60iLvNelRvmvCBi7t7He;
+    background-color: #f9f9f9;
+}
+
+.item-60iLvNelRvmvCBi7t7He:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-AkQZuepAUKbJcBrViFQ3 {
+    grid-area: item-AkQZuepAUKbJcBrViFQ3;
+    background-color: #f9f9f9;
+}
+
+.item-AkQZuepAUKbJcBrViFQ3:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-ArkF17PP9YjtNVaTAhLy {
+    grid-area: item-ArkF17PP9YjtNVaTAhLy;
+    background-color: #f9f9f9;
+}
+
+.item-ArkF17PP9YjtNVaTAhLy:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-LXmZNogQxP65GENpTvPL {
+    grid-area: item-LXmZNogQxP65GENpTvPL;
+    background-color: #f9f9f9;
+}
+
+.item-LXmZNogQxP65GENpTvPL:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-PFB5yDvFKV5pyWdHH0LP {
+    grid-area: item-PFB5yDvFKV5pyWdHH0LP;
+    background-color: #f9f9f9;
+}
+
+.item-PFB5yDvFKV5pyWdHH0LP:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-QmftIxPH8SxAvpWWdu6f {
+    grid-area: item-QmftIxPH8SxAvpWWdu6f;
+    background-color: #f9f9f9;
+}
+
+.item-QmftIxPH8SxAvpWWdu6f:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-arDJAN9SwpNhh4hSPjtm {
+    grid-area: item-arDJAN9SwpNhh4hSPjtm;
+    background-color: #f9f9f9;
+}
+
+.item-arDJAN9SwpNhh4hSPjtm:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-nt3YDizW6Hbp1kR96u1B {
+    grid-area: item-nt3YDizW6Hbp1kR96u1B;
+    background-color: #f9f9f9;
+}
+
+.item-nt3YDizW6Hbp1kR96u1B:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-qkdVgQFtbAlIrMu6iPvV {
+    grid-area: item-qkdVgQFtbAlIrMu6iPvV;
+    background-color: #f9f9f9;
+}
+
+.item-qkdVgQFtbAlIrMu6iPvV:hover {
+    transform: scale(1.1, 1.1);
+}
+
+.item-xWKTxFr4pqUtymgTpNzn {
+    grid-area: item-xWKTxFr4pqUtymgTpNzn;
+    background-color: #f9f9f9;
+}
+
+.item-xWKTxFr4pqUtymgTpNzn:hover {
+    transform: scale(1.1, 1.1);
+}
