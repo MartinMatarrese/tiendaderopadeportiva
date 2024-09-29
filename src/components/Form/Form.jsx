@@ -27,14 +27,14 @@ const Form = ({handleChage, submit, formData, error}) =>{
                 Object.keys(formData).map((key, i) => (
                     <div className="form-datos">
                         <label htmlFor={key} key={i}>Ingrese su {key}</label>
-                        <input type={key === "email" ? "email" : "text"} name={key} id={key} onChange={handleChage} required/>
+                        <input type="text" name={key} id={key} onChange={handleChage} required/>
                         {
                             error[key] && <span>{error[key]}</span>
                         }
                     </div>
                 ))
             }
-                <button type="submit" className="form-orden">crear orden</button>
+                <button type={submit} className="form-orden">crear orden</button>
             </form>
     )
 }

@@ -29,8 +29,14 @@ const Carrito = () => {
     const submit = (e) => {
         e.preventDefault();
         const localError = {}
-        if(!buyer.name){
+        if(!buyer.Nombre){
             localError.name="El nombre es obligatorio"
+        }
+        if(!buyer.Apellido){
+            localError.Apellido="El apellido es obligatorio"
+        }
+        if(!buyer.Direccion){
+            localError.Direccion="La direccion es obligatoria"
         }
         if(!buyer.Email){
             localError.Email="El email es obligatorio"
