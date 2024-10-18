@@ -6,7 +6,7 @@ import db from "../Carrito/Carrito";
 import { doc, updateDoc } from "firebase/firestore";
 
 const Form = ({handleChage, submit, formData, error}) =>{
-    const {clearCart} = useContext(CartContext);
+    const {cart, clearCart} = useContext(CartContext);
 
         const handleSubmit = (e) => {
         e.preventDefault(); 
