@@ -1,19 +1,16 @@
-.cart{
+.cart {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
 }
 
-.img-cart{
+.img-cart {
     width: 50px;
     height: auto;
 }
 
-.p-cart{
+.p-cart {
     margin-left: 8px;
     font-size: 14px;
-    color: black;
 }
 
 .p-cart span {
@@ -22,4 +19,4 @@
     border-radius: 50%; 
     padding: 2px 8px; 
     font-weight: bold; 
-  }
+}

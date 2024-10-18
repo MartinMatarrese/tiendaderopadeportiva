@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import "./Item.css";
 
-export const Item = ({id, title, image, price, stock}) => {
+export const Item = ({id, title, image, Descripción, price, stock}) => {
     const ItemClass = `item-${id}`;
     return (
             <div className={`item ${ItemClass}`}>
@@ -13,6 +13,7 @@ export const Item = ({id, title, image, price, stock}) => {
                 <h2 className="item-header">{title}</h2>
             </header>
             <section>
+                <p className="item-datos" id="descripcion">{Descripción}</p>
                 <p className="item-datos">Precio: ${price}</p>
                 <p className="item-datos">Stock: {stock}</p>
             </section>

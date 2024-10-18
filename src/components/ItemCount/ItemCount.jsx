@@ -17,7 +17,7 @@ export  const ItemCount = ({stock, iniciar, onAdd}) => {
     const handleAdd = () => {
         onAdd(cantidad);
         Swal.fire({
-            position: "top-center",
+            position: "center",
             icon: "success",
             title: "Producto agregado al carrito",
             showConfirmButton: false,

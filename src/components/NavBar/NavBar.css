@@ -1,32 +1,55 @@
 .menu{
-    background-color: white;
-    margin: 10px;
+    background-color: black;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgb(0, 0, 0, 0.1);
 }
-.menu a{
+
+.menu a {
     text-decoration: none;
+    display: flex;
 }
-.menu a:hover{
+
+.menu a:hover { 
     transform: scale(1.1, 1.1);
 }
-.menu-inicio{
+
+.menu-inicio {
     margin: 10px;
-    color: black;
+    width: 100px;
+    color: white;
     font-size: 20px;
 }
+
 .menu-enlaces{
     display: flex;
-    justify-content: center;
+    gap: 20px;
 }
+
 .menu-enlaces-categorias{
-    margin: 10px;
+    font-size: 18px;
+    color: white;
+    padding: 5px 10px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    border-radius: 10px;
     text-decoration: none;
-    color: black;
-    display: flex;
+    text-shadow: 0px 0px 10px,
+                 0px 0px 20px,
+                 0px 0px 40px,
+                 0px 0px 80px;
 }
+
 .menu-enlaces-categorias:hover{
-    color: red;
-    background-color: yellow;
-    border-radius: 50%;
+    color: #007bff;
+    background-color: rgb(0, 123, 255, 0.1);
+}
+
+.menu-enlaces-categorias.active {
+    color: #007bff;
+}
+
+.CartWidget {
+    margin-right: 20px;
 }

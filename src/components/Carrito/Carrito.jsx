@@ -63,7 +63,8 @@ const Carrito = () => {
             clearCart();
         })
         .catch(err => setError("Error al crear la orden"))
-    }
+    };
+
     if(cantidadTotal === 0) {
         return (
             <div>

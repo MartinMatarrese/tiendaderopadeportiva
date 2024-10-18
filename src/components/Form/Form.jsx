@@ -2,6 +2,8 @@ import React, { useContext } from "react";
 import Swal from "sweetalert2";
 import "./Form.css";
 import { CartContext } from "../Context/CartContext";
+import db from "../Carrito/Carrito";
+import { doc, updateDoc } from "firebase/firestore";
 
 const Form = ({handleChage, submit, formData, error}) =>{
     const {clearCart} = useContext(CartContext);
@@ -9,25 +11,37 @@ const Form = ({handleChage, submit, formData, error}) =>{
         const handleSubmit = (e) => {
         e.preventDefault(); 
         submit(e);
-        Swal.fire({
-            title: 'Orden Creada',
-            text: 'Tu orden ha sido creada exitosamente!',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-        })
-        .then((result) => {
-            if(result.isConfirmed) {
-                clearCart();
-            }
-        })    
+        try {
+            const batch = db ();
+            cart.forEach(async(item) => {
+                const producRef = doc(db, 'items', item.id);
+                await updateDoc(producRef, {
+                    stock: item.stock - item.cantidad
+                });
+            });
+            Swal.fire({
+                title: 'Orden Creada',
+                text: 'Tu orden ha sido creada exitosamente!',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            })
+            .then((result) => {
+                if(result.isConfirmed) {
+                    clearCart();
+                }
+            })            
+        }
+        catch (error) {
+            console.log("Error al actualizar el stock", error);
+        } 
     }
     return(
         <form onSubmit={handleSubmit} className="form">
             {
                 Object.keys(formData).map((key, i) => (
                     <div className="form-datos">
-                        <label htmlFor={key} key={i}>Ingrese su {key}</label>
-                        <input type="text" name={key} id={key} onChange={handleChage} required/>
+                        <label htmlFor={key} key={i}>Ingrese su {key}:</label>
+                        <input type="text" name={key} id={key} onChange={handleChage} required className="input"/>
                         {
                             error[key] && <span>{error[key]}</span>
                         }
