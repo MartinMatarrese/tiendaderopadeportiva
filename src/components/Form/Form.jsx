@@ -5,7 +5,7 @@ import { CartContext } from "../Context/CartContext";
 import db from "../Carrito/Carrito";
 import { doc, updateDoc } from "firebase/firestore";
 
-const Form = ({handleChage, submit, formData, error}) =>{
+const Form = ({handleChange, submit, formData, error}) =>{
     const {cart, clearCart} = useContext(CartContext);
 
         const handleSubmit = (e) => {
@@ -41,7 +41,7 @@ const Form = ({handleChage, submit, formData, error}) =>{
                 Object.keys(formData).map((key, i) => (
                     <div className="form-datos">
                         <label htmlFor={key} key={i}>Ingrese su {key}:</label>
-                        <input type="text" name={key} id={key} onChange={handleChage} required className="input"/>
+                        <input type="text" name={key} id={key} onChange={handleChange} required className="input"/>
                         {
                             error[key] && <span>{error[key]}</span>
                         }
