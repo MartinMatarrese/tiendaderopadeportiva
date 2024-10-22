@@ -53,3 +53,17 @@
 .CartWidget {
     margin-right: 20px;
 }
+
+@media screen and (max-width: 600px) {
+    .menu {
+        width: 750px;
+    }
+
+    .menu-inicio {
+        width: 100px
+    }
+
+    .menu-enlaces-categorias {
+        font-size: 10px;
+    }
+}

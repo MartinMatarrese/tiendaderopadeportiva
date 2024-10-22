@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import Swal from "sweetalert2";
 import "./Form.css";
 import { CartContext } from "../Context/CartContext";
-import db from "../Carrito/Carrito";
+import db from "../../index";
 import { doc, updateDoc } from "firebase/firestore";
 
 const Form = ({handleChange, submit, formData, error}) =>{
@@ -12,12 +12,18 @@ const Form = ({handleChange, submit, formData, error}) =>{
         e.preventDefault(); 
         submit(e);
         try {
-            const batch = db ();
             cart.forEach(async(item) => {
                 const producRef = doc(db, 'items', item.id);
-                await updateDoc(producRef, {
-                    stock: item.stock - item.cantidad
-                });
+                const stockActual = Number(item.stock);
+                const cantidadComprada = Number(item.cantidad);
+                if(!isNaN(stockActual) && !isNaN(cantidadComprada)){
+                    await updateDoc(producRef, {
+                        stock: item.stock - item.cantidad
+                    });
+                }
+                else {
+                    console.error(`Stock o cantidad inválidos para el producto title: ${item.title}`);
+                }
             });
             Swal.fire({
                 title: 'Orden Creada',
@@ -32,7 +38,12 @@ const Form = ({handleChange, submit, formData, error}) =>{
             })            
         }
         catch (error) {
-            console.log("Error al actualizar el stock", error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un problema al crear tu orden. ' + error.message,
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
         } 
     }
     return(
@@ -41,7 +52,7 @@ const Form = ({handleChange, submit, formData, error}) =>{
                 Object.keys(formData).map((key, i) => (
                     <div className="form-datos">
                         <label htmlFor={key} key={i}>Ingrese su {key}:</label>
-                        <input type="text" name={key} id={key} onChange={handleChange} required className="input"/>
+                        <input type="text" name={key} id={key} value={formData[key]} onChange={handleChange} required className="input"/>
                         {
                             error[key] && <span>{error[key]}</span>
                         }

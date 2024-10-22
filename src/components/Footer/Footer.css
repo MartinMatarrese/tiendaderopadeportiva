@@ -29,3 +29,9 @@
     font-size: 14px;
     color: #666;
 }
+
+@media screen and (max-width: 600px) {
+    .footer {
+        width: 750px;
+    }    
+}

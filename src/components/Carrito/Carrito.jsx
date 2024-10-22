@@ -3,7 +3,8 @@ import { CartContext } from "../Context/CartContext"
 import { Link } from "react-router-dom"
 import { ItemCarrito } from "../ItemCarrito/ItemCarrito"
 import Form from "../Form/Form"
-import { collection, getFirestore, addDoc } from "firebase/firestore"
+import { collection, addDoc } from "firebase/firestore"
+import db  from "../../index";
 import "./Carrito.css";
 
 const Carrito = () => {
@@ -20,7 +21,7 @@ const Carrito = () => {
         Email:"",
     })
     const {cart, clearCart, cantidadTotal, total} = useContext(CartContext);
-    const handleChage = (e) =>{
+    const handleChange = (e) =>{
         setBuyer({
             ...buyer,
             [e.target.name] : e.target.value
@@ -30,7 +31,7 @@ const Carrito = () => {
         e.preventDefault();
         const localError = {}
         if(!buyer.Nombre){
-            localError.name="El nombre es obligatorio"
+            localError.Nombre="El nombre es obligatorio"
         }
         if(!buyer.Apellido){
             localError.Apellido="El apellido es obligatorio"
@@ -50,7 +51,6 @@ const Carrito = () => {
     }
 
     const addtoCart = () => {
-        const db = getFirestore()
         const orderCollection = collection(db, "orders")
         const purchase = {
             buyer,
@@ -79,7 +79,7 @@ const Carrito = () => {
                 <h3 className="carrito-total">Total: ${total}</h3>
                 <button onClick={() => clearCart()} className="carrito-limpiar">Limpiar carrito</button>
                 <Form 
-                handleChage={handleChage}
+                handleChange={handleChange}
                 submit={submit}
                 formData={buyer}
                 error={error}

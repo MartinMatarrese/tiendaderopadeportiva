@@ -62,3 +62,17 @@
 .itemdetail footer {
     margin-top: 20px;
 }
+
+@media screen and (max-width: 600px) {
+    .itemdetail {
+        margin-top: 20px;
+        margin-left: 200px;
+        margin-right: 5px;
+    }    
+}
+
+@media screen and (max-width: 320px) {
+    .itemdetail {
+        width: 450px;
+    }    
+}

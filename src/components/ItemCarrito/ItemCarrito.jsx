@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CartContext } from "../Context/CartContext";
 import "./ItemCarrito.css";
 
-export const ItemCarrito = ({id, title, price, cantidad, image }) => {
+export const ItemCarrito = ({id, title, price, cantidad }) => {
     const {removeItem} = useContext(CartContext);
     return (
         <div className="itemcarrito">

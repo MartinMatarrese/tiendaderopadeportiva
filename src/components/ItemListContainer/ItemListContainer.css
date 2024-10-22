@@ -14,3 +14,18 @@
     color: black;
     text-decoration: underline;
 }
+
+@media screen and (max-width: 768px) {
+    .container {
+        height: 3000px;
+    }
+    .category-camisetas {
+        height: 1250px;
+    }
+    .category-camperas {
+        height: 800px;
+    }
+    .category-shorts {
+        height: 800px;
+    }    
+}
