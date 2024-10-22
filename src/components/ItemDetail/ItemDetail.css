@@ -71,6 +71,12 @@
     }    
 }
 
+@media screen and (max-width: 480px) {
+    .itemdetail {
+        width: 450px;
+    }    
+}
+
 @media screen and (max-width: 320px) {
     .itemdetail {
         width: 450px;
