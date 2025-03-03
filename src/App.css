@@ -7,30 +7,37 @@
 body{
   background-color:  black;
 }
+
 h1{
   color: white;
   text-align: center;
   font-family: "Playfair Display", serif;
 }
+
 h2{
   color: white;
   text-align: center;
   font-family: "Montserrat Alternates", sans-serif; 
 }
+
 a {
   font-family: "Montserrat Alternates", sans-serif; 
 }
+
 p {
   font-family: "Open Sans", sans-serif;
 }
+
 .error{
   display: flex;
   justify-content: center;
 }
+
 .error-texto{
   display: flex;
   justify-content: center;
 }
+
 .error-volver{
   display: flex;
   justify-content: center;
