@@ -9,6 +9,9 @@ Este proyecto es una tienda de ropa deportiva en línea donde los usuarios puede
 - Carrito de compras con funcionalidad de agregar/eliminar productos.
 - Creación de órdenes a través de Firebase.
 
+## Próximas funcionalidades
+- **Autenticación de usuarios** (Registro e inicio de sesión) a través del backend.
+
 ## Tecnologías Utilizadas
 - React
 - Firebase
