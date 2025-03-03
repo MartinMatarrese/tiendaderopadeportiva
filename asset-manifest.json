@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/tiendaderopadeportiva/static/css/main.71803023.css",
-    "main.js": "/tiendaderopadeportiva/static/js/main.786572f3.js",
-    "static/media/carrito.png": "/tiendaderopadeportiva/static/media/carrito.c37407cd2649473576b3.png",
-    "static/media/instagram.png": "/tiendaderopadeportiva/static/media/instagram.7d8aec0c45d4ab8904eb.png",
-    "static/media/TD.png": "/tiendaderopadeportiva/static/media/TD.0170cea99cfba8d63c59.png",
+    "main.css": "/tiendaderopadeportiva/static/css/main.aba57eca.css",
+    "main.js": "/tiendaderopadeportiva/static/js/main.48b191d3.js",
+    "static/media/instagram.svg": "/tiendaderopadeportiva/static/media/instagram.4bd4a3cb2dbc5631444eee37b275b051.svg",
     "index.html": "/tiendaderopadeportiva/index.html",
-    "main.71803023.css.map": "/tiendaderopadeportiva/static/css/main.71803023.css.map",
-    "main.786572f3.js.map": "/tiendaderopadeportiva/static/js/main.786572f3.js.map"
+    "static/media/facebook.svg": "/tiendaderopadeportiva/static/media/facebook.7b970ce00e3ade9b33d4e2941ac36c5c.svg",
+    "static/media/shopping-cart.svg": "/tiendaderopadeportiva/static/media/shopping-cart.33ce5d1587bf4a7a971bb64d9418e125.svg",
+    "main.aba57eca.css.map": "/tiendaderopadeportiva/static/css/main.aba57eca.css.map",
+    "main.48b191d3.js.map": "/tiendaderopadeportiva/static/js/main.48b191d3.js.map"
   },
   "entrypoints": [
-    "static/css/main.71803023.css",
-    "static/js/main.786572f3.js"
+    "static/css/main.aba57eca.css",
+    "static/js/main.48b191d3.js"
   ]
 }
