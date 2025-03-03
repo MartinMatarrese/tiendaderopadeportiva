@@ -15,8 +15,8 @@ export const ItemDetail = ({id, title, image, category, price, stock}) => {
         addItem(item, cantidad);
     }
     return (
-            <div className="itemdetail">
-             <article>
+        <div className="itemdetail">
+           <article>
             <picture>
                 <img className="itemdetail-img" src={image} alt={title} />
             </picture>
@@ -36,7 +36,7 @@ export const ItemDetail = ({id, title, image, category, price, stock}) => {
                     )
                 }   
             </footer>
-        </article>
+         </article>
         </div>
     )
 }

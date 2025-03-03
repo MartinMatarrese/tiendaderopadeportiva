@@ -1,17 +1,5 @@
-.container {
-    height: 2600px;
-}
-.category-camisetas {
-    height: 1100px;
-}
-.category-camperas {
-    height: 700px;
-}
-.category-shorts {
-    height: 900px;
-}
 .titulo {
-    color: black;
+    color: white;
     text-decoration: underline;
 }
 

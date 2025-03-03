@@ -1,6 +1,6 @@
 import React from "react";
-import instagram from "../../image/instagram.png"
-import facebook from "../../image/facebook.png"
+import instagram from "../../image/instagram.svg"
+import facebook from "../../image/facebook.svg"
 import "./Footer.css";
 export const Footer = () => {
     const año = new Date().getFullYear();

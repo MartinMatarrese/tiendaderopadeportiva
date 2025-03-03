@@ -1,36 +1,47 @@
 .menu{
-    background-color: black;
+    background-color: rgb(255, 0, 0);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
+    height: 30px;
     box-shadow: 0 2px 5px rgb(0, 0, 0, 0.1);
 }
 
 .menu a {
     text-decoration: none;
     display: flex;
+    font-size: 10px;
 }
+
 
 .menu a:hover { 
     transform: scale(1.1, 1.1);
 }
 
-.menu-inicio {
-    margin: 10px;
-    width: 100px;
-    color: white;
-    font-size: 20px;
+.logo {
+    font-family: "Oswald", sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+    letter-spacing: 5px;
+    filter: drop-shadow(4px 4px 4px); 
+}
+
+.log:hover {
+    transform: scale(1.1, 1.1);
 }
 
 .menu-enlaces{
     display: flex;
     gap: 20px;
+    flex-grow: 1;
+    justify-content: center;
 }
 
 .menu-enlaces-categorias{
-    font-size: 18px;
-    color: white;
+    font-size: 2rem;
+    color: black;
     padding: 5px 10px;
     transition: color 0.3s ease, background-color 0.3s ease;
     border-radius: 10px;
@@ -48,6 +59,11 @@
 
 .menu-enlaces-categorias.active {
     color: #007bff;
+}
+
+.users {
+    width: 25px;
+    margin-right: 20px;
 }
 
 .CartWidget {

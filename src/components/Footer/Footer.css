@@ -1,7 +1,7 @@
 .footer {
     padding: 20px 0;
     text-align: center;
-    background-color: black;
+    background-color: #1a1a1a;
     border-top: 1px solid #ddd;
     color: white;
 }
@@ -11,7 +11,7 @@
 }
 
 .footer p:hover {
-    color: #007bff;
+    text-shadow: 0 0 10px rgb(255, 255, 255, 0.8);
 }
 
 .redes {
@@ -27,7 +27,7 @@
 .derechos {
     margin-top: 15px;
     font-size: 14px;
-    color: #666;
+    color: white;
 }
 
 @media screen and (max-width: 600px) {

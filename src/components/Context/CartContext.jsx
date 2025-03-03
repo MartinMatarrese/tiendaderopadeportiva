@@ -36,6 +36,8 @@ export const CartProvider = ({children}) => {
         );
     };
     useEffect(() => {
+        console.log("Contenido del carrito", cart);
+        
         const cantidadTotal = cart.reduce((acc, prod) => acc + prod.cantidad, 0)
         setCantidadTotal(cantidadTotal);
         const precioTotal = cart.reduce((acc, prod) => acc + (prod.price * prod.cantidad), 0)

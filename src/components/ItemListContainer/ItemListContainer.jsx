@@ -21,9 +21,17 @@ export const ItemListContainer = () => {
             setError(true)
         )
     }, [categoryId]);
+
+    const categoryNames = {
+        "camisetas": "camisetas",
+        "camperas": "camperas",
+        "shorts": "shotrts" 
+    }
+
+    const categoryTitle = categoryId ? categoryNames[categoryId] || "Categoria desconocida" : "Nuestros productos";
     return (
         <div className={`container ${categoryId ? `category-${categoryId}` : ''}`}>
-            <h2 className="titulo">Nuestros Productos</h2>
+            <h2 className="titulo">{categoryTitle}</h2>
             <ItemList productos={productos}/>
         </div>
     )

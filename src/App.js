@@ -8,6 +8,8 @@ import Error from "./pages/Error";
 import { CartProvider } from "./components/Context/CartContext";
 import Carrito from "./components/Carrito/Carrito";
 import { Footer } from "./components/Footer/Footer";
+import Login from "./components/login/login";
+import Register from "./components/Register/register";
 
 function App (){
     return(
@@ -21,6 +23,8 @@ function App (){
                     <Route path="/category/:categoryId" element={<ItemListContainer/>}/>
                     <Route path="/item/:itemId" element={<ItemDetailContainer/>}/>
                     <Route path="/Carrito" element={<Carrito/>}/>
+                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/register" element={<Register/>}/>
                     <Route path="*" element={<Error/>}/>
                 </Routes>
                 </CartProvider>

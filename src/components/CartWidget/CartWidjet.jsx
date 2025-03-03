@@ -2,7 +2,7 @@ import { useContext } from "react";
 import "./CartWidget.css";
 import { CartContext } from "../Context/CartContext";
 import { Link } from "react-router-dom";
-import carrito from "../../image/carrito.png";
+import carrito from "../../image/shopping-cart.svg";
 
 export const CartWidget = () => {
     
