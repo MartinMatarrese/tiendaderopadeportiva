@@ -1,0 +1,27 @@
+components:
+  schemas:
+    Payments:
+      type: object
+      required:
+        - userId
+        - cartId
+        - amount
+      properties:
+        userId:
+          type: string
+          description: id del usuario
+        cartId:
+          type: string
+          description: id del carrito del usuario
+        amount:
+          type: number
+          description: precio del producto
+      example:
+        userId: 23213djasd
+        cartId: ajhjs213
+        amount: 45000
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

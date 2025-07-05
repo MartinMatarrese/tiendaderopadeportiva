@@ -1,0 +1,324 @@
+paths:
+  /api/carts:
+    post:
+      tags:
+        - Carts
+      summary: Crear carrito
+      responses:
+        201:
+          type: string
+          description: Carrito creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schema/CartsResponse"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /api/carts/{cid}:
+    get:
+      tags:
+        - Carts
+      summary: Obtener carrito por ID
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: Id del carrito
+      responses:
+        200:
+          type: string
+          description: Carrito obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartsResponse"
+        400:
+          type: string
+          description: Carrito no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundCart"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    put:
+      tags:
+        - Carts
+      summary: Actualizar productos del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: Id del carrito
+      requestBody:
+        description: Productos a actualizar en el carrito
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      quantity:
+                        type: integer
+              example:
+                products:
+                  - id: yuyjskj
+                    quantity: 2
+                  - id: iausdiasu
+                    quantity: 1
+      responses:
+        200:
+          type: string
+          description: Carrito actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schema/CartsResponse"
+        404:
+          type:
+          description: El carrito o el producto no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schema/NotProductCart"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      tags:
+        - Carts
+      summary: Eliminar carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: Id del carrito
+      responses:
+        200:
+          type: string
+          description: Carrito eliminado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartsResponse"
+        404:
+          type: string
+          description: Carrito no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundCart"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /api/carts/{cid}/products/{pid}:
+    post:
+      tags:
+        - Carts
+      summary: Cargar el Producto en el carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: Id del carrito
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+          description: Id del producto
+      requestBody:
+        description: Información del producto a agregar
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+              example:
+                quantity: 2
+      responses:
+        200:
+          type: string
+          description: Poroducto cargado en el carrito correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schema/CartsResponse"
+        404:
+          type: string
+          description: El carrito o el producto no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotProductCart"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    put:
+      tags:
+        - Carts
+      summary: Actualizar cantidad de un producto en el carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+            description: Id del carrito
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+            description: Id del producto
+      requestBody:
+        description: Nueva cantidad del producto
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity: integer
+              example:
+                quantity: 3
+      responses:
+        200:
+          type: string
+          description: Producto actualizado correctamente en el carrito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartsResponse"
+        404:
+          type: string
+          description: El carrito o el producto no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotProductCart"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      tags:
+        - Carts
+      summary: Eliminar producto del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+            description: Id del carrito
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+          description: Id del producto
+      responses:
+        200:
+          type: string
+          description: Producto elimindo del carrito correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartsResponse"
+        404:
+          type: string
+          description: El carrito o el producto no existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotProductCart"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /api/carts/{cid}/purchase:
+    post:
+      tags:
+        - Carts
+      summary: Finalizar compra del carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: Id del carrito
+      responses:
+        200:
+          description: Compra realizada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticketId:
+                    type: string
+                  amount:
+                    type: number
+                example:
+                  ticketId: bsh123
+                  amount: 70000
+        404:
+          description: El carrito no existe o no tiene productos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotProductCart"
+        500:
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"

@@ -1,0 +1,54 @@
+components:
+  schemas:
+    Products:
+      type: object
+      required:
+        - image
+        - title
+        - description
+        - category
+        - price
+        - stock
+      properties:
+        image:
+          type: string
+          description: Imagen del producto
+        title:
+          type: string
+          description: Titulo del producto
+        description:
+          type: string
+          description: Descripción del producto
+        category:
+          type: string
+          description: Categoria del producto
+        price:
+          type: number
+          description: Précio del producto
+        stock:
+          type: number
+          description: Disponibilidad del producto
+        code:
+          type: string
+          description: Código Único del producto
+        thumbnail:
+          type: array
+          items:
+            type: string
+          description: Imagenes adicionales del producto
+      example:
+        image: https://tuapp.com/images/camiseta_independiente.jpg
+        title: Camiseta de Independiente 
+        description: Lleva la camiseta de Independiente en la piel
+        category: camisetas
+        price: 35000
+        stock: 15
+        code: Ca123In
+        thumbnail: 
+          - https://tuapp.com/images/camiseta_independiente_lado.jpg
+          - https://tuapp.com/images/camiseta_independiente_espalda.jpg
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT o Google

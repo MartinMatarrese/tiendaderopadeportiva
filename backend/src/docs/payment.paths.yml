@@ -1,0 +1,154 @@
+paths:
+  /api/payments:
+    get:
+      tags:
+        - Payments
+      summary: Obtener todos los pagos
+      responses:
+        200:
+          type: string
+          description: Pagos obtenidos con éxito
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              $ref: "#/components/schemas/InternalServerError"
+    post:
+      tags:
+        - Payments
+      summary: Crear pago
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Payments"
+      responses:
+        201:
+          type: string
+          description: Pago creado con éxito
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        500:
+          type: string
+          description: Error interno del servidor
+          content:
+            application/json:
+              $ref: "#/components/schemas/InternalServerError"
+  /api/payments/create-preference:
+    post:
+      tags:
+        - Payments
+      summary: Realizar pago
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Payments"
+      responses:
+        200:
+          type: string
+          description: Pago realizado con éxito
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        500:
+          type: string
+          description: Error interno del servidor
+          content:
+            application/json:
+              $ref: "#/components/schemas/InternalServerError"
+  /api/payments/success:
+    get:
+      tags:
+        - Payments
+      summary: Completar los datos del pago
+      responses:
+        200:
+          type: string
+          description: ticket generado
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        404:
+          type: string
+          description: Algunos productos estaban sin stock
+          content:
+            application/json:
+              $ref: "#/components/schemas/NotStock"
+        500:
+          type: string
+          description: Error interno del servidor
+          content:
+            application/json:
+              $ref: "#/components/schemas/InternalServerError"
+  /api/payments/{paymentid}:
+    get:
+      tags:
+        - Payments
+      summary: Consultar el pago por id
+      responses:
+        200:
+          type: string
+          description: Pago encontrado
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        404:
+          type: string
+          description: Pago no encontrado
+          content:
+            application/json:
+              $ref: "#/components/schemas/NotPayment" 
+    put:
+      tags:
+        - Payments
+      summary: Actualizar pago por id
+      responses:
+        200:
+          type: string
+          description: Pago actualizado correctamente
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        404:
+          type: string
+          description: Error al actualizar el pago
+          content:
+            application/json:
+              $ref: "#/components/schemas/NotPaymentUpdate"
+        500:
+          type: string
+          description: Error interno del servidor
+          content:
+            application/json:
+              $ref: "#/components/schemas/InternalServerError"
+    delete:
+      tags:
+        - Payments
+      summary: Eliminar el pago por id
+      responses:
+        200:
+          type: string
+          description: Pago eliminado con éxito
+          content:
+            application/json:
+              $ref: "#/components/schemas/PaymentsResponse"
+        404:
+          type: string
+          description: Error al eliminar el pago por id
+          content:
+            application/json:
+              $ref: "#/components/schemas/NotPaymentDelete"
+        500:
+          type: string
+          description: Error interno del servidor
+          content:
+            application/json:
+              $ref: "#/components/schemas/InternalServerError" 

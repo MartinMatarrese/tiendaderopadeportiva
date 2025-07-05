@@ -1,0 +1,85 @@
+components:
+  schemas:
+    CartsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id del carrito
+        userId:
+          type: string
+          description: Id del usuario
+        products:
+          type: array
+          description: Productos agregados al carrito
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              image:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              category:
+                type: string
+              price:
+                type: number
+              stock:
+                type: number
+              code:
+                type: string
+              status:
+                type: boolean
+              thumbnail:
+                type: array
+                items:
+                  type: string
+      example:
+        id: 6327hjjh
+        userId: yusydu23223
+        products: 
+          - id: hjshjads71837812hdjsh
+            image: https://tuapp.com/images/camiseta_independiente.jpg
+            title: Camiseta de Independiente 
+            description: Lleva la camiseta de Independiente en la piel
+            category: camisetas
+            price: 35000
+            stock: 15
+            code: Ca123In
+            status: true
+            thumbnail: 
+              - https://tuapp.com/images/camiseta_independiente_lado.jpg
+              - https://tuapp.com/images/camiseta_independiente_espalda.jpg    
+    InternalServerError:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 500
+        message: Error interno en el servidor
+    NotFoundCart:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 400
+        message: Carrito no encontrado
+    NotProductCart:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: El carrito o el producto no existe

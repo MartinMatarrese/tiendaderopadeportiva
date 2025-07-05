@@ -1,0 +1,54 @@
+components:
+  schemas:
+    UserRegister:
+      type: object
+      properties:
+        id:
+          type: string
+          description: id del usuario
+        status:
+          type: number
+          description: Estado de la petición
+        message:
+          type: string
+          description: Mensaje según el status
+      example:
+        id: 3232jhhj232
+        status: 201
+        message: Usuario creado correctamente
+    UserLogin:
+      type: object
+      properties:
+        status:
+          type: number
+          description: Estado de la petición
+        message:
+          type: string
+          description: Mensaje según el status
+        token:
+          type: string
+          description: Token de autenticación JWT
+      example:
+        status: 201
+        message: Login OK
+        token: hajdhajsdaksd...
+    InternalServerError:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 500
+        message: Error interno en el servidor
+    UnauthorizedError:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 401
+        message: Usuario no encontrado o credenciales incorrectas

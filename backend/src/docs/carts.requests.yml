@@ -1,0 +1,35 @@
+components:
+  schemas:
+    Carts:
+      type: array
+      requiered:
+        - userId
+        - products
+      properties:
+        userId:
+          type: string
+          description: Id del usuario
+        products:
+          type: array
+          description: Productos a agregar al carrito
+          items:
+            type: object
+          properties:
+            id:
+              type: string
+              description: Id del producto
+            quantity:
+              type: number
+              description: Cantidad de productos
+      example:
+        userId: 878jhdjs232
+        products: 
+          - id: hjshjads71837812hdjsh
+            quantity: 2
+          - id: gsgh2367
+            quantity: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT o Google

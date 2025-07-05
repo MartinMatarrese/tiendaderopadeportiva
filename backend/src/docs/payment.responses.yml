@@ -1,0 +1,81 @@
+components:
+  schemas:
+    PaymentsResponse:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          description: id del pago del producto
+        userId:
+          type: string
+          description: id del usuario
+        status:
+          type: string
+          enum: ["success", "pending", "failure"]
+        cartId:
+          type: string
+          description: id del carrito
+        amount:
+          type: number
+          description: Monto del pago
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de la creación del pago
+      example:
+        paymentId: hajsdhj827382
+        userId: 7832hjhj
+        status: "success"
+        cartId: hsdhjads283728
+        amount: 45000
+        createdAt: "2025-06-24T15:20:30Z"
+    InternalServerError:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 500
+        message: Error interno en el servidor
+    NotStock:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: Algunos productos estan sin stock
+    NotPayment:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: Pago no encontrado
+    NotPaymentUpdate:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: Error al actualizar el pago
+    NotPaymentDelete:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+      status: 404
+      message: Error al eliminar el pago por id

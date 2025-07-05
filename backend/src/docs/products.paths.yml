@@ -1,0 +1,204 @@
+paths:
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Obtener todos los productos
+      responses:
+        200:
+          type: string
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductsResponse"
+        404:
+          type: string
+          description: Error al obtener los productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotFoundProduct"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    post:
+      summary: Crear un nuevo producto
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Products"
+      responses:
+        201:
+          type: string
+          description: Producto creado correctamente    
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Products"
+        404:
+          type: string
+          description: Error al crear el producto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundProduct"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /api/products/{pid}:
+    get:
+      tags:
+       - Products
+      summary: Obtener producto por Id
+      parameters:
+        - in: path
+          name: pid
+          requiered: true
+          schema:
+            type: string
+          description: Id del producto
+      responses:
+        200:
+          type: string
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+        400:
+          type: string
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundProduct"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    put:
+      summary: Actualizar un producto por Id
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: pid
+          requiered: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Products"
+      responses:
+        200:
+          type: string
+          description: Producto actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+        404:
+          type: string
+          description: Error al actualizar el producto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotUpdateProduct"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    delete:
+      summary: Eliminar producto por su Id
+      security:
+       - BearerAuth: []
+      parameters:
+        - in: path
+          name: pid
+          requiered: true
+          schema:
+            type: string
+      responses:
+        200:
+          type: string
+          description: Producto eliminado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+        404:
+          type: string
+          description: Error al eliminar el producto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotDeleteProduct"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"     
+  /api/products/category/{category}:
+    get:
+      tags:
+        - Products
+      summary: Obtener productos por categoría
+      parameters:
+        - in: path
+          name: category
+          requiered: true
+          schema:
+            type: string
+          description: Categoría del producto
+      responses:
+        200:
+          type: string
+          description: Lista de productos por categoría
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/ProductsResponse"
+        404:
+          type: string
+          description: Error al consultar el producto por categoría
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotCategoryProduct"
+        500:
+          type: string
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"

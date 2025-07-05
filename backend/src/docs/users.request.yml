@@ -1,0 +1,52 @@
+components:
+  schemas:
+    Users:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+        - age
+        - password
+      properties:
+        first_name:
+          type: string
+          description: Nombre del usuario
+        last_name:
+          type: string
+          description: Apellido del usuario
+        email:
+          type: string
+          description: Email del usuario
+        age:
+          type: number
+          description: Edad del usuario
+        password:
+          type: string
+          description: Contraseña del usuario
+      example:
+        first_name: juan
+        last_name: Perez
+        email: jaunperez@gmail.com
+        age: 30
+        password: masdjasdhja
+    login:
+      type: Object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          description: Email del usuario
+        password:
+          type: string
+          description: Contraseña del usuario
+      example:
+        email: juanperez@gmail.com
+        password: masdjasdhja
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT

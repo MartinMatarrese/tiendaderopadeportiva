@@ -1,0 +1,100 @@
+components:
+  schemas:
+    ProductsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: id del producto
+        image:
+          type: string
+          description: Imagen del producto
+        title:
+          type: string
+          description: Titulo del producto
+        description:
+          type: string
+          description: Descripción del producto
+        category:
+          type: string
+          description: Categoria del producto
+        price:
+          type: number
+          description: Precio del producto
+        stock:
+          type: number
+          description: Disponibilidad del producto
+        code:
+          type: string
+          description: Código del producto
+        status:
+          type: boolean
+          description: Estado de la petición
+        thumbnail:
+          type: array
+          items:
+            type: string
+          description: Imágemes adicionales del producto
+      example:
+        id: hjshjads71837812hdjsh
+        image: https://tuapp.com/images/camiseta_independiente.jpg
+        title: Camiseta de Independiente 
+        description: Lleva la camiseta de Independiente en la piel
+        category: camisetas
+        price: 35000
+        stock: 15
+        code: Ca123In
+        status: true
+        thumbnail: 
+          - https://tuapp.com/images/camiseta_independiente_lado.jpg
+          - https://tuapp.com/images/camiseta_independiente_espalda.jpg
+    InternalServerError:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 500
+        message: Error interno en el servidor
+    NotFoundProduct:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: El producto no existe
+    NotUpdateProduct:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: Error al actualizar el producto
+    NotDeleteProduct:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type:
+      example:
+        status: 404
+        message: Error al elimiar el producto
+    NotCategoryProduct:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      example:
+        status: 404
+        message: Error al consular el producto por categoría  
