@@ -1,17 +1,17 @@
-import { tranporter } from "../config/gmail.config.js";
+import { transporter } from "../config/gmail.config.js";
 import { templateHtmlGmail } from "./template.service.js"
 
-export const sendGmail = async(ticket, usuarioEmail) => {
+export const sendGmail = async(ticket, email, products) => {
     try {
         const mailConfig = {
             from: process.env.EMAIL,
-            to: usuarioEmail,
+            to: email,
             subject: `Tu compra en Tienda de Ropa deportiva  - orden ${ticket.code}`,
-            html: templateHtmlGmail()
+            html: templateHtmlGmail(products, ticket, email)
         };
-        const response = await tranporter.sendGmail(mailConfig);
-        res.json(response);
+        const response = await transporter.sendMail(mailConfig);
+        return response;
     } catch (error) {
-        throw new Error(`Error al enviar el mail con la compra: ${error.message}`);
+        throw new Error(`Error al enviar el email con la compra: ${error.message}`);
     };
 };

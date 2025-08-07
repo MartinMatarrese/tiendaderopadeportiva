@@ -29,9 +29,7 @@ class ProductRepository {
 
     getById = async(id) => {
         try {
-            const response = await this.dao.getById(id);
-            console.log("PRODUCTO ENCONTRADO EN DAO: ", response);
-            
+            const response = await this.dao.getById(id);            
             if(!response) {
                 return null
             };

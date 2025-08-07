@@ -15,7 +15,6 @@ class CartRepository {
             const cart = await this.dao.create(response);
             return cart
         } catch(error) {
-            console.error("cartRepository - Error al crear el carrtio:", error.message);            
             throw new Error(`Error en cartRepository al crear el carrito: ${error.message}`);
         };
     };
@@ -35,11 +34,12 @@ class CartRepository {
                 throw new Error("ID del carrito no proporcionado");                 
             };
             const cart = await this.dao.getCartById(id);
-            const response = new CartResDto(cart)
             
             if(!cart) {
                 return null;                
-            };           
+            };
+            
+            const response = new CartResDto(cart);
             return response
         } catch(error) {            
             throw new Error(error);

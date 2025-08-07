@@ -10,8 +10,6 @@ import passport from "passport";
 import "./passport/gmail.strategy.js";
 import { errorHandler } from "./middlewares/errorhandler.js";
 import cors from "cors";
-import { create } from "express-handlebars";
-import path from "path";
 import { reqLog } from "./middlewares/rqlog.js";
 import paymentRouter from "./routes/payment.routes.js";
 import swaggerJSDoc from "swagger-jsdoc";
@@ -21,7 +19,6 @@ import chatRouter from "./routes/chat.router.js";
 
 
 const app = express();
-const hbs = create();
 const specs = swaggerJSDoc(info);
 const storeConfig = {
     store: MongoStore.create({
@@ -49,17 +46,12 @@ app.use(cookieParser());
 
 app.use(session(storeConfig));
 
-//Uso de handlebars
-app.engine("handlebars", hbs.engine);
-app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views"))
-//
 app.use("/public", express.static(__dirname + "/public"));
 
 app.use(passport.initialize());
 
 app.use(passport.session());
-//Uso de handlebars
+
 app.use((req, res, next) => {
     if(req.method === "POST" && req.body.token) {
         req.headers["authorization"] = `Bearer ${req.body.token}`;
@@ -69,7 +61,6 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
     res.render("index", { title: "Inicio"});
 });
-//
 
 app.use("/users", usersRoutes);
 

@@ -1,3 +1,6 @@
+import cartModel from "../daos/mongodb/models/cart.model.js";
+import PaymentResDto from "../dtos/payment.res.dto.js";
+import TicketResDto from "../dtos/ticket.res.dto.js";
 import { cartServices } from "../services/cart.service.js";
 import { paymentService } from "../services/payment.service.js";
 
@@ -8,8 +11,13 @@ class PaymentController {
 
     createPreference = async(req, res, next) => {
         try {
-            const { userId, cartId, amount } = req.body;
-            const preference = await this.paymentService.createPreference({ userId, cartId, amount });
+            const { cartId } = req.body;
+            const cart = await cartModel.findById(cartId).populate("products.id_prod");
+            
+            if(!cart || !Array.isArray(cart.products) || cart.products.length === 0){                 
+                throw new Error("El carrito esta vacio o no se encontró");
+            };
+            const preference = await this.paymentService.createPreference({ cartId, cart });
             res.status(200).json({ init_point: preference.init_point });
         } catch (error) {
             next(error);
@@ -18,8 +26,8 @@ class PaymentController {
 
     createPayment = async(req, res, next) => {
         try {
-            const { paymentId, userId, amount, status, cartId} = req.body
-            const respuesta = await this.paymentService.createPayment({paymentId, userId, amount, status, cartId});
+            const { paymentId, userId, amount, status, cartId, ticketId} = req.body
+            const respuesta = await this.paymentService.createPayment({paymentId, userId, amount, status, cartId, ticketId});
             res.status(201).send(respuesta);
         } catch (error) {
             next(error);
@@ -28,7 +36,8 @@ class PaymentController {
 
     getAllPayment = async(req, res, next) => {
         try {
-            const payments = await this.paymentService.getAllPayment()
+            const userId = req.user._id;
+            const payments = await this.paymentService.getAllPayment(userId);
             res.status(200).json(payments);
         } catch (error) {
             next(error)
@@ -50,30 +59,35 @@ class PaymentController {
 
     handleSuccess = async(req, res, next) => {
         try {
-            const { payment_id, status } = req.query;
-            const { userId, cartId } = req.query;
-            let paymentData = {
-                paymentId: payment_id,
-                userId,
-                status,
-                cartId,
-                amount: 0
-            }
+            const { paymentId, status, userId, cartId } = req.query;
+            const paymentData = {
+                    paymentId,
+                    userId,
+                    status,
+                    cartId,
+                };
 
             if(status === "approved") {
                 const resuladoCompra = await cartServices.purchaseCart(cartId);
                 const { ticket, productsOutStock } = resuladoCompra;
-                paymentData.amount = ticket.amount;
-                paymentData.ticketId = ticket._id;
-                console.log("ticket generado: ", ticket);
+                
                 if(productsOutStock.length > 0) {
                     console.warn("Algunos productos estaban sin stock:", productsOutStock);
-                    res.status(404).send({message: "Algunos productos estaban sin stock"});
+                    return res.status(404).send({message: "Algunos productos estaban sin stock"});
                 };
-                res.status(200).send(ticket)
-            } 
+                paymentData.amount = ticket.amount;
+                paymentData.ticketId = ticket._id?.toString();
+        
+                const payment = await paymentService.createPayment(paymentData);
+
+                const ticketDto = new TicketResDto(ticket);
+                const paymentDto = new PaymentResDto(payment);
+
+                return res.status(200).json({ticket: {...ticketDto}, payment: {...paymentDto}})
+
+            };             
             await paymentService.createPayment(paymentData);
-            res.redirect("http://localhost:8080/");
+            return res.redirect("http://localhost:8080/");
         } catch (error) {
             next(error)
         };
@@ -81,8 +95,8 @@ class PaymentController {
 
     getPaymentById = async(req, res, next) => {
         try {
-            const { paymentId } = req.params
-            const payment = await this.paymentService.getPaymentById(paymentId)
+            const { paymentid } = req.params
+            const payment = await this.paymentService.getPaymentById(paymentid)
             if(!payment) {
                 return res.status(404).send({ message: "Pago no encontrado" });
             };
@@ -107,7 +121,7 @@ class PaymentController {
         try {
             const { paymentId } = req.params;
             await this.paymentService.delete(paymentId);
-            res.status(200).send({ message: "Pago elimiado con éxito" });
+            res.status(200).send({ message: "Pago eliminado con éxito" });
         } catch (error) {
             next(error);
         };

@@ -30,9 +30,9 @@ class TicketRepository {
 
     create = async(ticketData) => {
         try {
-            const ticketDto = new TicketReqDto(ticketData);
-            const newTicket = await this.dao.create(ticketDto);
-            return new TicketResDto(newTicket);
+            const ticket = await this.dao.create(ticketData);
+            const newTicket = await this.dao.findById(ticket._id);
+            return newTicket;
         } catch(error) {
             throw new Error(`Error al crear el ticket: ${error.message}`);
         };

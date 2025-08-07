@@ -44,7 +44,6 @@ class ProductService {
 
     update = async(id, data) => {
         return await productRepository.update(id, data);
-        //return await productRepository.update(id, { stock: Number(stock) });
     };
 
     updateProductStock = async(id, newStock) => {

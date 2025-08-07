@@ -14,17 +14,20 @@ class PaymentDaoMongo extends MongoDao {
         };
     };
 
-    getAll = async() => {
+    getAll = async(userId) => {
         try {
+            if(userId){
+                return await paymentModel.find({ userId }).populate("userId").populate("cartId");
+            };
             return await paymentModel.find().populate("userId").populate("cartId");
         } catch (error) {
             throw new Error(error);
         };
     };
 
-    getById = async(id) => {
+    getById = async(paymentId) => {
         try {
-            return await paymentModel.findById(id).populate("userId").populate("cartId");
+            return await paymentModel.findById(paymentId).populate("userId").populate("cartId");
         } catch (error) {
             throw new Error(error);
         };

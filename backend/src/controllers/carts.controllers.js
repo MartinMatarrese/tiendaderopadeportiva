@@ -60,9 +60,10 @@ export class CartControllers {
     updateProductsCart = async (req, res, next) => {
         try {
             const cartId = req.params.cid
-            const { newProducts } = req.body
-            const cart = await cartModel.findOne({_id: cartId})
-           cart.products = newProducts
+            const { products, userId } = req.body
+            const cart = await cartModel.findOne({ _id: cartId })
+            if(products) cart.products = products;
+            if(userId) cart.userId = userId;
            await cart.save();
            res.status(200).send(cart)
         } catch(error) {
@@ -93,8 +94,8 @@ export class CartControllers {
 
     purchaseCart = async(req, res, next) => {
       try {
-            const { cid } = req.params;                        
-            const result = await cartServices.purchaseCart(cid);
+            const { cid, userId } = req.params;                        
+            const result = await cartServices.purchaseCart(cid, userId);
             res.status(200).json({ message: "Compra completada", result})
         } catch(error) {          
             next(error);

@@ -1,4 +1,4 @@
-export const templateHtmlGmail = () => {
+export const templateHtmlGmail = (products, ticket, email) => {
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="es">
  <head>
@@ -160,12 +160,13 @@ a[x-apple-data-detectors],
                       <td align="center" style="padding:0;Margin:0"><h2 class="es-m-txt-c" style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:26px;font-style:normal;font-weight:bold;line-height:31.2px;color:#333333"><br></h2></td>
                      </tr>
                      <tr>
-                      <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${Date}</p></td>
+                      <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${new Date().toLocaleString()}</p></td>
                      </tr>
                    </table></td>
                  </tr>
                </table></td>
              </tr>
+            ${products.map(p => `
              <tr>
               <td align="left" class="esdev-adapt-off" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:10px">
                <table cellpadding="0" cellspacing="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:560px">
@@ -176,7 +177,7 @@ a[x-apple-data-detectors],
                       <td align="center" class="es-m-p0r" style="padding:0;Margin:0;width:70px">
                        <table width="100%" role="presentation" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                          <tr>
-                          <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${image}</p></td>
+                          <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${p.image}</p></td>
                          </tr>
                        </table></td>
                      </tr>
@@ -188,11 +189,11 @@ a[x-apple-data-detectors],
                       <td align="center" style="padding:0;Margin:0;width:265px">
                        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                          <tr>
-                          <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px"><strong>${title}</strong></p></td>
+                          <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px"><strong>${p.title}</strong></p></td>
                          </tr>
-                         <tr>
+                         <!-- <tr>
                           <td align="left" style="padding:0;Margin:0;padding-top:5px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Size: M<br>Color: White</p></td>
-                         </tr>
+                         </tr> -->
                        </table></td>
                      </tr>
                    </table></td>
@@ -203,7 +204,7 @@ a[x-apple-data-detectors],
                       <td align="left" style="padding:0;Margin:0;width:80px">
                        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                          <tr>
-                          <td align="center" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${cantidad}</p></td>
+                          <td align="center" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">${p.quantity}</p></td>
                          </tr>
                        </table></td>
                      </tr>
@@ -215,7 +216,7 @@ a[x-apple-data-detectors],
                       <td align="left" style="padding:0;Margin:0;width:85px">
                        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                          <tr>
-                          <td align="right" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">$${price}</p></td>
+                          <td align="right" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">$${p.price}</p></td>
                          </tr>
                        </table></td>
                      </tr>
@@ -223,6 +224,7 @@ a[x-apple-data-detectors],
                  </tr>
                </table></td>
              </tr>
+              `).join("")}
              <tr>
               <td align="left" class="esdev-adapt-off" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:10px">
                <table cellspacing="0" cellpadding="0" class="esdev-mso-table" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:560px">
@@ -232,12 +234,12 @@ a[x-apple-data-detectors],
                      <tr>
                       <td align="center" class="es-m-p0r" style="padding:0;Margin:0;width:70px">
                        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                         <tr>
+                         <!-- <tr>
                           <td align="center" style="padding:0;Margin:0;font-size:0px"><img src="https://fkrqahr.stripocdn.email/content/guids/CABINET_c67048fd0acf81b47e18129166337c05/images/43961618299486640.png" alt="" width="70" class="adapt-img" style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></td>
-                         </tr>
+                         </tr> -->
                        </table></td>
                      </tr>
-                   </table></td>
+                   <!-- </table></td>
                   <td style="padding:0;Margin:0;width:20px"></td>
                   <td valign="top" class="esdev-mso-td" style="padding:0;Margin:0">
                    <table cellpadding="0" cellspacing="0" align="left" class="es-left" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
@@ -274,7 +276,7 @@ a[x-apple-data-detectors],
                          <tr>
                           <td align="right" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">$20</p></td>
                          </tr>
-                       </table></td>
+                       </table></td> -->
                      </tr>
                    </table></td>
                  </tr>
@@ -287,7 +289,7 @@ a[x-apple-data-detectors],
                   <td align="center" class="es-m-p0r" style="padding:0;Margin:0;width:560px">
                    <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;border-top:2px solid #efefef;border-bottom:2px solid #efefef" role="presentation">
                      <tr>
-                      <td align="right" style="padding:0;Margin:0;padding-top:10px;padding-bottom:20px"><p class="es-m-txt-r" style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Subtotal:&nbsp;<strong>$${price}</strong><br>Total:&nbsp;<strong>$${total}</strong></p></td>
+                      <td align="right" style="padding:0;Margin:0;padding-top:10px;padding-bottom:20px"><p class="es-m-txt-r" style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Subtotal:&nbsp;<strong>$${ticket.amount}</strong><br>Total:&nbsp;<strong>$${ticket.amount}</strong></p></td>
                      </tr>
                    </table></td>
                  </tr>
@@ -300,7 +302,7 @@ a[x-apple-data-detectors],
                   <td align="center" class="es-m-p0r es-m-p20b" style="padding:0;Margin:0;width:280px">
                    <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                      <tr>
-                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Cliente: ${email.user}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Numero de orden: ${code}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">IFecha y Hora: ${Date}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Metodo de págo: Mercado Pago</p></td>
+                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Cliente: ${email.user}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Numero de orden: ${ticket.code}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">IFecha y Hora: ${new Date().toLocaleString()}</p><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Metodo de págo: Mercado Pago</p></td>
                      </tr>
                    </table></td>
                  </tr>

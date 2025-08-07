@@ -4,12 +4,14 @@ import app from "../app.js";
 import request from "supertest";
 import assert from "node:assert";
 import productModel from "../daos/mongodb/models/product.model.js";
-import cartModel from "../daos/mongodb/models/cart.model.js";
+import { transporter } from "../config/gmail.config.js";
+import { jest } from "@jest/globals";
 
 
 let cookieToken = null;
 let productId = null;
 let cartId = null;
+let userId = null;
 const agent = request.agent(app);
 
 const mockUser = () => {
@@ -17,7 +19,7 @@ const mockUser = () => {
         _id: new mongoose.Types.ObjectId(),
         first_name: "Test",
         last_name: "Admin",
-        email: "admin@test.com",
+        email: "admin@gmail.com",
         age: 30,
         password: "admin123",
         role: "user",
@@ -59,7 +61,6 @@ describe("TEST API - CARTS", () => {
         const tokenCookie = cookieHeader.find(c => c.startsWith("token="));
         cookieToken = tokenCookie.split(";")[0];
         const product = mockProducts();        
-        // const productRes = await agent.post("/api/products").set("Cookie", cookieToken).send(product);
         const productRes = await productModel.create(product);        
         productId = productRes._id;
         const cartRes = await agent.post("/api/carts").set("Cookie", cookieToken);
@@ -71,8 +72,6 @@ describe("TEST API - CARTS", () => {
             assert.strictEqual(response.status, 201);
             cartId = response.body._id;
             assert.ok(cartId, "No se recibio el id del carrito");
-            // assert.strictEqual(Array.isArray(response.body.products), true);
-            // assert.strictEqual(response.body.userId);
         });
         
     test("[GET] /api/carts/:cid - Debería devolver el carrito", async() => {
@@ -88,8 +87,8 @@ describe("TEST API - CARTS", () => {
     });
 
     test("[PUT] /api/carts/:cid - Debería actualizar el carrito", async() => {
-        const newProducts = [{id_prod: productId, quantity: 5}];        
-        const response = await agent.put(`/api/carts/${cartId}`).set("Cookie", cookieToken).send({ newProducts });        
+        const products = [{id_prod: productId, quantity: 5}];        
+        const response = await agent.put(`/api/carts/${cartId}`).set("Cookie", cookieToken).send({ products });        
         assert.strictEqual(response.status, 200);
         assert.ok(Array.isArray(response.body.products), "El carrito no existe");
     });
@@ -101,15 +100,17 @@ describe("TEST API - CARTS", () => {
     });
 
     test("[POST] /api/carts/:cid/purchase - Debería devolver el resumen de la compra", async() => {
-        const getCart = await agent.get(`/api/carts/${cartId}`).set("Cookie", cookieToken);
-        console.log("Carrito antes de comprar: ", getCart.body);
-        
-        const response = await agent.post(`/api/carts/${cartId}/purchase`).set("Cookie", cookieToken);
-        console.log("RESPONSE BODY: ", response.body);
-        
+        jest.spyOn(transporter, "sendMail").mockResolvedValue({ accepted: ["admin@gmail.com"]});        
+        const response = await agent.post(`/api/carts/${cartId}/purchase`).set("Cookie", cookieToken);        
         assert.strictEqual(response.status, 200);
-        assert.ok(response.body.ticket);
-        assert.ok(Array.isArray(response.body.productsOutStock));
+        assert.ok(response.body.result.ticket);
+        assert.ok(Array.isArray(response.body.result.productsOutStock));
+    });
+
+    test("[DELETE] /api/carts/:cid/products/:pid - Debería eliminar un producto del carrito", async() => {
+        const response = await agent.delete(`/api/carts/${cartId}/products/${productId}`).set("Cookie", cookieToken)
+        assert.strictEqual(response.status, 200);
+        assert.ok(Array.isArray(response.body.products), "El producto no existe");
     });
 
     test("[DELETE] /api/carts/:cid - Deberia eliminar el carrito", async() => {
@@ -117,12 +118,6 @@ describe("TEST API - CARTS", () => {
         assert.strictEqual(response.status, 200);
         assert.ok(Array.isArray(response.body.products), "Carrito eliminado correctamente");
     });
-
-    // test("[DELETE] /api/carts/:cid/products/:pid - Debería eliminar un producto del carrito", async() => {
-    //     const response = await agent.delete(`/api/carts/${cartId}/products/${productId}`).set("Cookie", cookieToken)
-    //     assert.strictEqual(response.status, 200);
-    //     assert.ok(Array.isArray(response.body.products));
-    // });
 
     afterAll(async() => {
         await mongoose.connection.dropDatabase();

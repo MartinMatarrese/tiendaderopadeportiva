@@ -1,5 +1,3 @@
-import { paginate } from "mongoose-paginate-v2";
-
 export default class MongoDao {
     constructor(model) {
         this.model = model;

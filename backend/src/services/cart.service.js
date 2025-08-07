@@ -4,7 +4,7 @@ import { productService } from "./product.service.js";
 import { v4 as uuidv4 } from "uuid";
 import cartModel from "../daos/mongodb/models/cart.model.js";
 import { sendGmail } from "./email.service.js";
-import { userService } from "./user.service.js";
+import TicketResDto from "../dtos/ticket.res.dto.js";
 
 class CartServices {
     constructor() {
@@ -76,7 +76,12 @@ class CartServices {
         if(!cart.products || !Array.isArray(cart.products)) {
             throw new Error(`El carrito con ID ${cartId} no tiene productos`);
             
-        }
+        };
+
+        if(!cart.userId || !cart.userId.email) {
+            throw new Error("El carrito no tiene un usuario válido")
+        };
+
         let productsToPurchase = [];
         let productsOutStock = [];
 
@@ -98,21 +103,21 @@ class CartServices {
 
         const ticketData = {
             code: uuidv4(),
-            purchaser: cart.userId,
+            purchaser: cart.userId.email,
             amount: this.calculateTotalAmount(productsToPurchase),
             products: productsToPurchase.map(item => item.id_prod)
         };        
 
-        const ticket = await ticketService.createTicket(ticketData);
-        const user = await userService.getUserByEmail(cart.userId);
-        await sendGmail(ticket, user.email);
+        const rawTicket = await ticketService.createTicket(ticketData);
+        const ticket = await new TicketResDto(rawTicket);
+        await sendGmail(ticket, cart.userId.email, productsToPurchase);
 
-        const productosRestantes = cart.products.filter(item => productsOutStock.find(out => out.id_prod === item.id_prod));
+        const productosRestantes = cart.products.filter(item => !productsOutStock.find(out => out.id_prod === item.id_prod));
         await cartRepository.update(cart._id, { products: productosRestantes})
 
         return {ticket, productsOutStock};
         } catch(error) {                    
-            throw new Error("Error al procesar la compra en el carrito" + error.message);            
+            throw new Error("Error al procesar la compra en el carrito: " + error.message);            
         };
     };
 

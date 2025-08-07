@@ -11,33 +11,38 @@ class PaymentService {
         this.paymentRepository = paymentRepository;
     };
 
-    createPreference = async( {userId, cartId, amount }) => {
+    createPreference = async( { userId, cart }) => {
         try {
+            const env = process.env.NODE_ENV || "development"
+            const isProduction = env === "production";
+            const isTest = env === "test";
+            const successUrl = isTest ? "https://example.com/success" : isProduction ? "https://example.com/success" : `http://localhost:8080/api/payments/success?userId=${userId}&cartId=${cart._id}`;
+            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? "https://example.com/failure" : `http://localhost:8080/compra-fallida`;
+            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? "https://example.com/pending" : `http://localhost:8080/compra-pendiente`;
+
             const preference = {
-                items: [
-                    {
-                        title:"Compra en Tienda de Ropa Deportiva",
-                        quantity: 1,
-                        unit_price: amount
-                    }
-                ],
+                items: cart.products.map(p => ({    
+                        title: p.id_prod.title,
+                        quantity: p.quantity,
+                        unit_price: p.id_prod.price
+                    
+                })),
                 back_urls: {
-                    success: `http://localhost:8080/api/payments/success?userId=${userId}&cartId=${cartId}`,
-                    failure: `http://localhost:8080/compra-fallida`,
-                    pending: `http://localhost:8080/compra-pendiente`
+                    success: successUrl,
+                    failure: failureUrl,
+                    pending: pendingUrl
                 },
                 auto_return: "approved"
-            };
-            
+            };            
             const response = await mercadopago.preferences.create(preference);
             return response.body
         } catch (error) {
             throw new Error("Error al crear la preferencia de pago: " + error.message);
-        }
-    }
+        };
+    };
 
     createPayment = async(payment) => {
-        try {
+        try {            
             return await this.paymentRepository.createPayment(payment);
         } catch (error) {
             throw new Error(error.message || "Error al crear los pagos");

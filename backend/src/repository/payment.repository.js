@@ -19,9 +19,9 @@ class PaymentRepository {
         };
     };
 
-    getAllPayment = async() => {
+    getAllPayment = async(userId) => {
         try {
-            const payments = await this.dao.getAll();
+            const payments = await this.dao.getAll(userId);
             return payments.map(payment => new PaymentResDto(payment));
         } catch (error) {
             throw new Error(`Error al obtener el paymant: ${error.message}`);

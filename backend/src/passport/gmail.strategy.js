@@ -4,16 +4,17 @@ import { userService } from "../services/user.service.js";
 import "dotenv/config";
 import { userGoogleValidator } from "../middlewares/userGoogle.validator.js";
 
-const GoogleStrategyConfig ={
+const GoogleStrategyConfig = {
     clientID: process.env.CLIENT_ID_GOOGLE,
     clientSecret: process.env.CLIENT_SECRET_GOOGLE,
-    callbackURL: "http://localhost:8080/users/googlecallback"
+    callbackURL: process.env.GOOGLE_CALLBACK_URL
 
 };
 
 const registerOrLogin = async(accessToken, refreshToken, profile, done) => {
     try {
-        const email = profile.emails[0].value;
+        const email = profile.emails?.[0]?.value;
+        if(!email) throw new Error("Email no proporcionado por Google");
         const first_name = profile.name.givenName || "GoogleUser";
         const last_name = profile.name.familyName || "GoogleUser";
         const profilePic = profile.photos?.[0]?.value || null;

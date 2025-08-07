@@ -8,7 +8,8 @@
     "test": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules jest",
     "test:users": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/users.test.js",
     "test:products": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/products.test.js",
-    "test:carts": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/carts.test.js"
+    "test:carts": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/carts.test.js",
+    "test:payment": "cross-env NODE_ENV=test PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/payment.test.js"
   },
   "type": "module",
   "author": "",
@@ -41,6 +42,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@jest/globals": "^30.0.4",
     "cross-env": "^7.0.3",
     "jest": "^30.0.2",
     "supertest": "^7.1.1"

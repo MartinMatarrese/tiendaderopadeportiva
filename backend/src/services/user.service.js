@@ -58,9 +58,6 @@ class UserService {
             };
            
             const passwordStr = String(password)
-            // if (!password) {
-            //     throw new Error("La contraseña es obligatoria");
-            // }
             hashedPassword = createHash(passwordStr);
 
             if (!hashedPassword) {

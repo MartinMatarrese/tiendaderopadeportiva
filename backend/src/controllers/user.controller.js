@@ -66,10 +66,6 @@ class UserController {
             if(!user) return res.status(401).send("No autorizado");
             const token = this.service.generateToken(user);
             res.redirect(`http://localhost:3000/tiendaderopadeportiva/perfil?token=${token}`);
-            // res.json({
-            //     mensaje: "Autenticación con Google exitosa",
-            //     usuario: req.user
-            // });
         } catch (error) {
             next(error)
         };

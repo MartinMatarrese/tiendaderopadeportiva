@@ -1,20 +1,15 @@
 import { model, Schema } from "mongoose";
 
 const paymentSchema = new Schema ({
-    paymentId: {
-        type: String,
-        required: true
-    },
-
     userId: {
         type: Schema.Types.ObjectId,
-        ref: "user",
+        ref: "users",
         required: true
     },
 
     status: {
         type: String,
-        enum: ["success", "pending", "failure"],
+        enum: ["success", "pending", "failure", "approved"],
         required: true
     },
 
@@ -26,6 +21,11 @@ const paymentSchema = new Schema ({
     cartId: {
         type: Schema.Types.ObjectId,
         ref: "carts"
+    },
+
+    ticketId: {
+        type: Schema.Types.ObjectId,
+        ref: "ticket"
     },
 
     createdAt: {

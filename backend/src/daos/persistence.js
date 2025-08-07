@@ -7,7 +7,7 @@ import { ticketDao as ticketDaoMongo } from "./mongodb/ticket.dao.js";
 import { userDao as UserDaoFs } from "./filesystem/user.dao.js";
 import {userDao as UserDaoMongo } from "./mongodb/user.dao.js";
 import { paymentDao as paymentDaoMongo} from "./mongodb/payment.dao.js";
-import { initMongoDB } from "../db/dbConfig.js";
+import { initMongoDB } from "../db/dbconfig.js";
 
 let prodDao;
 
