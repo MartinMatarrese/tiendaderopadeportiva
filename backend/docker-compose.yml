@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongo-tienda
+    ports:
+      - "27017:27017"
+  backend:
+    build:
+      context: .
+    container_name: api-tienda
+    ports:
+    - "8080:8080"
+    env_file: .env
+    depends_on: 
+      - mongo
