@@ -27,11 +27,11 @@ components:
       example:
         first_name: juan
         last_name: Perez
-        email: jaunperez@gmail.com
+        email: juanperez@gmail.com
         age: 30
         password: masdjasdhja
-    login:
-      type: Object
+    Login:
+      type: object
       required:
         - email
         - password
@@ -45,8 +45,38 @@ components:
       example:
         email: juanperez@gmail.com
         password: masdjasdhja
-  securitySchemes:
+    ProfileRequest:
+      type: object
+      properties:
+        profilePic:
+          type: string
+          format: binary
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      example:
+        email: usuario@gmail.com
+    ResetPasswordRequest:
+      type: object
+      required:
+        - token
+        - password
+      properties:
+        token:
+          type: string
+          description: Token de recuperación recibido por email
+        password:
+          type: string
+          format: password
+          description: Nueva contraseña
+      example:
+        token: adhajdaksdhkas....
+        password: nuevacontraseña123
+  SecuritySchemes:
     BearerAuth:
       type: http
-      scheme: Bearer
+      scheme: bearer
       bearerFormat: JWT

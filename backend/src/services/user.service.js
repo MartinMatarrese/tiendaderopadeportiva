@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import { cartServices } from "./cart.service.js";
 import { userRepository } from "../repository/user.repository.js";
+import bcrypt from "bcrypt";
 
 class UserService {
     constructor() {
@@ -91,7 +92,8 @@ class UserService {
             if(!userExist) throw new Error("Usuario no encontrado");
             const passValid = isValidPassword(password, userExist);
             if(!passValid) throw new Error("Credenciales incorrectas");
-            return this.generateToken(userExist);
+            const token = this.generateToken(userExist);
+            return { user: userExist, token };
         } catch (error) {
             throw new Error(error);
         }
@@ -105,6 +107,24 @@ class UserService {
             throw new Error(error.message);
         }
     };
+
+    generateResetToken = async(user) => {
+        try {
+            return jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m"})
+        } catch (error) {
+            throw new Error(error.message);
+        };
+    };
+
+    resetPassword = async(token, newPassword) => {
+        try {          
+            const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            const hashed = await bcrypt.hash(newPassword, 10);
+            return await this.userRepository.updatePassword(decoded._id, hashed)
+        } catch (error) {
+            throw new Error("token inválido o expirado", error.message);
+        }
+    }
 };
 
 export const userService = new UserService();

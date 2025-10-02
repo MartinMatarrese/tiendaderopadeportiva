@@ -8,5 +8,7 @@ export default class UserReqDto {
         this.cart = user.cart;
         this.password = user.password;
         this.fromGoogle = user.fromGoogle || false;
+        this.resetToken = user.resetToken;
+        this.resetTokenExpiry = user.resetTokenExpiry
     };
 };

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { userController } from "../controllers/user.controller.js";
 import { roleAuth } from "../middlewares/roleAuth.js";
-import { userValidator } from "../middlewares/user.validator.js";
+import { forgotValidator, LoginValidator, userValidator } from "../middlewares/user.validator.js";
 import { jwtAuth } from "../middlewares/jwtAuth.js";
 import { uploadUserPic } from "../config/multer.js";
 import passport from "passport";
@@ -11,7 +11,7 @@ const userRouter = Router()
 
 userRouter.post("/register", userValidator, userController.register);
 
-userRouter.post("/login", userController.login);
+userRouter.post("/login", LoginValidator, userController.login);
 
 userRouter.get("/current", [jwtAuth, roleAuth("user", "admin")], userController.privateData);
 
@@ -21,6 +21,10 @@ userRouter.get("/google", passport.authenticate("google", { scope: ["email", "pr
 
 userRouter.get("/googlecallback", passportCall("google"), userController.googleProfile);
 
-userRouter.get("/logout", [jwtAuth], userController.logout);
+userRouter.post("/logout", userController.logout);
+
+userRouter.post("/forgot-password", forgotValidator, userController.forgotPassword);
+
+userRouter.post("/reset-password", userController.resetPassword);
 
 export default userRouter;

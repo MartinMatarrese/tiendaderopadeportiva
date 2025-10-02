@@ -23,15 +23,6 @@ const registerOrLogin = async(accessToken, refreshToken, profile, done) => {
             return done(null, existingUser);
         };
 
-        // if(!email) throw new Error("Email inválido");
-
-        // const user = await userService.getUserByEmail(email);
-
-        // if(user) return done(null, user);
-
-        // const fullName = profile._json.name || "";
-
-        // const [first_name = "Google", last_name = "user"] = fullName.split(" ");
         const userInput = {
             email,
             first_name,

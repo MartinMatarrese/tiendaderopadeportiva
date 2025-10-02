@@ -29,9 +29,59 @@ components:
           type: string
           description: Token de autenticación JWT
       example:
-        status: 201
+        status: 200
         message: Login OK
         token: hajdhajsdaksd...
+    ProfilePicResponse:
+      type: object
+      properties:
+        status:
+          type: number
+          description: Estado de la petición
+        message:
+          type: string
+          description: Mensaje según el status
+      example:
+        status: 200
+        message: Foto de perfil actualizada correctamente
+    GoogleRedirectedResponse:
+      description: Redirección de google para login
+    LogoutResponse:
+      type: object
+      properties:
+        status:
+          type: number
+          description: Estado de la petición
+        message:
+          type: string
+          description: Mensaje según el status
+      example:
+        status: 200
+        message: Logout OK
+    ForgotPasswordResponse:
+      type: object
+      properties:
+        status:
+          type: number
+          description: Estado de la petición
+        message:
+          type: string
+          description: Mensaje según el status
+      example:
+        status: 200
+        message: Email de recuperación enviado
+    ResetPasswordResponse:
+      type: object
+      properties:
+        status:
+          type: number
+          description: Estado de la petición
+        message:
+          type: string
+          description: Mensaje según el status
+      example:
+        status: 200
+        message: Contraseña actualizada
     InternalServerError:
       type: object
       properties:
@@ -52,3 +102,27 @@ components:
       example:
         status: 401
         message: Usuario no encontrado o credenciales incorrectas
+    UserNotFoundError:
+      description: Usuario no encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Usuario no encontrado
+    TokenError:
+      description: Token Inválido o expirado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              message:
+                type: string
+            example:
+              status: Error
+              message: Token Inválido o expirado

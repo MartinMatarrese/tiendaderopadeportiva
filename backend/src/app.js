@@ -16,6 +16,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import { info } from "./docs/info.js";
 import chatRouter from "./routes/chat.router.js";
+import { corsMiddleware } from "./config/corsConfig.js";
 
 
 const app = express();
@@ -34,7 +35,7 @@ const storeConfig = {
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs))
 
-app.use(cors());
+app.use(corsMiddleware);
 
 app.use(express.json());
 

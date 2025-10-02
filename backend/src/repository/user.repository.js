@@ -44,6 +44,15 @@ class UserRepository {
             throw new Error(`Error al actualizar el carrito del usuario: ${error.message}`);
         };
     };
+
+    updatePassword = async(userId, hashedPassword) => {
+        try {
+            const response = await this.dao.updatePassword(userId, hashedPassword);
+            return response
+        } catch (error) {
+            throw new Error(`Error al recuperar la contraseña: ${error.message}`);
+        };
+    };
 };
 
 export const userRepository = new UserRepository();

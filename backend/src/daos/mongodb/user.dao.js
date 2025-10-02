@@ -29,6 +29,14 @@ class userDaoMongo extends MongoDao {
             throw new Error(error);
         }
     };
+
+    async updatePassword (userId, hashedPassword) {
+        try {
+            return await this.model.findByIdAndUpdate(userId, { password: hashedPassword});
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
 }
 
 export const userDao = new userDaoMongo();

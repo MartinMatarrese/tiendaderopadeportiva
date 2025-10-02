@@ -57,6 +57,14 @@ const userSchema = new Schema( {
     fromGoogle: {
         type: Boolean,
         default: false
+    },
+
+    resetToken: {
+        type: String
+    },
+
+    resetTokenExpiry: {
+        type: Date
     }
 });
 

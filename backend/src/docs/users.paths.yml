@@ -32,10 +32,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserLogin"
+              $ref: "#/components/schemas/Login"
         required: true
       responses:
-        201:
+        200:
           description: Login OK
           content:
             application/json:
@@ -52,7 +52,7 @@ paths:
       tags:
         - Users
       summary: Obtener datos del usuario actual
-      description: Retorna datos del usuario auntenticado
+      description: Retorna datos del usuario autenticado
       security:
         - BearerAuth: []
       responses:
@@ -78,29 +78,37 @@ paths:
         - BearerAuth: []
       requestBody:
         content:
-          multipart/form-data:
+          multipart/from-data:
             schema:
-              type: object
-              properties:
-                profilePic:
-                  type: string
-                  format: binary
+              $ref: "#/components/schemas/ProfileRequest"
       responses:
         200:
           description: Imagen de perfil actualizada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfilePicResponse"
         401:
           description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
   /users/google:
     get:
       tags:
         - Autenticación
       summary: Iniciar sesión con cuenta de google
-      description: Redirigue al usuario a la pantalla de login de Google para auntenticarse.
+      description: Redirigue al usuario a la pantalla de login de Google para autenticarse.
       responses:
         302:
           description: Redirección de Google para login
         500:
           description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
   /users/googlecallback:
     get:
       tags:
@@ -110,10 +118,18 @@ paths:
       responses:
         200:
           description: Usuario auntenticado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserLogin"
         401:
           description: Fallo en la autenticación
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
   /users/logout:
-    get:
+    post:
       tags:
         - Users
       summary: Cerrar sesión
@@ -123,8 +139,74 @@ paths:
       responses:
         200:
           description: Sesión cerrada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
         401:
           description: No autorizado
           content:
             application/json:
-              $ref: "#/components/schemas/UnauthorizedError"
+              schema:
+                $ref: "#/components/schemas/UnauthorizedError"
+  /users/forgot-password:
+    post:
+      tags:
+        - Users
+      summary: Solicitar recuperación de contraseña
+      description: Envía un email con un enlace para recuperar la contraseña del usuario
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+        required: true
+      responses:
+        200:
+          description: Email de recuperación enviado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForgotPasswordResponse"
+        404:
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserNotFoundError"
+        500:
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /users/reset-password:
+    post:
+      tags:
+        - Users
+      summary: Actualizar contraseña
+      description: Actualiza la contraseña utilizando el token de recuperación
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        200:
+          description: Contraseña actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResetPasswordResponse"
+        404:
+          description: Token Inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenError"
+        500:
+          description: Error interno en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"

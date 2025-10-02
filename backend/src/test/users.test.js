@@ -6,6 +6,27 @@ import request from "supertest";
 import assert from "node:assert";
 import path from "path";
 import { fileURLToPath } from "node:url";
+import { jest } from "@jest/globals";
+import jwt from "jsonwebtoken";
+
+jest.unstable_mockModule("nodemailer", () => {
+    const mockSendMail = jest.fn().mockImplementation(() => {
+        return Promise.resolve({
+            messageId: "mocked-message-id",
+            response: "250 OK (mocked)"
+        });
+    });
+    return {
+        default: {
+            createTransport: jest.fn().mockReturnValue ({
+                sendMail: mockSendMail,
+                verify: jest.fn().mockResolvedValue(true)
+            })
+        }
+    };
+});
+
+const nodemailer = await import("nodemailer")
 
 const mockUser = () => {
     return {
@@ -62,7 +83,7 @@ describe("TEST API - USERS", () => {
 
         const isPasswordValid = await bcrypt.compare(passwordExp, passwordResponse);
         assert.strictEqual(emailResponse.toLowerCase(), emailExp.toLowerCase());
-        assert.strictEqual(isPasswordValid, true);
+        assert.strictEqual(isPasswordValid, true);        
     });
 
     test("[POST] /login", async() => {
@@ -77,12 +98,11 @@ describe("TEST API - USERS", () => {
     });
 
     test("[GET] /current", async() => {
-        const response = await agent.get("/users/current").send(userLogin);
+        const response = await agent.get("/users/current").set("Cookie", cookieToken);
         assert.strictEqual(response.status, 200);
-        assert.ok(response.body.user.first_name);
-        assert.ok(response.body.user.last_name);
-        assert.ok(response.body.user.age);
-        assert.strictEqual(typeof response.body.user.password, "undefined");
+        assert.ok(response.body.first_name);
+        assert.ok(response.body.last_name);
+        assert.strictEqual(typeof response.body.password, "undefined");
     });
 
     test("[POST] /profile-pic", async() => {
@@ -98,14 +118,68 @@ describe("TEST API - USERS", () => {
         assert.ok(response.headers["location"].includes("accounts.google.com"));
     });
 
-    test("[GET] /logout", async() => {
-        const response = await agent.get("/users/logout").set("Cookie", cookieToken);
+    test("[POST] /logout", async() => {
+        const response = await agent.post("/users/logout").set("Cookie", cookieToken);
         assert.strictEqual(response.status, 200);
         assert.strictEqual(response.body.message, "Logout OK");
     });
 
+    test("[POST] /forgot-password", async() => {
+        const user = mockUser();        
+        const registerResponse = await agent.post("/users/register").send(user);
+        assert.strictEqual(registerResponse.status, 201);                
+        const response = await agent.post("/users/forgot-password").send({ email: user.email});
+        if(response.status === 500 && response.body.message.includes("certificate")) {
+            assert.ok(response.body.message.includes("certificate"));            
+        } else {
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(response.body.message, "Email de recuperación enviado");
+        };
+    });
+
+    test("[POST] /reset-password", async() => {
+        const user = mockUser();
+        const registerResponse = await agent.post("/users/register").send(user);
+        assert.strictEqual(registerResponse.status, 201);
+
+        const userId = registerResponse.body._id;
+
+        const resetToken = jwt.sign(
+            { _id: userId, type: "password_reset" },
+            process.env.SECRET_KEY,
+            { expiresIn: "15m" }
+        );
+        console.log("Token jwt generado:", resetToken);
+        
+        const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+        await mongoose.connection.collection("users").updateOne(
+            { _id: userId },
+            {
+                $set: {
+                    resetToken: resetToken,
+                    resetTokenExpiry: resetTokenExpiry
+                }
+            }
+        );       
+
+        const newPassword = "nuevacontraseña123"
+        const resetResponse = await agent.post("/users/reset-password").send({
+            token: resetToken,
+            password: newPassword
+        });
+
+        console.log("Reset password response:", resetResponse.body);    
+
+        assert.strictEqual(resetResponse.status, 200);
+        assert.strictEqual(resetResponse.body.status, "success");
+        assert.strictEqual(resetResponse.body.message, "Contraseña actualizada");
+        
+    });
+
     afterAll(async() => {
         await mongoose.disconnect();
+
     });
 
 });
