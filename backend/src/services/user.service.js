@@ -110,7 +110,8 @@ class UserService {
 
     generateResetToken = async(user) => {
         try {
-            return jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m"})
+            const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, { expiresIn: "10m"})
+            return token
         } catch (error) {
             throw new Error(error.message);
         };

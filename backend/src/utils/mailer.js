@@ -6,18 +6,24 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL,
         pass: process.env.PASSWORD
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
 export const sendMail = async(to, subject, html) => {
     try {
-        await transporter.sendMail({
-            from: `"Tienda de ropa deportiva" <${process.env.EMAIL}`,
+        const info = await transporter.sendMail({
+            from: `"Tienda de ropa deportiva" <${process.env.EMAIL}>`,
             to,
             subject,
             html
         });
-    } catch (error) {
-        throw new Error(error)
-    }
-}
+
+        return info;
+        
+    } catch (error) {    
+        throw new Error(`No se pudo enviar el email: ${error.message}`);
+    };
+};

@@ -1,5 +1,5 @@
 import { userService } from "../services/user.service.js";
-import { sendMail } from "../utils/mailer.js";
+import { sendMail } from "../config/gmail.config.js";
 
 class UserController {
     constructor() {
@@ -23,7 +23,10 @@ class UserController {
             const { user, token } = await this.service.login(req.body);
             res
             .cookie("token", token, { httpOnly: true })
-            .json({ message: "Login Ok", token });
+            .json({ message: "Login Ok", token, user: {
+                first_name: user.first_name,
+                last_name: user.last_name
+            } });
             
         } catch(error) {
             if(error.message === "Usuario no encontrado" || error.message === "Credenciales incorrectas") {
@@ -97,10 +100,11 @@ class UserController {
                 return res.status(404).json({message: "Usuario no encontrado"});
             };
             const resetToken = await this.service.generateResetToken(user);
-            const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+            const resetLink = `http://localhost:3000/tiendaderopadeportiva/reset-password?token=${resetToken}`;
+            
             await sendMail(
                 email,
-                "Restablecer contraseña",
+                "Restablecer contraseña - Tienda Deportiva",
                 `
                 <h2>Hola ${user.first_name} ${user.last_name}</h2>
                 <p>Has solicitado restablecer tu contraseña.</p>
@@ -111,7 +115,12 @@ class UserController {
             );
 
             res.status(200).json({ message: "Email de recuperación enviado" });
-        } catch (error) {            
+        } catch (error) {
+            if(error.message.includes("BadCredentials") || error.message.includes("Invalid Login")) {
+                return res.status(500).json({
+                    message: "Error en el servicio de email. Por favor contacta al administrador"
+                });
+            };                        
             next(error);
         };
     };
