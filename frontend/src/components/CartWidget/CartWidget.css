@@ -1,0 +1,28 @@
+.cart {
+    display: flex;
+    align-items: center;
+}
+
+.img-cart {
+    width: 20px;
+    height: auto;
+}
+
+.p-cart {
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+.p-cart span {
+    background-color: #ff0000;
+    color: #fff; 
+    border-radius: 50%; 
+    padding: 2px 8px; 
+    font-weight: bold; 
+}
+
+@media screen and (max-width: 600px) {
+    .cart {
+        width: 100px;
+    }
+}

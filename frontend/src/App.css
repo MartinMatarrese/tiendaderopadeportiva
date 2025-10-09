@@ -1,0 +1,49 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  background-color:  black;
+}
+
+h1{
+  color: white;
+  text-align: center;
+  font-family: "Playfair Display", serif;
+}
+
+h2{
+  color: white;
+  text-align: center;
+  font-family: "Montserrat Alternates", sans-serif; 
+}
+
+a {
+  font-family: "Montserrat Alternates", sans-serif; 
+}
+
+p {
+  font-family: "Open Sans", sans-serif;
+}
+
+.error{
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+
+.error-texto{
+  display: flex;
+  justify-content: center;
+  color: white;
+
+}
+
+.error-volver{
+  display: flex;
+  justify-content:flex-start;
+  text-decoration: none;
+  color:  #0056b3;
+}
