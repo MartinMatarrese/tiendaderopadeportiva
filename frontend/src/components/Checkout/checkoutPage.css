@@ -1,0 +1,314 @@
+.checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: calc(100vh - 200px);
+}
+
+.checkout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.checkout-header h1 {
+    color: #dc3545;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    background: linear-gradient(135deg, #495057, #343a40);
+}
+
+.checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.order-summary {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+}
+
+.order-summary h2 {
+    color: #343a40;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #dc3545;
+    text-align: center;
+}
+
+.order-items {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.order-item {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left:  4px solid #dc3545;
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+}
+
+.order-item h4 {
+    color: #343a40;
+    font-size: 1.2rem;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+.order-item p {
+    margin: 5px 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.order-item p:last-child {
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.order-total {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.order-total h3 {
+    color: white;
+    font-size: 1.8rem;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.payment-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+}
+
+.payment-section h2 {
+    color: #343a40;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #28a745;
+    text-align: center;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.payment-button {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: wheat;
+    border: none;
+    padding: 18px 30px;
+    border-radius: 50px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: auto;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.payment-button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    background: linear-gradient(135deg, #20c997, #28a745);
+}
+
+.payment-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.payment-security {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: #e8f5e8;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+}
+
+.payment-security p {
+    color: #155724;
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+@media sceend and (max-width: 1024px) {
+    .checkout-content {
+        gap: 30px;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 25px;
+    }
+}
+
+@media sceend and (max-width: 768px) {
+    .checkout-container {
+        padding: 15px;
+    }
+
+    .checkout-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .checkout-header h1 {
+        font-size: 2rem;
+    }
+
+    .checkout-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 20px;
+    }
+
+    .payment-button {
+        padding: 16px 25px;
+        font-size: 1.1rem;
+    }
+}
+
+@media sceend and (max-width: 480px) {
+    .checkout-container {
+        padding: 10px;
+    }
+
+    .checkout-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .back-button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 15px;
+    }
+
+    .order-item {
+        padding: 15px;
+    }
+
+    .order-item h4 {
+        font-size: 1.1rem;
+    }
+
+    .payment-button {
+        padding: 14px 20px;
+        font-size: 1rem;
+    }
+
+    .order-total h3 {
+        font-size: 1.5rem;
+    }
+
+    .order-items::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .order-items::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .order-items::-webkit-scrollbar-thumb {
+        background: #dc3545;
+        border-radius: 3px;
+    }
+
+    .order-items::-webkit-scrollbar-thumb:hover {
+        background: #c82333;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px)
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .checkout-container {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .order-item {
+        animation: fadeIn 0.3s ease-out;
+    }
+}

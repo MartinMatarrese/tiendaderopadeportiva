@@ -1,28 +1,137 @@
 .cart {
+    /* display: flex;
+    align-items: center; */
     display: flex;
     align-items: center;
+    position: relative;
+    margin-left: 15px;
 }
 
 .img-cart {
-    width: 20px;
-    height: auto;
+    /* width: 20px;
+    height: auto; */
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+    filter: brightness(0) invert(1);
+}
+
+.cart:hover .img-cart {
+    transform: scale(1.1);
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
 }
 
 .p-cart {
-    margin-left: 8px;
-    font-size: 14px;
+    /* margin-left: 8px;
+    font-size: 14px; */
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    margin: 0;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .p-cart span {
     background-color: #ff0000;
     color: #fff; 
     border-radius: 50%; 
-    padding: 2px 8px; 
-    font-weight: bold; 
+    padding: 2px 6px; 
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 2px solid white;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 1024px) {
+    .cart {
+        margin-left: 12px;
+    }
+
+    .img-cart {
+        width: 22px;
+        height: 22px;
+    }
+
+    .p-cart {
+        font-size: 11px;
+        top: -7px;
+        right: -7px;
+    }
+
+    .p-cart span {
+        min-width: 16px;
+        height: 16px;
+        padding: 1px 5px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .cart {
+        margin-left: 10px;
+        order: 2;
+    }
+
+    .img-cart {
+        width: 20px;
+        height: 20px;
+    }
+
+    .p-cart {
+        font-size: 10px;
+        top: -6px;
+        right: -6px;
+    }
+
+    .p-cart span {
+        min-width: 14px;
+        height: 14px;
+        padding: 1px 4px;
+        border-radius: 1px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .cart {
+        margin-left: 8px;
+    }
+
+    .img-cart {
+        width: 18px;
+        height: 18px;
+    }
+
+    .p-cart {
+        font-size: 9px;
+        top: -5px;
+        right: -5px;
+    }
+
+    .p-cart span {
+        min-width: 12px;
+        height: 12px;
+        padding: 0px 3px;
+        border-width: 1px;
+    }
+}
+
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+    .cart {
+        margin-left: 10px;
+    }
+
+    .img-cart {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* @media screen and (max-width: 600px) {
     .cart {
         width: 100px;
     }
-}
+} */

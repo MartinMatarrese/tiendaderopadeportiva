@@ -39,7 +39,7 @@ export const ItemDetail = ({id, title, image, category, price, stock}) => {
             </header>
             <section>
                 <p className="itemdetail-datos">Categoria: {category}</p>
-                <p className="itemdetail-datos">Precio: ${price}</p>
+                <p className="itemdetail-datos">Precio: ${price.toLocaleString()}</p>
             </section>
             <footer>
                 {

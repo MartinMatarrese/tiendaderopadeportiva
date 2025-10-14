@@ -37,7 +37,7 @@ export const Item = ({id, title, image, description, category, price, stock}) =>
                 <h2 className="item-header">{title}</h2>
                 <p className="item-datos"><strong className="item-datos-datos">Descripción:</strong> {description}</p>
                 <p className="item-datos"><strong className="item-datos-datos">Categoria:</strong> {category}</p>
-                <p className="item-datos"><strong className="item-datos-datos">Precio:</strong> ${price}</p>
+                <p className="item-datos"><strong className="item-datos-datos">Precio:</strong> ${price.toLocaleString()}</p>
                 <p className="item-datos"><strong className="item-datos-datos">Stock:</strong> {stock}</p>
                 <button className="item-detalle" onClick={handelVerDetalle}>
                     Ver Detalle

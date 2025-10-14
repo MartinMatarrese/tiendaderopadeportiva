@@ -8,7 +8,7 @@ import ForgotPassword from "./forgotPassword";
 export const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathame || "/";
+    const from = location.state?.from?.pathname || "/";
     const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: "",
@@ -24,9 +24,9 @@ export const Login = () => {
     }
     const handleSubmit = async(e) => {
         e.preventDefault();
-        login(formData, navigate);
+        // login(formData, navigate);
 
-        await login(credentials, () => {
+        await login(formData, () => {
             navigate(from, { replace: true })
         })
     };

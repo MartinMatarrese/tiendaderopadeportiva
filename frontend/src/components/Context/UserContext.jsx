@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react"; 
+import { createContext, useContext, useState, useEffect, useCallback } from "react"; 
 import axios from "axios"; 
 import Swal from "sweetalert2";
 
@@ -7,6 +7,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => { 
     const [ user, setUser ] = useState(null); 
     const [ loading, setLoading ] = useState(true);
+    const [ sessionTimer, setSessionTimer ] = useState(null);
+    const [ timeLeft, setTimeLeft ] = useState(29 * 60);
      
     useEffect(() => {
         const initAuth = async() => {
@@ -41,9 +43,86 @@ export const AuthProvider = ({ children }) => {
         initAuth();
     }, []);
 
+    const startSessionTimer = useCallback(() => {
+        if(sessionTimer) {
+            clearInterval(sessionTimer)
+        }
+        setTimeLeft(29 * 60);
+
+        const handelLogout = async() => {
+        if(sessionTimer) {
+            clearInterval(sessionTimer);
+            setSessionTimer(null);
+        }
+
+        try {
+            await axios.post("http:/localhost:8080/users/logout", {}, { withCredentials: true })
+        } catch (error) {
+            console.error("Error en logout automático:", error);
+        } finally {
+            setUser(null);
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user");
+
+            Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "Sessión expirada",
+                text: "Tu sessión a caducado por inactividad",
+                showConfirmButton: true,
+                confirmButtonText: "Entendido"
+            });
+        }
+    };
+
+        const timer = setInterval(() => {
+            setTimeLeft(prevTime => {
+                if(prevTime <= 1) {
+                    handelLogout();
+                    return 0;
+                }
+                return prevTime -1;
+            })
+        }, 1000)
+        setSessionTimer(timer)
+    }, [sessionTimer]);
+
+    useEffect(() => {
+        if(user) {
+            startSessionTimer();
+        } else {
+            if(sessionTimer) {
+                clearInterval(sessionTimer);
+                setSessionTimer(null)
+            }
+        }
+
+        return () => {
+            if(sessionTimer) {
+                clearInterval(sessionTimer)
+            }
+        }
+    }, [user, sessionTimer, startSessionTimer]);
+
+    // useEffect(() => {
+    //     if(user) {
+    //         const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
+    //         const resetTimer = () => startSessionTimer();
+    //         events.forEach(event => {
+    //             document.addEventListener(event, resetTimer)
+    //         });
+
+    //         return () => {
+    //             events.forEach(event => {
+    //                 document.removeEventListener(event, resetTimer)
+    //             });
+    //         };
+    //     };
+    // }, [user, startSessionTimer]);
+
     const isAuthenticated = !!user;
 
-    const login = async( credentials, navigate ) => { 
+    const login = async( credentials, navigate, navigateCallBack ) => { 
         try { 
             const response = await axios.post("http://localhost:8080/users/login", credentials, { withCredentials: true, }); 
             const { token, user } = response.data; 
@@ -53,13 +132,19 @@ export const AuthProvider = ({ children }) => {
             setUser(user); 
                     
             Swal.fire({ 
-                position: "center", 
+                toast: true,
+                position: "top-end", 
                 icon: "success", 
-                title: "Bienvenido", 
+                title: `Bienvenido ${user.first_name} ${user.last_name}`, 
                 showConfirmButton: false, 
                 timer: 1500 
             });
-            navigate(`/?token=${token}`); 
+            // navigate(`/?token=${token}`);
+            if(navigateCallBack) {
+                navigateCallBack()
+            } else {
+                navigate("/")
+            }
 
         } catch (error) { 
             console.log("Login error", error.response?.data); 
@@ -173,7 +258,7 @@ export const AuthProvider = ({ children }) => {
     };
                           
     return (
-        <AuthContext.Provider value={{ user, login, forgotPassword, resetPassword, logout, loading, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, login, forgotPassword, resetPassword, logout, loading, isAuthenticated, startSessionTimer, timeLeft }}>
             {children}
         </AuthContext.Provider>
     );

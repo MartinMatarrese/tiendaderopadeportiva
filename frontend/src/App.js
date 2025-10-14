@@ -15,6 +15,9 @@ import ForgotPassword from "./components/login/forgotPassword";
 import ResetPassword from "./components/login/resetPassword";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 import CheckoutPage from "./components/Checkout/checkoutPage";
+import { PaymentSuccess } from "./components/Payment/PaymentSuccess";
+import { PaymentFailure } from "./components/Payment/PaymentFailure";
+import { PaymentPending } from "./components/Payment/PaymentPending";
 
 const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
 
@@ -39,6 +42,9 @@ function App (){
                         <Route path="/forgot-password" element={<ForgotPassword/>}/>
                         <Route path="/reset-password" element={<ResetPassword/>}/>
                         <Route path="/checkout" element={<CheckoutPage/>}/>
+                        <Route path="/payments/success" element={<PaymentSuccess/>}/>
+                        <Route path="/payments/failure" element={<PaymentFailure/>}/>
+                        <Route path="/payments/pending" element={<PaymentPending/>}/>
                         <Route path="*" element={<Error/>}/>
                     </Routes>
                     </CartProvider>

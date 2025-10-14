@@ -7,10 +7,16 @@ import { useEffect, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
 export const NavBar = () => {
-    const { user, logout, loading } = useAuth();
+    const { user, logout, loading, timeLeft, startSessionTimer } = useAuth();
     const [ dropdownOpen, setDropdownOpen ] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+    const formatTime = (seconds) => {
+        if(!seconds || seconds < 0) return "0:00";
+        const minutes = Math.floor(seconds / 60);
+        const reamingSeconds = seconds % 60;
+        return `${minutes}:${reamingSeconds < 10 ? "0" : ""}${reamingSeconds}`
+    }
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -45,8 +51,8 @@ export const NavBar = () => {
                     </div>
                     {dropdownOpen && (
                         <ul className="dropdown-menu">
-                            <Link to={"/"}>Inicio</Link>
-                            <li onClick={() => logout(navigate) }>Cerrar sessión</li>
+                            <Link to={"/"}>🏠 Inicio</Link>
+                            <li onClick={() => logout(navigate) }>🚪 Cerrar Sesión</li>
                         </ul>
                     )}
                 </div>
@@ -56,7 +62,27 @@ export const NavBar = () => {
                     <img className="users" src={users} alt="usuario"/>
                 </Link>
             )}            
-            <CartWidget/>
+            {/* <CartWidget/>
+            {user && (
+                <div className="nav-timer">
+                    <span className="nav-timer-icon">⏱️</span>
+                    <SessionTimer/>
+                </div>
+            )} */}
+            <div className="nav-right-container">
+                {user && timeLeft <= 600 && (
+                    <div className="nav-timer">
+                        <span className="nav-timer-icon">⏱️</span>
+                        <span className="nav-timer-text">
+                            {formatTime(timeLeft)}
+                        </span>
+                        {timeLeft <= 300 && (
+                            <button className="nav-extend-btn" onClick={startSessionTimer} title="Extender sesión">+</button>
+                        )}
+                    </div>
+                )}
+                <CartWidget/>
+            </div>
         </nav>
     )
 };
