@@ -21,7 +21,7 @@ class UserService {
             cart: user.cart
         };
         
-        return jwt.sign(payLoad, process.env.SECRET_KEY, {expiresIn: "10m"});
+        return jwt.sign(payLoad, process.env.SECRET_KEY, {expiresIn: "30m"});
     };
 
     getUserByEmail = async(email) => {

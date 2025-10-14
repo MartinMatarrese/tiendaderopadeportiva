@@ -9,7 +9,6 @@ import usersRoutes from "./routes/users.routes.js";
 import passport from "passport";
 import "./passport/gmail.strategy.js";
 import { errorHandler } from "./middlewares/errorhandler.js";
-import cors from "cors";
 import { reqLog } from "./middlewares/rqlog.js";
 import paymentRouter from "./routes/payment.routes.js";
 import swaggerJSDoc from "swagger-jsdoc";
@@ -35,8 +34,6 @@ const storeConfig = {
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs))
 
-app.use(corsMiddleware);
-
 app.use(express.json());
 
 app.use(express.urlencoded({extended: true}));
@@ -53,12 +50,15 @@ app.use(passport.initialize());
 
 app.use(passport.session());
 
+app.use(corsMiddleware);
+
 app.use((req, res, next) => {
     if(req.method === "POST" && req.body.token) {
         req.headers["authorization"] = `Bearer ${req.body.token}`;
     };
     next();
 });
+
 app.get("/", (req, res) => {
     res.render("index", { title: "Inicio"});
 });

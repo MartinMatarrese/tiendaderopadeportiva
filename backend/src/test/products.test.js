@@ -90,7 +90,6 @@ describe("TEST API - PRODUCTS", () => {
     })
 
     afterAll(async() => {
-        await mongoose.connection.dropDatabase();
         await mongoose.disconnect();
     });
 });

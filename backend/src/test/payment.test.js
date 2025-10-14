@@ -162,7 +162,6 @@ describe("TEST API - PAYMENT", () => {
     });
 
     afterAll(async() => {
-        await mongoose.connection.dropDatabase();
         await mongoose.disconnect();
     });
 });

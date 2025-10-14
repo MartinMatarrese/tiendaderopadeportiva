@@ -2,6 +2,7 @@ import { Router } from "express";
 import { paymentController } from "../controllers/payment.controllers.js";
 import { jwtAuth } from "../middlewares/jwtAuth.js";
 import { roleAuth } from "../middlewares/roleAuth.js";
+import mercadopago from "mercadopago";
 
 const paymentRouter = Router();
 

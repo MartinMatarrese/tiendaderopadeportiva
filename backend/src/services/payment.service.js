@@ -11,20 +11,33 @@ class PaymentService {
         this.paymentRepository = paymentRepository;
     };
 
-    createPreference = async( { userId, cart }) => {
+    createPreference = async( { userId, cartId, cart }) => {
         try {
             const env = process.env.NODE_ENV || "development"
             const isProduction = env === "production";
             const isTest = env === "test";
-            const successUrl = isTest ? "https://example.com/success" : isProduction ? "https://example.com/success" : `http://localhost:8080/api/payments/success?userId=${userId}&cartId=${cart._id}`;
-            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? "https://example.com/failure" : `http://localhost:8080/compra-fallida`;
-            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? "https://example.com/pending" : `http://localhost:8080/compra-pendiente`;
+            const successUrl = isTest ? "https://example.com/success" : isProduction ? "https://example.com/success" : `https://e41089bf47384a6cee74e7b120940dbb.serveo.net/tiendaderopadeportiva/payments/success`;
+            console.log("URL de éxito completa:", successUrl);
+            console.log("cartId:", cartId);
+            console.log("cartId es válido?", cartId && cartId !== "undefined");
+            if(!cartId && cartId === "undefined") {
+                throw new Error("cartId es inválido: " + cartId)
+            }
+            
+            
+            
+            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? "https://example.com/failure" : `https://e41089bf47384a6cee74e7b120940dbb.serveo.net/tiendaderopadeportiva/payments/failure`;
+            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? "https://example.com/pending" : `https://e41089bf47384a6cee74e7b120940dbb.serveo.net/tiendaderopadeportiva/payments/pending`;
+
+            console.log("🎯 Creando preferencia para cartId:", cartId);
+            console.log("📦 Productos en carrito:", cart.products);
 
             const preference = {
-                items: cart.products.map(p => ({    
-                        title: p.id_prod.title,
-                        quantity: p.quantity,
-                        unit_price: p.id_prod.price
+                items: cart.products.map(p => ({
+                    title: p.id_prod.title,
+                    quantity: p.quantity,
+                    unit_price: p.id_prod.price,
+                    currency_id: "ARS"
                     
                 })),
                 back_urls: {
@@ -32,11 +45,17 @@ class PaymentService {
                     failure: failureUrl,
                     pending: pendingUrl
                 },
-                auto_return: "approved"
-            };            
+                external_reference: cartId,
+                auto_return: "approved",
+                sandbox_mode: true,
+            };
+
+            console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
+
             const response = await mercadopago.preferences.create(preference);
             return response.body
         } catch (error) {
+             console.error("❌ Error en createPreference:", error);
             throw new Error("Error al crear la preferencia de pago: " + error.message);
         };
     };
