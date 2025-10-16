@@ -82,6 +82,23 @@ components:
       example:
         status: 200
         message: Contraseña actualizada
+      EmailVerificationResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            description: Mensaje de resultado de la verificación
+        example:
+          success: true
+          message: "Email verificado exitosamente. Ya puedes iniciar sesión"
+      ResendVerificationResponse:
+        type: object
+        properties:
+          message:
+            type: string
+            description: Mensaje de confirmación de reenvío
+        example:
+          message: "Email de verificación reenviado exitosamente"
     InternalServerError:
       type: object
       properties:
@@ -126,3 +143,27 @@ components:
             example:
               status: Error
               message: Token Inválido o expirado
+    EmailVerificationError:
+      description: Error en verificación de email
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Descipción del error de verificación
+            example:
+              error: "token de verificación Inválido o expirado"
+    UserAlreadyVerifiedError:
+      description: Usuario ya verificado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                description: Indica que el usuario ya esta verificado
+            example:
+              error: "El usuario ya este verificado"

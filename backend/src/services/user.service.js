@@ -67,7 +67,10 @@ class UserService {
             
             const newUser = await userRepository.create({
                 ...user,
-                password: hashedPassword
+                password: hashedPassword,
+                isVerified: false,
+                verificationToken: null,
+                verificationTokenExpiry: null
             });
 
 
@@ -75,10 +78,88 @@ class UserService {
                 userId: newUser._id,
                 products: []
             });
-            const updateUser = await userRepository.update(newUser._id, { cart: cartUser._id});            
+
+            const updateUser = await userRepository.update(newUser._id, { cart: cartUser._id});
+
+            await this.sendVerificationEmail(updateUser);
+
             return updateUser
         } catch(error) {            
             throw new Error(`Error al registrar el usuario: ${error.message}`);
+        };
+    };
+
+    sendVerificationEmail = async(user) => {
+        try {
+            const verificationToken = jwt.sign(
+                { userId: user._id},
+                process.env.SECRET_KEY,
+                { expiresIn: "24h"}
+            );
+
+            await this.userRepository.update(user._id, {
+                verificationToken: verificationToken,
+                verificationtokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000)
+            });
+
+            await sendVerificationEmail(user, verificationToken);
+
+            return { message: "Email de verificación enviado" };
+        } catch (error) {
+            throw new Error(`Error al enviar el email de verificación: ${error.message}`);
+        };
+    };
+
+    verifyEmail = async(token) => {
+        try {
+            const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            const user = await userRepository.getById(decoded.userId);
+
+            if(!user) {
+                throw new Error("Usuario no encontrado");                
+            };
+
+            if(user.verificationToken !== token) {
+                throw new Error("Token de verificación inválido");                
+            };
+
+            if(user.verificationtokenExpiry < new Date()) {
+                throw new Error("El token de verificación expiro");
+            };
+
+            const updateUser = await userRepository.update(user._id, {
+                isVerified: true,
+                verificationToken: null,
+                verificationtokenExpiry: null
+            });
+
+            return {
+                message: "Email verificado exitosamente",
+                user: updateUser
+            };
+
+        } catch (error) {
+            throw new Error(`Error verificando el email: ${error.message}`);
+        };
+    };
+
+    resendVerificationEmail = async(email) => {
+        try {
+            const user = await this.getUserByEmail(email);
+
+            if(!user) {
+                throw new Error("Usuario no encontrado");                
+            };
+
+            if(user.isVerified) {
+                throw new Error("El usuario ya esta verificado");                
+            }
+
+            await this.sendVerificationEmail(user);
+
+            return { message: "Email de verificación enviado exitosamente"}
+        } catch (error) {
+            throw new Error(`Error reenviando el email de verificación: ${error.message}`);            
         };
     };
 
@@ -87,17 +168,41 @@ class UserService {
             if(!user || !user.email || !user.password) {
                 throw new Error("Faltan datos para iniciar sesión");
             }
+
             const { email, password } = user;
+
             const userExist = await this.getUserByEmail(email);
+
             if(!userExist) throw new Error("Usuario no encontrado");
+
+            if(!userExist.isVerified) throw new Error("Por favor verifica tu email antes de iniciar sessión");
+            
             const passValid = isValidPassword(password, userExist);
+
             if(!passValid) throw new Error("Credenciales incorrectas");
+
             const token = this.generateToken(userExist);
+
             return { user: userExist, token };
         } catch (error) {
             throw new Error(error);
         }
     };
+
+    sendVerificationEmail = async(user) => {
+        try {
+            const verificationtoken = jwt.sign(
+                {userId: user._id}, 
+                process.env.SECRET_KEY,
+                { expiresIn: "24h" }
+            );
+
+            user.verificationtoken = verificationtoken;
+            user.verificationtokenExpiry = new Date()
+        } catch (error) {
+            
+        }
+    }
 
     updateUser = async(userId, dataToUpdate) => {
         try {

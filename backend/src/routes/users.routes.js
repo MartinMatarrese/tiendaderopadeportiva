@@ -13,18 +13,22 @@ userRouter.post("/register", userValidator, userController.register);
 
 userRouter.post("/login", LoginValidator, userController.login);
 
-userRouter.get("/current", [jwtAuth, roleAuth("user", "admin")], userController.privateData);
+userRouter.get("/verify-email/:token", userController.verifyEmail);
 
-userRouter.post("/profile-pic", [ jwtAuth, roleAuth("user", "admin"), uploadUserPic.single("profilePic")], userController.updateUser);
+userRouter.post("/resend-verification", userController.resendVerification);
+
+userRouter.post("/forgot-password", forgotValidator, userController.forgotPassword);
+
+userRouter.post("/reset-password", userController.resetPassword);
 
 userRouter.get("/google", passport.authenticate("google", { scope: ["email", "profile"]}));
 
 userRouter.get("/googlecallback", passportCall("google"), userController.googleProfile);
 
+userRouter.get("/current", [jwtAuth, roleAuth("user", "admin")], userController.privateData);
+
+userRouter.post("/profile-pic", [ jwtAuth, roleAuth("user", "admin"), uploadUserPic.single("profilePic")], userController.updateUser);
+
 userRouter.post("/logout", userController.logout);
-
-userRouter.post("/forgot-password", forgotValidator, userController.forgotPassword);
-
-userRouter.post("/reset-password", userController.resetPassword);
 
 export default userRouter;

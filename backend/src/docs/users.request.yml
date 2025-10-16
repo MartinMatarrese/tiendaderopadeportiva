@@ -75,6 +75,17 @@ components:
       example:
         token: adhajdaksdhkas....
         password: nuevacontraseña123
+    ResendVerificationRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email del usuario que soliciate reenvío de verificación
+        example:
+          email: usuario@gmail.com
   SecuritySchemes:
     BearerAuth:
       type: http

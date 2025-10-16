@@ -9,6 +9,9 @@ export default class UserReqDto {
         this.password = user.password;
         this.fromGoogle = user.fromGoogle || false;
         this.resetToken = user.resetToken;
-        this.resetTokenExpiry = user.resetTokenExpiry
+        this.resetTokenExpiry = user.resetTokenExpiry;
+        this.isVerified = user.isVerified;
+        this.verificationToken = user.verificationToken;
+        this.verificationTokenExpiry = user.verificationTokenExpiry;
     };
 };

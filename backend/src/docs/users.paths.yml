@@ -47,6 +47,66 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnauthorizedError"
+  /users/verify-email/:token:
+    get:
+      tags:
+        - Users
+      summary: Verificar dirección de email
+      description: Verifica la dirección de email de un usuario usando el token enviado por correo
+      prameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: token de verificacion enviado por email
+      responses:
+        200:
+         description: Email verificado correctamente
+         content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailVerificationResponse"
+        400:
+          description: Token Inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailVerificationError"
+  /users/resend-verificacion:
+    post:
+      tags:
+        - Users
+      summary: Reenviar email de verificación
+      description: Reenvia el email de verificación a un usuario que no ha verificado su cuenta
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendVerificationRequest"
+        required: true
+      responses:
+        200:
+          description: Email de verifiación reenviado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResendVerificationResponse"
+        400:
+          description: Error en la soliciud
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/UserNotFoundError"
+                  - $ref: "#/components/schemas/UserAlreadyVerifiedError"
+              example:
+                Usuario no encontrado:
+                  value:
+                    error: "Usuario no encontrado"
+                Usuario verificado:
+                  value:
+                    error: "El usuario ya esta verificado"
   /users/current:
     get:
       tags:

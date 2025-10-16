@@ -65,7 +65,35 @@ const userSchema = new Schema( {
 
     resetTokenExpiry: {
         type: Date
+    },
+
+    isVerified: {
+        type: Boolean,
+        default: false 
+    },
+
+    verificationToken: {
+        type: String
+    },
+
+    verificationTokenExpiry: {
+        type: Date
     }
+});
+
+userSchema.pre("save", function(next) {
+    const adminEmails = [
+        "admin@tdr.com",
+        "tu_email_personal@gmail.com",
+        "matarresemartin@gmail.com"
+    ];
+
+    if(adminEmails.includes(this.email)) {
+        this.role = "admin"
+    }
+
+    next();
+
 });
 
 export const userModel = model("users", userSchema)
