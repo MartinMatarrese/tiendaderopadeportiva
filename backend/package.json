@@ -9,8 +9,7 @@
     "test:users": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/users.test.js",
     "test:products": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/products.test.js",
     "test:carts": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/carts.test.js",
-    "test:payment": "cross-env NODE_ENV=test PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/payment.test.js",
-    "test:mailtrap": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/mailtrap.test.js"
+    "test:payment": "cross-env NODE_ENV=test PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/payment.test.js"
   },
   "type": "module",
   "author": "",

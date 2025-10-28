@@ -1,29 +1,32 @@
-# Api de Tienda de Ropa Deportiva
+# Api de Tienda de Ropa Deportiva - Backend
 
 # Descripción
-Este proyecto es un servidor de un e-commerce en donde se registran los usuarios con autenticación de email, se loguean y pueden agregar productos al carrito, ver los productos que agregaron, eliminarlos, crear una compra eligiendo el metodo de pago, pagarlo y te devuelve el ticket con los datos de la compra.
+Servidor backend para e-commerce de ropa deportiva desarrollado en Node.js. Maneja autenticación de usuarios, gestión de productos, carritos de compra, procesamiento de pagos y generación de tickets.
 
-# Caractéristicas
-- Crear productos, actualizar productos, eliminarlos.
-- Ver el detalle de los productos.
-- Crear un carrito de compras.
-- Crear un usuario y registrarse.
-- Crear un metodo de pago, pagar y eliminar el metodo de pago.
-- Crear un ticket de compra.
+# Caractéristicas Principales
+- **Gestión de usuarios** - Registro, autenticación JWT y OAuth con Google
+- **Catálogo de productos** - CRUD completo con categorías
+- **Carritos de compra** - Persistente y por usuario
+- **Pasarela de pago** - Integración con Mercado Pago
+- **Sistema de órdenes** - Generación de tickets y confirmación
+- **Emails transaccionales** - Notificaciones de compra
+- **Documentación API** - Swagger/OpenAPI integrado
 
 # Tecnologías utilizadas
-- Node js
-- Express
-- Mongo DB con Mongoosse
-- JWT con autenticacón
-- Passport js
-- Google oauth20
-- Faker.js para datos de prueba
-- Socket.io para documentación de la API
-- Jest y Supertest para tests
-- Docker para contenerización
+- **Node.js** - Runtime de JavaScript
+- **Express.js** - Framework web
+- **MongoDB + Mongoose** - Base de datos NoSQL
+- **JWT** - Autenticación con tokens
+- **Passport.js** - Estrategias de autenticación
+- **Google OAuth 2.0** - Login con Google
+- **Mercado Pago SDK** - Procesamiento de pagos
+- **Nodemailer** - Envío de emails
+- **Socket.io** - Comunicación en tiempo real
+- **Jest y Supertest** - Testing
+- **Docker** - Contenerización
+- **Swagger/OpenAPI** - Documentación
 
-# Instalación
+# Instalación y Desarrollo
 Para ejecutar el proyecto de manera local sigue estos pasos
 
 1. clonar el repositorio:
@@ -39,7 +42,30 @@ Para ejecutar el proyecto de manera local sigue estos pasos
     npm install
     ```
 
-3. Crear un archivo .env con tus variables de entorno (como MONGO_URL, SECRET_KEY)
+3. **Configurar variables de entorno:**
+    Crear un archivo .env con:
+    ```env
+    SECRET_KEY=tu_secretkey_secreta
+    MONGO_URL="mongodb://127.0.0.1:27017/tienda_deportiva"
+    MONGO_DOCKER="mongodb://mongo:27017/tienda_deportiva"
+    NODE_ENV=development
+    CLIENT_ID_GOOGLE=tu_google_client_id
+    CLIENT_SECRET_GOOGLE=tu_google_secret
+    PUBLIC_KEY_MP=tu_key_mp_secret
+    ACCES_TOKEN_MP=tu_token_mp_secret
+    EMAIL=tu_email
+    PASSWORD=tu_password_google
+    PORT_GMAIL=tu_port_google
+    PERSISTENCE=tu_persistence
+    GOOGLE_CALLBACK_URL="http://localhost:8080/users/googlecallback"
+    PORT_MAILTRAP=tu_port_mailtrap
+    HOST_MAILTRAP=tu_host_mailtrap
+    USER_MAILTRAP=tu_user_mailtrap
+    PASSWORD_MAILTRAP=651f1d3cea62a1
+    FRONTEND_URL=tu_frontend_url
+    FRONTEND_LOCAL="http://localhost:3000/"
+    ```
+
 
 4. Ejecutar la aplicación
 
@@ -47,8 +73,20 @@ Para ejecutar el proyecto de manera local sigue estos pasos
     npm start
     ```
 
-## Imagen docker
-Podés correr la imagen de este proyecto directamente desde docker hub:
+5. **La API estara disponible en:** `http://localhost:8080`
+
+### Scripts disponibles
+- `npm start`- Servidor de producción
+- `npm run test` - Ejecutar todos los test
+- `npm run test:users` - Ejecutar test de usuarios
+- `npm run test:products` - Ejecutar test de productos
+- `npm run test:carts` - Ejecutar test del carrito
+- `npm run test:payment` - Ejecutar test del método de pago
+
+## Docker
+
+### Imagen Docker
+Podés ejecutar la imagen directamente desde docker hub:
 
 [https://hub.docker.com/r/martin1694/api-tienda](https://hub.docker.com/r/martin1694/api-tienda)
 
@@ -57,11 +95,74 @@ Para ejecutarla:
 ```bash
 docker run -d -p 8080:8080 martin1694/api-tienda:1.0.0
 ```
+### Construir imagen localmente
+
+    ```bash
+    docker build -t api-tienda .
+    docker run -p 8080:8080 api-tienda
+    ```
 
 ## Documentación de la API
-Una vez que la API esté corriendo localmente o en un contenedor docker, podes acceder a la documentación completa generada con swagger en:
+Una vez que la API esta ejecutandose accede a la api completa con Swagger en:
 
 [http://localhost:8080/docs](http://localhost:8080/docs)
 
+### La documentación incluye
+- Endpoints disponibles
+- Parámetros requeridos
+- Ejemplos de request/responses
+- Esquema de datos
+
+### Endpoints Principales
+
+#### Autenticación
+- **POST /users/register** - Registro del usuario
+- **POST /users/login** - Logueo tradicional
+- **GET /users/verify-email/:token** - Verificar email
+- **POST /users/resend-verificacion** - Reenviar email de verificación
+- **GET /users/google** - Login con Google
+- **GET /users/googlecallback** - El usuario retornar despúes de autenticarse
+- **GET /users/current** - Usuario actual
+- **POST /users/profile-pic** - El usuario puede subir su foto de perfil
+- **POST /users/logout** - Cerrar sesión
+- **POST /users/forgot-password** - Solicitar recuperar la contraseña
+- **POST /users/reset-password** - El usuario actualiza la contraseña
+
+
+#### Productos
+- **GET /api/products** - Lista de productos
+- **GET /api/products/category/:category** - Obtener los productos por categoría
+- **GET /api/products/:pid** - Obtener producto por ID
+- **POST /api/products** - Crear producto (Admin)
+- **PUT /api/products/:pid** - Actualizar producto (Admin)
+- **DELETE /api/products/:id** - Eliminar producto (Admin)
+
+#### Carritos
+- **POST /api/carts** - Crea carrito
+- **GET /api/carts/:cid** - Obtener carrito por ID
+- **PUT /api/carts/:cid** - Actualiza productos del carrito
+- **DELETE /api/carts/:cid** - Elimina carrito
+- **POST /api/carts/:cid/products/:pid** - Agrega producto al carrito
+- **PUT /api/carts/:cid/products/:pid** - Actualiza cantidad de un producto en el carrito
+- **POST /api/carts/:cid/purchase** - Finaliza compra del carrito
+- **DELETE /api/carts/:cid/products/:pid** - Elimina un producto
+
+#### Pagos
+- **POST /api/payments/create-preference** - Crea preferencia de pago
+- **GET /api/payments/success** - Callback éxito de pago
+- **GET /api/payments** - Obtiene los pagos
+- **GET /api/payments/:paymentid** - Obtiene el pago por ID
+- **POST /api/payments** - Crea pago
+- **PUT /api/payments/:paymentid** - cargar el pago por el ID
+- **DELETE /api/payments/:paymentid** - Elimina el pago
+
+## Deployment
+- **Producción:** Railway
+- **Base de datos:** MongoDB Atlas
+- **URL de producción:** https:/tu_app_railway.app
+
 ## Autor
 Martin Matarrese
+
+## Licencia
+ISC
