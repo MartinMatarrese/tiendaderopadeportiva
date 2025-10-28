@@ -1,62 +1,74 @@
-# Tienda de Ropa Deportiva
+# Tienda de Ropa Deportiva - Ecommerce Full Stack
 
 ## Descripción
-Este proyecto es una tienda de ropa deportiva en línea donde los usuarios pueden navegar por productos, ver detalles de cada uno y completar compras a través de un carrito de compras.
+Ecommerce completo de ropa deportiva con frontend en React y backend en Node.js. Incluye autenticación, carrito de compras, integración con Mercado Pago y más.
 
 ## Características
-- Navegación entre categorías (Camisetas, Camperas, Shorts).
-- Detalles del producto.
-- Carrito de compras con funcionalidad de agregar/eliminar productos.
-- Creación de órdenes a través de Firebase.
 
-## Próximas funcionalidades
-- **Autenticación de usuarios** (Registro e inicio de sesión) a través del backend.
+### Frontend (React)
+- Catálogo de productos por categorías
+- Carrito de compras
+- Autenticación de usuarios
+- Integración con Mercado Pago
+- Diseño responsive y moderno
+
+### Backend (Node.js/Express)
+- API RESTfull completa
+- Autenticación con JWT
+- Integración con MongoDB
+- Pasarela de pago (Mercado Pago)
+- Emails transaccionales
+
 
 ## Tecnologías Utilizadas
-- React
-- Firebase
-- SweetAlert2
-- Google Fonts (Montserrat, Open Sans, Playfair Display)
-- CSS personalizado
 
-## Instalación
+### Frontend
+- React
+- Reac Router DOM
+- Context API
+- Axios
+- SweetAlert2
+- CSS Modules
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB con Mongoose
+- JWT Authentication
+- Mercado Pago SDK
+- Nodemailer
+
+## Estructura del Proyecto
+tiendaderopadeportiva/
+├── frontend/ # Aplicación React
+├── backend/ # API Node.js/Express
+└── README.md # Este archivo
+
+## Instalación y Desarrollo
 Para ejecutar el proyecto de manera local, sigue estos pasos:
 
-1. Clonar el repositorio:
-
+### Backend
     ```bash
-    git clone https://martinmatarrese.github.io/tiendaderopadeportiva/
-    ```
-
-2. Instalar las dependencias:
-
-    ```bash
+    cd backend
     npm install
+    npm run start
     ```
 
-3. Configurar Firebase:
-
-    Configura tu proyecto en Firebase y asegúrate de añadir la configuración adecuada en tu archivo `firebaseConfig.js`.
-
-4. Ejecutar la aplicación:
-
+### Frontend
     ```bash
+    cd frontend
+    npm install
     npm start
     ```
 
-## Fonts Usadas
-Se han utilizado las siguientes fuentes de Google Fonts:
 
-- Montserrat Alternates
-- Open Sans
-- Playfair Display
-
-Incluir el siguiente enlace en tu archivo HTML para agregar estas fuentes:
-
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+## Deployment
+Frontend: Github Pages
+Backend: Railway
+Base de datos: MongoDB Atlas
 
 ## Autor
 Martin Matarrese
+
+## Licencia
+ISC
