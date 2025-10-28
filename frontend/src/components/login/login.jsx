@@ -40,7 +40,7 @@ export const Login = () => {
     }
     return  <main className="login-main">
                 <form className="login-container" onSubmit={handleSubmit}>
-                    <h1 className="login-titulo">Ingresar</h1>
+                    <h1 className="login-titulo">Iniciar Sessión</h1>
                     <section className="btn-google">
                         <GoogleLoginButton/>
                     </section>
@@ -56,12 +56,7 @@ export const Login = () => {
                         <i className="bx bx-lock-alt"></i>
                     </section>
                     <section className="remember-forgot-box">
-                        <div className="remember-me">
-                            <input type="checkbox" name="remember-me" id="remember-me"/>
-                            <label htmlFor="remember-me">
-                                <h5>Rcuerdame</h5>
-                            </label>
-                        </div>
+                        
                         <button type="button" className="forget-password-btn" onClick={() => setShowForgotPassword(true)}>
                             <h5>¿Te olvidaste la contraseña?</h5>
                         </button>

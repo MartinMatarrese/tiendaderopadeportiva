@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import "./register.css";
 import { useState } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
+import { useAuth } from "../Context/UserContext";
 
 export const Register = () => {
+    const { register } = useAuth();
     const navigate = useNavigate()
     const [formData, setFormData] = useState({
         first_name: "",
@@ -23,18 +24,19 @@ export const Register = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-            const url = "http://localhost:8080/users/register";
-            await axios.post(url, formData);
-            Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Registado con éxito",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          setTimeout(() => {
-            navigate("/login")
-          }, 1600);
+        //     const url = "http://localhost:8080/users/register";
+        //     await axios.post(url, formData);
+        //     Swal.fire({
+        //     position: "center",
+        //     icon: "success",
+        //     title: "Registado con éxito",
+        //     showConfirmButton: false,
+        //     timer: 1500
+        //   });
+            await register(formData);
+            setTimeout(() => {
+                    navigate("/login")
+                }, 1600);
         } catch(error) {
             const errorMsg = error.response?.data?.message || "Hubo un error al registrar el usuario";
             setError(errorMsg);

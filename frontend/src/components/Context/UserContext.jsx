@@ -2,46 +2,120 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import axios from "axios"; 
 import Swal from "sweetalert2";
 
-const AuthContext = createContext(); 
+const AuthContext = createContext();
+
+const BackUrl = process.env.REACT_APP_BACK_URL;
+
+axios.defaults.withCredentials = true;
 
 export const AuthProvider = ({ children }) => { 
     const [ user, setUser ] = useState(null); 
     const [ loading, setLoading ] = useState(true);
     const [ sessionTimer, setSessionTimer ] = useState(null);
     const [ timeLeft, setTimeLeft ] = useState(29 * 60);
-     
-    useEffect(() => {
-        const initAuth = async() => {
-            try {
-                const storedUser = sessionStorage.getItem("user");
-                const storedToken = sessionStorage.getItem("token");
-                if(storedUser && storedToken) {
-                    setUser(JSON.parse(storedUser));
-                    return;
-                };
+    const [ isAuthenticated, setIsAuthenticated ] = useState(undefined);
 
-                if(typeof window != "undefined") {
-                    const query = new URLSearchParams(window.location.search);
-                    const token = query.get("token");                    
-                    if( token ) {
-                        const response = await axios.get("http://localhost:8080/users/current", {
-                            headers: { Authorization: `Bearer ${token}`},
-                            withCredentials: true
-                        })
-                        const userData = response.data;
-                        sessionStorage.setItem("user", JSON.stringify(userData));
-                        sessionStorage.setItem("token", token);
-                        window.history.replaceState({}, document.title, "/");
+    
+    useEffect(() => {
+        const checkAuth = async() => {
+            try {
+                setLoading(true);
+                console.log("Intentando autenticación...");
+                console.log("Cookies disponibles:", document.cookie);                
+                
+                const response = await axios.get(`${BackUrl}/users/current`, { withCredentials: true});
+                console.log("Autenticación exitosa:", response.data);
+                
+                setUser(response.data.user);
+                setIsAuthenticated(true);
+            } catch (error) {
+                console.error("❌ Error de autenticación COMPLETO:", {
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data,
+                    headers: error.response?.header,
+                    config: {
+                        url: error.config?.url,
+                        withCredentials: error.config?.withCredentials
                     }
-                }
-            } catch(error) {
-                console.error("Error al inicializar auth", error);                
+                });
+                setUser(null);
+                setIsAuthenticated(false);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        };
-        initAuth();
+        }
+        checkAuth()
     }, []);
+    
+    // const checkAuth = async() => {
+    //     try {
+    //         const token = sessionStorage.getItem("token");
+    //         if(!token) {
+    //             setLoading(false)
+    //             return;
+    //         }
+    //         const response = await axios.get("http://localhost:8080/users/current", {
+    //             headers: { Authorization: `Bearer ${token}` },
+    //             withCredentials: true
+    //         });
+    //         const userData = response.data;
+    //         setUser(userData);
+    //         sessionStorage.setItem("user", JSON.stringify(userData));
+    //     } catch (error) {
+    //         console.error("Error verificando autenticación:", error);
+    //         sessionStorage.removeItem("token");
+    //         sessionStorage.removeItem("user");
+    //         setUser(null);
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     const initAuth = async() => {
+    //         try {
+    //             const storedUser = sessionStorage.getItem("user");
+    //             const storedToken = sessionStorage.getItem("token");
+    //             if(storedUser && storedToken) {
+    //                 setUser(JSON.parse(storedUser));
+    //                 // await checkAuth();
+    //                 return;
+    //             };
+
+    //             if(typeof window != "undefined") {
+    //                 const query = new URLSearchParams(window.location.search);
+    //                 const token = query.get("token");                    
+    //                 if( token ) {
+    //                     const response = await axios.get(`${BackUrl}/users/current`, {
+    //                         headers: { Authorization: `Bearer ${token}`},
+    //                         withCredentials: true
+    //                     })
+    //                     const userData = response.data;
+    //                     sessionStorage.setItem("user", JSON.stringify(userData));
+    //                     sessionStorage.setItem("token", token);
+    //                     window.history.replaceState({}, document.title, "/");
+    //                 }
+    //             }
+    //         } catch(error) {
+    //             console.error("Error al inicializar auth", error);                
+    //         } finally {
+    //             setLoading(false)
+    //         }
+    //     };
+    //     initAuth();
+    // }, []);
+    useEffect(() => {
+        if(user && !sessionTimer) {
+            startSessionTimer();
+        }
+
+        return() => {
+            if(sessionTimer) {
+                clearInterval(sessionTimer)
+            };
+        };
+    }, [user, sessionTimer])
 
     const startSessionTimer = useCallback(() => {
         if(sessionTimer) {
@@ -49,83 +123,128 @@ export const AuthProvider = ({ children }) => {
         }
         setTimeLeft(29 * 60);
 
-        const handelLogout = async() => {
-        if(sessionTimer) {
-            clearInterval(sessionTimer);
-            setSessionTimer(null);
-        }
+        const handleLogout = async() => {
+            if(sessionTimer) {
+                clearInterval(sessionTimer);
+                setSessionTimer(null);
+            }
 
+            try {
+                await axios.post(`${BackUrl}/users/logout`, {}, { withCredentials: true })
+            } catch (error) {
+                console.error("Error en logout automático:", error);
+            } finally {
+                setUser(null);
+                sessionStorage.removeItem("token");
+                sessionStorage.removeItem("user");
+
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    title: "Sesión expirada",
+                    text: "Tu sesión a caducado por inactividad",
+                    showConfirmButton: true,
+                    confirmButtonText: "Entendido"
+                });
+            }
+        };
+
+    const timer = setInterval(() => {
+        setTimeLeft(prevTime => {
+            if(prevTime <= 1) {
+                handleLogout();
+                return 0;
+            }
+            return prevTime -1;
+        })
+    }, 1000)
+        setSessionTimer(timer)
+        return() => {
+            if(timer) {
+                clearInterval(timer)
+            }
+        }
+    }, [sessionTimer]);
+
+    // const isAuthenticated = !!user;
+
+    const register = async(userData) => {
         try {
-            await axios.post("http:/localhost:8080/users/logout", {}, { withCredentials: true })
-        } catch (error) {
-            console.error("Error en logout automático:", error);
-        } finally {
-            setUser(null);
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("user");
+            const response = await axios.post(`${BackUrl}/users/register`, userData, { withCredentials: true});
 
             Swal.fire({
                 position: "center",
-                icon: "warning",
-                title: "Sessión expirada",
-                text: "Tu sessión a caducado por inactividad",
+                icon: "success",
+                title: "Registro exitoso",
+                html: `
+                    <div style="text-align: center;">
+                        <p>✅ Te has registrado correctamente</p>
+                        <p><strong>Revisa en tu casilla de email para verificar tu cuenta</strong></p>
+                        <p style="font-size: 14px; color: #666;">
+                            Si no encuentras el email, revisa tu carpeta de spam
+                        </p>
+                    </div>
+                `,
                 showConfirmButton: true,
-                confirmButtonText: "Entendido"
+                confirmButtonText: "Aceptar"
             });
-        }
+
+            return response.data;
+        } catch (error) {
+            console.log("Register error", error.response?.data);
+            let errormsg = "Error en el registro";
+            
+            if(error.response?.data?.message?.includes("ya existe")) {
+                errormsg = "Este email ya esta registrado";
+            } else if(error.response?.data?.message) {
+                errormsg = error.response.data.message;
+            };
+
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error en el registro",
+                text: errormsg,
+                confirmButtonText: "Aceptar"
+            });
+
+            throw error;
+        };
     };
 
-        const timer = setInterval(() => {
-            setTimeLeft(prevTime => {
-                if(prevTime <= 1) {
-                    handelLogout();
-                    return 0;
-                }
-                return prevTime -1;
-            })
-        }, 1000)
-        setSessionTimer(timer)
-    }, [sessionTimer]);
+    const resendVerification = async(email) => {
+        try {
+            const response = await axios.post(`${BackUrl}/users/resend-verification`, { email }, { withCredentials: true });
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Email reenviado",
+                text: "Se ha reenviado un nuevo email de verificación",
+                showConfirmButton: true,
+                confirmButtonText: "Aceptar"
+            });
 
-    useEffect(() => {
-        if(user) {
-            startSessionTimer();
-        } else {
-            if(sessionTimer) {
-                clearInterval(sessionTimer);
-                setSessionTimer(null)
-            }
-        }
+            return response.data;
+        } catch (error) {
+            console.log("Resend verification error", error.response?.data);
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error",
+                text: error.response?.data?.message || "No se pudo reenviar el email",
+                showConfirmButton: "Aceptar"
+            });
 
-        return () => {
-            if(sessionTimer) {
-                clearInterval(sessionTimer)
-            }
-        }
-    }, [user, sessionTimer, startSessionTimer]);
-
-    // useEffect(() => {
-    //     if(user) {
-    //         const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
-    //         const resetTimer = () => startSessionTimer();
-    //         events.forEach(event => {
-    //             document.addEventListener(event, resetTimer)
-    //         });
-
-    //         return () => {
-    //             events.forEach(event => {
-    //                 document.removeEventListener(event, resetTimer)
-    //             });
-    //         };
-    //     };
-    // }, [user, startSessionTimer]);
-
-    const isAuthenticated = !!user;
+            throw error
+        };
+    };
 
     const login = async( credentials, navigate, navigateCallBack ) => { 
         try { 
-            const response = await axios.post("http://localhost:8080/users/login", credentials, { withCredentials: true, }); 
-            const { token, user } = response.data; 
+            const response = await axios.post(`${BackUrl}/users/login`, credentials, { withCredentials: true, }); 
+            const { token, user } = response.data;
+            console.log("Login exitoso - User data:", user);
+            
             sessionStorage.setItem("token", token);
             sessionStorage.setItem("user", JSON.stringify(user)) 
             
@@ -147,12 +266,12 @@ export const AuthProvider = ({ children }) => {
             }
 
         } catch (error) { 
-            console.log("Login error", error.response?.data); 
+            console.log("Login error", error.response?.data);
             Swal.fire({ 
                 position: "center", 
                 icon: "error", 
                 title: "Error al iniciar sesión", 
-                text: error.response?.data?.error || "Intenta nuevamente", 
+                text: "El email o la contraseña son incorrectos", 
                 confirmButtonText: "Aceptar" 
             }); 
         };
@@ -162,7 +281,7 @@ export const AuthProvider = ({ children }) => {
         try {
             console.log("Enaviando solicitud de forgot-password para email: ", email);
             
-            const response = await axios.post("http://localhost:8080/users/forgot-password", {email}, {withCredentials: true});
+            const response = await axios.post(`${BackUrl}/users/forgot-password`, {email}, {withCredentials: true});
 
             console.log("Respuesta recibida:", response.data);
 
@@ -172,7 +291,7 @@ export const AuthProvider = ({ children }) => {
                     title: "Email enviado", 
                     html: `
                         <div style="text-align: center;">
-                            <p>✅ Se ha enviado un email real a:</p>
+                            <p>✅ Se ha enviado un email a:</p>
                             <p><strong>${email}</strong></p>
                             <p style="font-size: 14px; color: #666;">
                                 Revisa tu bandeja de entrada y carpeta de spam.
@@ -204,7 +323,7 @@ export const AuthProvider = ({ children }) => {
 
     const resetPassword = async(token, newPassword) => {
         try {
-            const response = await axios.post("http://localhost:8080/users/reset-password", { 
+            const response = await axios.post(`${BackUrl}/users/reset-password`, { 
                 token, 
                 password: newPassword
             }, {withCredentials: true});
@@ -233,7 +352,7 @@ export const AuthProvider = ({ children }) => {
                      
     const logout = async( navigate ) => { 
         try {
-            await axios.post("http://localhost:8080/users/logout", {}, { withCredentials: true });
+            await axios.post(`${BackUrl}/users/logout`, {}, { withCredentials: true });
 
             setUser(null);
             sessionStorage.removeItem("token");
@@ -258,7 +377,7 @@ export const AuthProvider = ({ children }) => {
     };
                           
     return (
-        <AuthContext.Provider value={{ user, login, forgotPassword, resetPassword, logout, loading, isAuthenticated, startSessionTimer, timeLeft }}>
+        <AuthContext.Provider value={{ user, login, register, resendVerification, forgotPassword, resetPassword, logout, loading, isAuthenticated, startSessionTimer, timeLeft }}>
             {children}
         </AuthContext.Provider>
     );

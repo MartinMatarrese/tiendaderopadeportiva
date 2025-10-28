@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./checkoutPage.css";
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const CheckoutPage = () => {
-    const { cart, total, cartId } = useCart();
+    const { cart, total, cartId, userId } = useCart();
     const navigate = useNavigate();
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState("");
 
-    console.log("Carrito en checkout: ", cart);
-    
+    useEffect(() => {
+        if(cart.length === 0) {
+            navigate("/Carrito");
+        } else {
+            console.log("Carrito en checkout: ", cart);
+        }
+    }, [cart, navigate])
 
     const handlePayment = async() => {
         setLoading(true);
@@ -28,6 +35,7 @@ const CheckoutPage = () => {
             }
 
             const requestData = {
+                userId: userId,
                 cartId: cartId,
                 cart: {
                     products: cart.map(item => ({
@@ -42,43 +50,69 @@ const CheckoutPage = () => {
 
             console.log("2. Enviando datos al backend:", requestData);
             
-            const response = await axios.post("http://localhost:8080/api/payments/create-preference", requestData, { withCredentials: true });
+            const response = await axios.post(
+                `${backUrl}/api/payments/create-preference`,
+                requestData,
+                { 
+                    withCredentials: true,
+                    timeout: 1500
+                }
+            );
             console.log("3. Respuesta del backend:", response.data);
-            const paymentUrl = response.data.sandbox_init_point || response.data.init_point;
+            const paymentData = response.data;
+            const paymentUrl = paymentData.init_point;
             console.log("4. Url de pago obtenida...", paymentUrl);
+
+            if(!paymentUrl) {
+                throw new Error("No se pudo obtener la URL de pago de la respuesta")
+            };
+
+            console.log("5. Abriendo Mercado Pago en nueva pestaña");
+
+            window.location.href = paymentUrl;
             
-            if(paymentUrl) {
-                console.log("5. Abriendo Mercado Pago en nueva pestaña");
+            // if(paymentUrl) {
+            //     console.log("5. Abriendo Mercado Pago en nueva pestaña");
+            //     const link = document.createElement("a");
+            //     link.href = paymentUrl;
+            //     link.target = "_blank";
+            //     link.rel = "noopener noreferrer";
+            //     document.body.appendChild(link);
+            //     link.click();
+            //     document.body.removeChild(link);
+            //     console.log("6. Pestaña abierta - completar pago en Mercado Pago");
                 
-            //     window.location.href = response.data.init_point;    
-            // } else if(response.data.sandbox_init_point) {
-            //     window.location.href = response.data.sandbox_init_point;
-                // window.open(paymentUrl, "_blank")
-                const link = document.createElement("a");
-                link.href = paymentUrl;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                console.log("6. Pestaña abierta - completar pago en Mercado Pago");
-                
-            } else {
-                throw new Error("No se pudo obtener la url del pago de la respuesta")
-            }
+            // } else {
+            //     throw new Error("No se pudo obtener la url del pago de la respuesta")
+            // }
             
             // window.location.href = response.data.init_point;
         } catch (error) {
-            console.error("Error al procesar el pago: ", error);
-            setError(error.response?.data?.message || "Error al inicializar el pago");
+            console.error("Error completo al procesar el pago: ", error);
+            if(error.code === "ECONNABORTED") {
+                setError("Timeout: El servidor tardó demasiado en responder")
+            } else if(error.response) {
+                setError(error.response.data?.message || 
+                        error.response.data?.error || 
+                        `Error del servidor: ${error.response.status}`)
+            } else if(error.rquest) {
+                setError("Error de conexión. Verifica tu internet")
+            } else {
+                setError(error.response?.data?.message || "Error al inicializar el pago");
+            }
         } finally {
             setLoading(false)
         }
     };
 
     if(cart.length === 0) {
-        navigate("/Carrito");
-        return null;
+        return (
+            <div className="checkout-container">
+                <div className="loading-checkout">
+                    <p>Reedirigiendo al carrito...</p>
+                </div>
+            </div>
+        )
     };
 
     return (
@@ -111,12 +145,20 @@ const CheckoutPage = () => {
 
                     {error && (
                         <div className="error-message">
-                            {error}
+                            ❌ {error}
+                            <button className="error-close">x</button>
                         </div>
                     )}
 
-                    <button className="payment-button" onClick={handlePayment} disabled={loading}>
-                        {loading ? "Procesando..." : `Pagar $${total.toLocaleString()}`}
+                    <button className={`payment-button ${loading ? "loading" : ""}`} onClick={handlePayment} disabled={loading}>
+                        {loading ? (
+                            <>
+                                <div className="spinner"></div>
+                                Procesando...
+                            </>
+                        ) : (
+                            `Pagar $${total.toLocaleString()}`
+                        )}
                     </button>
                     <div className="payment-security">
                         <p>Pago 100% seguro mediante mercado pago</p>

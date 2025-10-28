@@ -5,26 +5,26 @@ import axios from "axios";
 export const CartContext = createContext();
 
 export const CartProvider = ({children}) => {
-    const [cart, setCart] = useState([]);
-    console.log("Carrito actualizado:", cart);
-    
+    const [cart, setCart] = useState([]);    
     const [cantidadTotal, setCantidadTotal] = useState(0);
     const [total, setTotal] = useState(0);
     const [ cartId, setCartId ] = useState(null);
     const [error, setError] = useState(false);
     const { user } = useAuth();
-    const API_URL = "http://localhost:8080/api/carts";
+    const bacUrl = process.env.REACT_APP_BACK_URL;
+    const API_URL = `${bacUrl}/api/carts`;
+    const userId = user?._id || user?.id;
 
     const loadUserCart = useCallback(async() => {
         try {
-            if(!user || user.cart) return;
+            if(!user || !user.cart) return;
             const response = await axios.get(`${API_URL}/${user.cart}`, { withCredentials: true });
             setCartId(user.cart);
             setCart(response.data.products || response.data.items || []);
         } catch (error) {
             console.error("Error cargando el carrito:", error);            
         }
-    }, [user]);
+    }, [user, API_URL]);
 
     useEffect(() => {
         loadUserCart();
@@ -37,6 +37,12 @@ export const CartProvider = ({children}) => {
     const addItem = async(item, cantidad) => {
         console.log("Agregando producto:", item, "Cantidad:", cantidad);
         setError(false);
+
+        if(!user) {
+            setError("Debes iniciar sesión para agregar productos al carrito");
+            return;
+        };
+        
         let  currentCartId = cartId;
         
         if(!currentCartId) {
@@ -113,7 +119,7 @@ export const CartProvider = ({children}) => {
     }, [cart]);
 
     return (
-        <CartContext.Provider value={{cart, cartId, addItem, removeItem, clearCart, cantidadTotal, total, error, updateItemQuantity, getTotalQuantity}}>
+        <CartContext.Provider value={{cart, cartId, userId, addItem, removeItem, clearCart, cantidadTotal, total, error, updateItemQuantity, getTotalQuantity}}>
             {children}
         </CartContext.Provider>
     );

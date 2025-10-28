@@ -1,3 +1,84 @@
 .itemlist {
-    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 30px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.itemlist:empty::before {
+    content: "Cargando productos...";
+    text-align: center;
+    color: #666;
+    font-size: 1.2rem;
+    grid-column: 1 / -1;
+}
+
+.itemlist:has(> .no-products) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.no-products {
+    text-align: center;
+    color: #666;
+    font-size: 1.2rem;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.admin-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+@media screen and (max-width: 1200px) {
+    .itemlist {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 25px 15px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .itemlist {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+        padding: 20px 10px;
+    }
+}
+
+@media screen and(max-width: 576px) {
+    .itemlist {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .itemlist:empty::before {
+        font-size: 1rem;
+        padding: 20px;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.itemlist > * {
+    animation: fadeInUp 0.5s ease-out;
 }

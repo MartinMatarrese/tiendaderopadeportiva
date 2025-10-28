@@ -18,6 +18,9 @@ import CheckoutPage from "./components/Checkout/checkoutPage";
 import { PaymentSuccess } from "./components/Payment/PaymentSuccess";
 import { PaymentFailure } from "./components/Payment/PaymentFailure";
 import { PaymentPending } from "./components/Payment/PaymentPending";
+import { VerifyEmail } from "./components/VerifyEmail/VerifyEmail";
+import { AdminPanel } from "./components/AdminPanel/AdminPanel";
+import { CreateProduct } from "./components/AdminPanel/CreateProduct";
 
 const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
 
@@ -32,6 +35,8 @@ function App (){
                     <Routes>
                         <Route path="/" element={<ItemListContainer/>}/>
                         <Route path="/category/:categoryId" element={<ItemListContainer/>}/>
+                        <Route path="/admin" element={<AdminPanel/>}/>
+                        <Route path="/admin/create-product" element={<CreateProduct/>}/>
                         <Route path="/item/:itemId" element={
                             <ProtectedRoute>
                                 <ItemDetailContainer/>
@@ -39,6 +44,7 @@ function App (){
                         <Route path="/Carrito" element={<Carrito/>}/>
                         <Route path="/login" element={<Login/>}/>
                         <Route path="/register" element={<Register/>}/>
+                        <Route path="/verify-email/:token" element={<VerifyEmail/>}/>
                         <Route path="/forgot-password" element={<ForgotPassword/>}/>
                         <Route path="/reset-password" element={<ResetPassword/>}/>
                         <Route path="/checkout" element={<CheckoutPage/>}/>

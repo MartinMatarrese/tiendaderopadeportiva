@@ -3,8 +3,24 @@
     height: 100%;
 }
 .titulo {
-    color: white;
     text-decoration: underline;
+    color: #e53935;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    font-weight: 600;
+    position: relative;
+    align-items: center;
+}
+
+.titulo::after {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 3px;
+    background: #e53935;
+    border-radius: 2px;
 }
 
 @media screen and (max-width: 768px) {

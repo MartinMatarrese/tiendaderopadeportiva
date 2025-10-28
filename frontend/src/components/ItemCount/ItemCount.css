@@ -3,34 +3,98 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin: 20px 0;
+    gap: 15px;
+    margin: 25px 0;
+    padding: 25px;
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .contador-boton {
-    background-color: #007BFF;
+    /* background-color: #007BFF;
     color: white;
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s ease, transform 0,2s ease;
+    transition: background-color 0.3s ease, transform 0,2s ease; */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4a5568 0%, #718096 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(113, 128, 150, 0.3);
+    position: relative;
+    overflow: hidden;
+    min-width: 80px;
+}
+
+.contador-boton::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
 .contador-boton:hover {
-    background-color: #0056b3;
-    transform: scale(1-05);
+    /* background-color: #0056b3;
+    transform: scale(1-05); */
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(113, 128, 150, 0.4);
+}
+
+.contador-boton:hover::before {
+    left: 100%;
+}
+
+.contador-boton:active {
+    transform: translateY(0);
+}
+
+.contador-boton:disabled {
+    background: linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 8px rgba(160, 174, 192, 0.3);
+}
+
+.contador-boton:disabled:hover::before {
+    left: -100%;
 }
 
 .contador-cantidad {
-    font-size: 18px;
+    /* font-size: 18px;
     font-weight: bold;
-    padding: 0 15px;
+    padding: 0 15px; */
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+    padding: 0 20px;
+    min-width: 60px;
+    text-align: center;
+    background: white;
+    border-radius: 8px;
+    padding: 10px 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid, #e2e8f0;
 }
 
 .contador-agregar{
-    margin: 20px auto;
+    /* margin: 20px auto;
     padding: 10px 20px; 
     background-color: #28a745;
     color: white;
@@ -40,24 +104,257 @@
     font-size: 16px;
     display: block;
     text-align: center;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease; */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #e53935 0%, #ff6b6b 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+    position: relative;
+    overflow: hidden;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+}
+
+.contador-agregar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
 .contador-agregar:hover:not(:disabled) {
-    background-color: #218838;
-    transform: scale(1.05);
+    /* background-color: #218838;
+    transform: scale(1.05); */
+    background: linear-gradient(135deg, #d32f2f 0%, #e53935 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(229, 57, 53, 0.4);
+}
+
+.contador-agregar:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.contador-agregar:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.contador-agregar:disabled {
+    background: linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 8px rgba(160, 174, 192, 0.3);
+}
+
+.contador-agregar:disabled:hover::before {
+    left: -100%;
 }
 
 .contador-volver{
     display: inline-block;
-    margin-top: 15px;
+    /* margin-top: 15px;
     text-decoration: none;
     color: #007BFF;
     font-size: 14px;
-    transition: color 0.3s ease, transform 0.2s ease;
+    transition: color 0.3s ease, transform 0.2s ease; */
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    color: #4a5568;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin: 15px auto;
+    width: 100%;
+    max-width: 250px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.contador-volver::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
 }
 
 .contador-volver:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
+    /* background-color: #0056b3;
+    transform: scale(1.05); */
+    background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+    color: #2d3748;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.contador-volver:hover::before {
+    left: 100%;
+}
+
+.contador-volver:active {
+    transform: translateY(0);
+}
+
+.contador-agregar.low-stock {
+    background: linear-gradient(135deg, #d69e2e 0%, #f6e05e 100%);
+    box-shadow: 0 4px 15px rgba(214, 158, 46, 0.3);
+}
+
+.contador-agregar.low-stock:hover:not(:disabled) {
+    background: linear-gradient(135deg, #b7791f 0%, #d69e2e 100%);
+    box-shadow: 0 6px 20px rgba(214, 158, 46, 0.4);
+}
+
+.contador-agregar.out-of-stock {
+    background: linear-gradient(135deg, #a0aec0 0%, #cbd5e0 100%);
+    cursor: not-allowed;
+}
+
+@media screen and(max-width: 768px) {
+    .contador {
+        gap: 12px;
+        margin: 20px 0;
+        padding: 12px;
+    }
+
+    .contador-boton {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        min-width: 70px;
+    }
+
+    .contador-cantidad {
+        font-size: 1.2rem;
+        padding: 8px 12px;
+        min-width: 50px;
+    }
+
+    .contador-agregar {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        max-width: 240px;
+    }
+
+    .contador-volver {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        max-width: 220px;
+    }
+}
+
+@media screen and(max-width: 480px) {
+    .contador {
+        flex-direction: column;
+        gap: 10px;
+        margin: 15px 0;
+        padding: 15px;
+    }
+
+    .contador-boton {
+        width: 100%;
+        max-width: 200px;
+        padding: 12px 20px;
+    }
+
+    .contador-cantidad {
+        font-size: 1.3rem;
+        padding: 10px 15px;
+        min-width: 60px;
+        order: -1;
+        margin-bottom: 10px;
+    }
+
+    .contador-agregar {
+        width: 100%;
+        max-width: none;
+        margin: 15px 0;
+        padding: 14px 20px;
+    }
+
+    .contador-volver {
+        width: 100%;
+        max-width: none;
+        margin: 10px 0;
+        padding: 12px 20px;
+    }
+}
+
+@media screen and(max-width: 320px) {
+    .contador {
+        padding: 12px;
+        margin: 10px 0;
+    }
+
+    .contador-boton {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+
+    .contador-cantidad {
+        font-size: 1.1rem;
+        padding: 8px 12px;
+    }
+
+    .contador-agregar {
+        padding: 12px 18px;
+        font-size: 0.9rem;
+    }
+
+    .contador-volver {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+.contador-cantidad {
+    transition: all 0.3s ease;
+}
+
+.contador-cantidad.changing {
+    transform: scale(1.1);
+    background: #f7fafc;
+}
+
+.stock-message {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #718096;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.stock-message.low-stock {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.stock-message.out-of-stock {
+    color: #e53e3e;
+    font-weight: 600;
 }
