@@ -8,5 +8,7 @@ export default class UserResDto {
         this.role = user.role;
         this.carrito = user.cart;
         this.verificado = user.isVerified || false;
+        this.verificationToken = user.verificationToken;
+        this.verificationTokenExpiry = user.verificationTokenExpiry;
     };
 };

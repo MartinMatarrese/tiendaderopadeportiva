@@ -1,18 +1,23 @@
 import cors from "cors";
 
-const alloweredOrigins = [
-    "http://localhost:3000",
-    "https://martinmatarrese.github.io",
-    "https://*.github.io"
-];
+const isProductuion = process.env.NODE_ENV === "production"
 
 export const corsOptions = {
     origin: function(origin, callback) {
-        if(!origin || alloweredOrigins.includes(origin)) {
-            callback(null, true);
+        if(!isProductuion) {
+            return callback(null, true);
+        }
+
+        const productionOrigin = [
+            "https://martinmatarrese.github.io",
+            "https://martinmatarrese.github.io/tiendaderopadeportiva",
+        ]
+
+        if(!origin || productionOrigin.includes(origin)) {
+            callback(null, true)
         } else {
             callback(new Error("No permitido por CORS"));
-        };
+        }
     },
     credentials: true,
     optionsSuccessStatus: 200

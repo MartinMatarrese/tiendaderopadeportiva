@@ -51,8 +51,8 @@ const mockPayment = () => {
         userId: "64fa4f6d8bca0d5e4f1a1aaa",
         status:"approved",
         amount: 10000,
-        cartId: "64fa4f6d8bca0d5e4f1a1ccc",
-        ticketId: "64fa4f6d8bca0d5e4f1a1eee",
+        cartId: null,
+        ticketId: new mongoose.Types.ObjectId().toString(),
         createdAt: new Date().toISOString()
     };
 };
@@ -63,6 +63,7 @@ describe("TEST API - PAYMENT", () => {
         await mongoose.connection.collection("products").deleteMany({});
         await mongoose.connection.collection("users").deleteMany({});
         await mongoose.connection.collection("carts").deleteMany({});
+        await mongoose.connection.collection("payments").deleteMany({});
 
         const user = mockUser();
         await agent.post("/users/register").send(user);
@@ -75,12 +76,15 @@ describe("TEST API - PAYMENT", () => {
         cookieToken = tokenCookie?.split(";")[0];
         const token = cookieToken.split("=")[1]
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
-        userId = decoded._id
+        userId = decoded._id || decoded.userId;
+
         const product = mockProducts();
         const productRes = await productModel.create(product);
         productId = productRes._id;
+
         const cartRes = await agent.post("/api/carts").set("Cookie", cookieToken);
-        cartId = cartRes.body._id;
+        cartId = cartRes.body._id || cartRes.body.cartId;
+
         const payment = mockPayment();
         const paymentRes = await agent.post("/api/payments").set("Cookie", cookieToken).send(payment);
         paymentId = paymentRes.body.id;
@@ -162,6 +166,7 @@ describe("TEST API - PAYMENT", () => {
     });
 
     afterAll(async() => {
+        await mongoose.connection.db.dropDatabase();
         await mongoose.disconnect();
     });
 });

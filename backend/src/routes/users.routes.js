@@ -25,7 +25,7 @@ userRouter.get("/google", passport.authenticate("google", { scope: ["email", "pr
 
 userRouter.get("/googlecallback", passportCall("google"), userController.googleProfile);
 
-userRouter.get("/current", [jwtAuth, roleAuth("user", "admin")], userController.privateData);
+userRouter.get("/current", passport.authenticate("current", { session: false}), userController.privateData)
 
 userRouter.post("/profile-pic", [ jwtAuth, roleAuth("user", "admin"), uploadUserPic.single("profilePic")], userController.updateUser);
 

@@ -30,8 +30,10 @@ const registerOrLogin = async(accessToken, refreshToken, profile, done) => {
             fromGoogle: true,
             age: 18,
             password: "google_no_password",
-            profilePic
+            profilePic,
+            role: "user"
         };
+        
         const req = { body: userInput};
         await Promise.all(userGoogleValidator.map((middleware) => middleware(req, {}, () => {})));
         const newUser = await userService.register(userInput);

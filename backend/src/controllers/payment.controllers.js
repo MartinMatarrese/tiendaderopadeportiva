@@ -1,9 +1,9 @@
-// import cartModel from "../daos/mongodb/models/cart.model.js";
-// import PaymentResDto from "../dtos/payment.res.dto.js";
-// import TicketResDto from "../dtos/ticket.res.dto.js";
 import { cartServices } from "../services/cart.service.js";
+import { sendGmail } from "../services/email.service.js";
 import { paymentService } from "../services/payment.service.js";
 import { userService } from "../services/user.service.js";
+
+const frontendUrl = process.env.FRONTEND_URL;
 
 class PaymentController {
     constructor() {
@@ -13,7 +13,6 @@ class PaymentController {
     createPreference = async(req, res, next) => {
         try {
             const { cartId, cart } = req.body;
-            // const cart = await cartModel.findById(cartId).populate("products.id_prod");
             
             if(!cart || !Array.isArray(cart.products) || cart.products.length === 0){                 
                 throw new Error("El carrito esta vacio o no se encontró");
@@ -68,13 +67,23 @@ class PaymentController {
                 };
 
             if(status === "approved") {
-                const resuladoCompra = await cartServices.purchaseCart(cartId);
-                const { ticket, productsOutStock } = resuladoCompra;
+                const cartIdToProcess = external_reference;
                 
+                if(!cartIdToProcess) {
+                    console.error("No hay external_reference (cartId)");
+                    return res.redirect(`${frontendUrl}payments/failure?message=error_procesando_pago`);
+                };
+
+                console.log("Procesando compra para cartId:", cartIdToProcess);
+
+                const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
+                const { ticket, productsOutStock } = resuladoCompra;
+
                 if(productsOutStock.length > 0) {
                     console.warn("Algunos productos estaban sin stock:", productsOutStock);
-                    return res.redirect(`http://localhost:3000/tiendaderopadeportiva/payments/failure?message=stock_insuficiente`);
+                    return res.redirect(`${frontendUrl}payments/failure?message=stock_insuficiente`);
                 };
+
                 paymentData.amount = ticket.amount;
                 paymentData.ticketId = ticket._id?.toString();
         
@@ -90,19 +99,15 @@ class PaymentController {
                     console.error("Error al enviar el email de confirmación", error.message);                    
                 }
 
-                // const ticketDto = new TicketResDto(ticket);
-                // const paymentDto = new PaymentResDto(payment);
+                return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}&ticketId=${ticket._id}`);
 
-                // return res.status(200).json({ticket: {...ticketDto}, payment: {...paymentDto}})
-                return res.redirect(`http://localhost:3000/tiendaderopadeportiva/payments/success?payment_id=${payment_id}&cartId=${paymentData.cartId}&ticketId=${ticket._id}`);
-
-            };             
+            };
             await paymentService.createPayment(paymentData);
-            // return res.redirect("http://localhost:8080/");
-            return res.redirect(`http://localhost:3000/tiendaderopadeportiva/payments/success?payment_id=${payment_id}&cartId=${paymentData.cartId}`)
+
+            return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}`)
         } catch (error) {
             console.error("Error en handleSuccess: ", error);            
-            res.redirect("http://localhost:3000/tiendaderopadeportiva/payments/failure");
+            res.redirect(`${frontendUrl}payments/failure?message=error_procesando_pago`);
         };
     };
 

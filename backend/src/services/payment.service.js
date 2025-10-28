@@ -6,6 +6,9 @@ mercadopago.configure({
     access_token: process.env.ACCES_TOKEN_MP
 });
 
+const frontendUrl = process.env.FRONTEND_URL;
+const frontendLocal = process.env.FRONTEND_LOCAL;
+
 class PaymentService {
     constructor() {
         this.paymentRepository = paymentRepository;
@@ -16,18 +19,15 @@ class PaymentService {
             const env = process.env.NODE_ENV || "development"
             const isProduction = env === "production";
             const isTest = env === "test";
-            const successUrl = isTest ? "https://example.com/success" : isProduction ? "https://martinmatarrese.github.io/tiendaderopadeportiva/payments/success" : `http://localhost:8080/tiendaderopadeportiva/payments/success`;
+            const successUrl = isTest ? "https://example.com/success" : isProduction ? `${frontendUrl}payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
             console.log("URL de éxito completa:", successUrl);
             console.log("cartId:", cartId);
             console.log("cartId es válido?", cartId && cartId !== "undefined");
             if(!cartId && cartId === "undefined") {
                 throw new Error("cartId es inválido: " + cartId)
-            }
-            
-            
-            
-            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? "https://martinmatarrese.github.io/tiendaderopadeportiva/payments/failure" : `http://localhost:8080/tiendaderopadeportiva/payments/failure`;
-            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? "https://martinmatarrese.github.io/tiendaderopadeportiva/pending" : `http://localhost:8080/tiendaderopadeportiva/payments/pending`;
+            }            
+            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${frontendUrl}payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
+            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
 
             console.log("🎯 Creando preferencia para cartId:", cartId);
             console.log("📦 Productos en carrito:", cart.products);
@@ -47,7 +47,7 @@ class PaymentService {
                 },
                 external_reference: cartId,
                 auto_return: "approved",
-                sandbox_mode: true,
+                sandbox_mode: !isProduction,
             };
 
             console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));

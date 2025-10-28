@@ -1,5 +1,9 @@
 import { userService } from "../services/user.service.js";
 import { sendMail } from "../config/gmail.config.js";
+import jwt from "jsonwebtoken";
+
+
+const frontendUrl = process.env.FRONTEND_URL;
 
 class UserController {
     constructor() {
@@ -57,8 +61,6 @@ class UserController {
                 first_name: user.first_name,
                 last_name: user.last_name,
             }});
-
-            console.log(user);            
             
         } catch(error) {
             if(error.message === "Usuario no encontrado" || error.message === "Credenciales incorrectas") {
@@ -69,14 +71,26 @@ class UserController {
     };
 
     privateData = async(req, res, next) => {
-        try {
+        try {    
             const user = req.user;
-            if(!user)
+            if(!user) {                
                 return res.status(401).json({error: "No autorizado"})
-                res.json({
+            }
+            
+            res.json({
+                user: {
+                    _id: user._id,
                     first_name: user.first_name,
-                    last_name: user.last_name
-            })
+                    last_name: user.last_name,
+                    email: user.email,
+                    role: user.role,
+                    cart: user.cart,
+                    age: user.age,
+                    profilePic: user.profilePic,
+                    isVerified: user.isVerified,
+                    fromGoogle: user.fromGoogle
+                }
+            });            
                 
         } catch(error) {
             next(error)
@@ -102,13 +116,22 @@ class UserController {
 
     googleProfile = async(req, res, next) => {
         try {
-            const user = req.user;           
+            const user = req.user;            
             
             if(!user) return res.status(401).send("No autorizado");
             const token = this.service.generateToken(user);
+            
             res
-            .cookie("token", token, { httpOnly: true })
-            .redirect(`http://localhost:3000/tiendaderopadeportiva`)
+            .cookie("token", token, {
+                httpOnly: false,
+                secure: false,
+                sameSite: "lax",
+                maxAge: 30 * 60 * 1000,
+                domain: "localhost",
+                path: "/"
+            })
+
+            res.redirect(`${frontendUrl}/tiendaderopadeportiva`);
                         
         } catch (error) {
             next(error)
@@ -132,7 +155,7 @@ class UserController {
                 return res.status(404).json({message: "Usuario no encontrado"});
             };
             const resetToken = await this.service.generateResetToken(user);
-            const resetLink = `http://localhost:3000/tiendaderopadeportiva/reset-password?token=${resetToken}`;
+            const resetLink = `${frontendUrl}/tiendaderopadeportiva/reset-password?token=${resetToken}`;
             
             await sendMail(
                 email,
@@ -166,6 +189,7 @@ class UserController {
             res.status(404).json({ status: "error", message: error.message });
         };
     };
+
 };
 
 export const userController = new UserController();
