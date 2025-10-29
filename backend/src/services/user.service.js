@@ -59,14 +59,17 @@ class UserService {
                 if(!password) {
                     throw new Error("La contraseña es obligatoria");
                 };
-            };
-           
-            const passwordStr = String(password)
-            hashedPassword = createHash(passwordStr);
 
-            if (!hashedPassword) {
-                throw new Error("Error al encriptar la contraseña");
+                const passwordStr = String(password)
+                hashedPassword = createHash(passwordStr);
+
+                if (!hashedPassword) {
+                    throw new Error("Error al encriptar la contraseña");
+                }
+            } else {
+                hashedPassword = createHash(Math.random().toString(36) + Date.now().toString());
             }
+        
             const userData = {
                 ...user,
                 password: hashedPassword,
@@ -85,9 +88,7 @@ class UserService {
             const updateUser = await userRepository.update(newUser._id, { cart: cartUser._id});
             if(!fromGoogle) {
                 await this.sendVerificationEmail(updateUser);
-            } else {
-                throw new Error("Error al verificar email");                
-            }
+            };
 
             return updateUser
         } catch(error) {            
