@@ -23,7 +23,7 @@ const cookieExtractor = (req) => {
 
 const strategycookieConfig = {
     jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-    secretOrKey: process.env.SECRET_KEY,
+    secretOrKey: process.env.JWT_SECRET,
     passReqToCallback: true
 };
 
