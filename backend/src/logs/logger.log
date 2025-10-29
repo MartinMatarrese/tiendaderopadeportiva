@@ -9563,3 +9563,7 @@
 [2025-10-28T12:41:04.638] [INFO] default - POST /api/carts/6900e410bebd16832faaa98d/products/68fbccabe7515a3fc643465c
 [2025-10-28T12:41:10.662] [INFO] default - OPTIONS /api/payments/create-preference
 [2025-10-28T12:41:10.669] [INFO] default - POST /api/payments/create-preference
+[2025-10-29T00:42:34.477] [INFO] default - GET /api/products
+[2025-10-29T00:42:34.765] [INFO] default - GET /api/products
+[2025-10-29T00:42:34.827] [INFO] default - GET /users/current
+[2025-10-29T00:42:34.994] [INFO] default - GET /users/current

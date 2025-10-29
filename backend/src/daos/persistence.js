@@ -19,3 +19,4 @@ export default {
     userDao: UserDaoMongo,
     paymentDao: paymentDaoMongo
 };
+
