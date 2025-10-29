@@ -9,7 +9,7 @@ await initMongoDB()
         .then(() => console.log("Base de datos conectada"))
         .catch((error) => {
             console.log("Error al conectar a MongoDB:", error)
-            process.exist(1);
+            process.exit(1);
         });
 console.log("UserDao seleccionado:", UserDaoMongo);
 export default { 
