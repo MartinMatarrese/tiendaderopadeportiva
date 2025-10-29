@@ -4,6 +4,6 @@
         "builder": "NIXPACKS"
     },
     "deploy": {
-        "startCommand": "cd backend && npm start mongo"
+        "startCommand": "cd backend && npm start"
     }
 }
