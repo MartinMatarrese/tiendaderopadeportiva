@@ -4,7 +4,8 @@ import { userService } from "../services/user.service.js";
 import "dotenv/config";
 import { userGoogleValidator } from "../middlewares/userGoogle.validator.js";
 
-const GoogleStrategyConfig = {
+if(process.env.CLIENT_ID_GOOGLE && process.env.CLIENT_SECRET_GOOGLE && process.env.GOOGLE_CALLBACK_URL) {
+    const GoogleStrategyConfig = {
     clientID: process.env.CLIENT_ID_GOOGLE,
     clientSecret: process.env.CLIENT_SECRET_GOOGLE,
     callbackURL: process.env.GOOGLE_CALLBACK_URL
@@ -44,6 +45,10 @@ const registerOrLogin = async(accessToken, refreshToken, profile, done) => {
 };
 
 passport.use("google", new GoogleStrategy(GoogleStrategyConfig, registerOrLogin));
+} else {
+    console.log("⚠️ Google OAuth no configurado - Modo desarrollo sin Google Auth");
+}
+
 
 passport.serializeUser((user, done) => {
     try {
