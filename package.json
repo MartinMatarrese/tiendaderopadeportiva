@@ -4,7 +4,7 @@
     "description": "Ecommerce de ropa deportiva",
     "scripts": {
         "build": "cd backend && npm install",
-        "start": "cd backend && npm start"
+        "start": "cd backend && npm start mongo"
     },
     "engines": {
         "node": "v22.15.0"
