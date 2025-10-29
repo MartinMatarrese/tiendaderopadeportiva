@@ -131,7 +131,7 @@ class UserController {
                 path: "/"
             })
 
-            res.redirect(`${frontendUrl}/tiendaderopadeportiva`);
+            res.redirect(`${frontendUrl}`);
                         
         } catch (error) {
             next(error)

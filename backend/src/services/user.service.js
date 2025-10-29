@@ -7,6 +7,8 @@ import bcrypt from "bcrypt";
 import { templeteVerificationEmail } from "./templeteVerification.service.js";
 import { sendMail } from "../config/gmail.config.js";
 
+const frontendUrl = process.env.FRONTEND_URL;
+
 class UserService {
     constructor() {
         this.userRepository = userRepository;
@@ -194,7 +196,7 @@ class UserService {
             
             setTimeout(async() => {
                 try {
-                    const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/verify-email/${verificationToken}`;
+                    const verificationUrl = `${frontendUrl || "http://localhost:3000"}verify-email/${verificationToken}`;
                     const html = `
                         <h2>Verifica tu cuenta</h2>
                         <p>Haz click aquí: <a href="${verificationUrl}">${verificationUrl}</a></p>
