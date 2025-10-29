@@ -73,7 +73,7 @@ Para ejecutar el proyecto de manera local sigue estos pasos
     npm start
     ```
 
-5. **La API estara disponible en:** `http://localhost:8080`
+5. **La API estara disponible en:** `https://tiendaderopadeportiva-production.up.railway.app/`
 
 ### Scripts disponibles
 - `npm start`- Servidor de producción
@@ -105,7 +105,7 @@ docker run -d -p 8080:8080 martin1694/api-tienda:1.0.0
 ## Documentación de la API
 Una vez que la API esta ejecutandose accede a la api completa con Swagger en:
 
-[http://localhost:8080/docs](http://localhost:8080/docs)
+[https://tiendaderopadeportiva-production.up.railway.app/docs](https://tiendaderopadeportiva-production.up.railway.app/docs)
 
 ### La documentación incluye
 - Endpoints disponibles

@@ -74,10 +74,25 @@ app.use("/public", express.static(__dirname + "/public"));
 
 app.use("/api/chat", chatRouter);
 
-
 app.get("/", (req, res) => {
     res.status(200).send("Ok");
 });
+
+app.get("/", (req, res) => {
+    res.json({
+        message: '🏪 Tienda de Ropa Deportiva - API',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            docs: `/docs`,
+            products: '/api/products',
+            users: '/users', 
+            cart: '/api/cart',
+            payments: '/api/payments'
+        },
+        status: '✅ Online'
+    });
+})
 
 app.use(errorHandler);
 
