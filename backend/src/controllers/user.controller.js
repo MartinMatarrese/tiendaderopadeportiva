@@ -120,14 +120,17 @@ class UserController {
             
             if(!user) return res.status(401).send("No autorizado");
             const token = this.service.generateToken(user);
+
+            const isProduction = process.env.NODE_EN === "production";
+            const frontendDomain = isProduction ? `${frontendUrl}` : "localhost";
             
             res
             .cookie("token", token, {
                 httpOnly: false,
-                secure: false,
-                sameSite: "lax",
+                secure: isProduction,
+                sameSite: isProduction ? "none" : "lax",
                 maxAge: 30 * 60 * 1000,
-                domain: "localhost",
+                domain: frontendDomain,
                 path: "/"
             })
 
