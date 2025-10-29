@@ -11,7 +11,7 @@ await initMongoDB()
             console.log("Error al conectar a MongoDB:", error)
             process.exit(1);
         });
-console.log("UserDao seleccionado:", UserDaoMongo);
+
 export default { 
     prodDao: prodDaoMongo,
     cartDao: cartDaoMongo,
