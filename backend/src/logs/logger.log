@@ -9567,3 +9567,12 @@
 [2025-10-29T00:42:34.765] [INFO] default - GET /api/products
 [2025-10-29T00:42:34.827] [INFO] default - GET /users/current
 [2025-10-29T00:42:34.994] [INFO] default - GET /users/current
+[2025-10-29T10:01:17.231] [INFO] default - GET /api/products
+[2025-10-29T10:01:18.184] [INFO] default - GET /favicon.ico
+[2025-10-29T10:01:37.631] [INFO] default - GET /docs
+[2025-10-29T10:01:37.799] [INFO] default - GET /docs/
+[2025-10-29T10:01:38.375] [INFO] default - GET /docs/swagger-ui.css
+[2025-10-29T10:01:38.392] [INFO] default - GET /docs/swagger-ui-bundle.js
+[2025-10-29T10:01:38.402] [INFO] default - GET /docs/swagger-ui-standalone-preset.js
+[2025-10-29T10:01:38.410] [INFO] default - GET /docs/swagger-ui-init.js
+[2025-10-29T10:01:40.514] [INFO] default - GET /docs/favicon-32x32.png

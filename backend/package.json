@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
     "test:fs": "set PERSISTENCE=fs && set NODE_OPTIONS=--experimental-vm-modules && npx jest",
     "test": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules jest",
     "test:users": "cross-env PERSISTENCE=mongo NODE_OPTIONS=--experimental-vm-modules npx jest src/test/users.test.js",
