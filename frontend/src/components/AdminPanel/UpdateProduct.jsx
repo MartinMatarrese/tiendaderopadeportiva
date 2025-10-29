@@ -29,7 +29,7 @@ export const UpdateProduct = ({ productId, onUpdate, onCancel }) => {
 
             try {
                 setFetching(true);
-                const response = await axios.get(`${backUrl}/api/products/${productId}`);
+                const response = await axios.get(`${backUrl}api/products/${productId}`);
                 const productData = response.data;
 
                 setProduct({
@@ -76,7 +76,7 @@ export const UpdateProduct = ({ productId, onUpdate, onCancel }) => {
                 stock: Number(product.stock)
             };
 
-            await axios.put(`${backUrl}7products/${productId}`, productData, { withCredentials: true });
+            await axios.put(`${backUrl}products/${productId}`, productData, { withCredentials: true });
 
             Swal.fire({
                 position: "center",

@@ -5,6 +5,8 @@ import "./ItemListContainer.css";
 import axios from "axios";
 import { useAuth } from "../Context/UserContext";
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 export const ItemListContainer = () => {
     const [ products, setProducts ] = useState([]);
     const { categoryId } = useParams();
@@ -18,7 +20,7 @@ export const ItemListContainer = () => {
             sessionStorage.setItem("token", token);
             const fetchCurrentUser = async() => {
                 try {
-                    const res = await axios.get("http://localhost:8080/users/current", {
+                    const res = await axios.get(`${backUrl}users/current`, {
                     headers: {Authorization: `Bearer ${token}`}
                     });
                     setUser(res.data.user);
@@ -31,7 +33,7 @@ export const ItemListContainer = () => {
     }, [searchParams, setUser]);
     
     useEffect(() => {
-        const url = categoryId ? `http://localhost:8080/api/products?category=${categoryId}` : `http://localhost:8080/api/products`;
+        const url = categoryId ? `${backUrl}api/products?category=${categoryId}` : `${backUrl}api/products`;
         axios.get(url)
             .then(response => {
                 console.log(response.data);

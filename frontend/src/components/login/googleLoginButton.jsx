@@ -1,9 +1,11 @@
 import logo from "../../image/g-logo.png"
 import "./googleLoginButton.css"
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 const GoogleLoginButton = () => {
     const handleGoogleLogin = () => {
-        window.location.href = "http://localhost:8080/users/google";
+        window.location.href = `${backUrl}users/google`;
     };
 
     return (

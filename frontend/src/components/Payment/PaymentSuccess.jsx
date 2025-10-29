@@ -13,15 +13,6 @@ export const PaymentSuccess = () => {
     const externalReference = searchParams.get("external_reference");
     const ticketId = searchParams.get("ticketId")
 
-    useEffect(() => {
-        console.log("NGROK - PaymentSuccess - Parámetros:", {
-            payment_id,
-            externalReference,
-            ticketId
-        });
-        proccessPayment();
-    }, []);
-
     const showSuccessMessage = (paymentId) => {
         Swal.fire({
             position: "center",

@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
                 console.log("Intentando autenticación...");
                 console.log("Cookies disponibles:", document.cookie);                
                 
-                const response = await axios.get(`${BackUrl}/users/current`, { withCredentials: true});
+                const response = await axios.get(`${BackUrl}users/current`, { withCredentials: true});
                 console.log("Autenticación exitosa:", response.data);
                 
                 setUser(response.data.user);
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                await axios.post(`${BackUrl}/users/logout`, {}, { withCredentials: true })
+                await axios.post(`${BackUrl}users/logout`, {}, { withCredentials: true })
             } catch (error) {
                 console.error("Error en logout automático:", error);
             } finally {
@@ -170,7 +170,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async(userData) => {
         try {
-            const response = await axios.post(`${BackUrl}/users/register`, userData, { withCredentials: true});
+            const response = await axios.post(`${BackUrl}users/register`, userData, { withCredentials: true});
 
             Swal.fire({
                 position: "center",
@@ -214,7 +214,7 @@ export const AuthProvider = ({ children }) => {
 
     const resendVerification = async(email) => {
         try {
-            const response = await axios.post(`${BackUrl}/users/resend-verification`, { email }, { withCredentials: true });
+            const response = await axios.post(`${BackUrl}users/resend-verification`, { email }, { withCredentials: true });
             Swal.fire({
                 position: "center",
                 icon: "success",
@@ -241,7 +241,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async( credentials, navigate, navigateCallBack ) => { 
         try { 
-            const response = await axios.post(`${BackUrl}/users/login`, credentials, { withCredentials: true, }); 
+            const response = await axios.post(`${BackUrl}users/login`, credentials, { withCredentials: true, }); 
             const { token, user } = response.data;
             console.log("Login exitoso - User data:", user);
             
@@ -281,7 +281,7 @@ export const AuthProvider = ({ children }) => {
         try {
             console.log("Enaviando solicitud de forgot-password para email: ", email);
             
-            const response = await axios.post(`${BackUrl}/users/forgot-password`, {email}, {withCredentials: true});
+            const response = await axios.post(`${BackUrl}users/forgot-password`, {email}, {withCredentials: true});
 
             console.log("Respuesta recibida:", response.data);
 
@@ -323,7 +323,7 @@ export const AuthProvider = ({ children }) => {
 
     const resetPassword = async(token, newPassword) => {
         try {
-            const response = await axios.post(`${BackUrl}/users/reset-password`, { 
+            const response = await axios.post(`${BackUrl}users/reset-password`, { 
                 token, 
                 password: newPassword
             }, {withCredentials: true});
@@ -352,7 +352,7 @@ export const AuthProvider = ({ children }) => {
                      
     const logout = async( navigate ) => { 
         try {
-            await axios.post(`${BackUrl}/users/logout`, {}, { withCredentials: true });
+            await axios.post(`${BackUrl}users/logout`, {}, { withCredentials: true });
 
             setUser(null);
             sessionStorage.removeItem("token");

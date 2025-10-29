@@ -20,7 +20,7 @@ export const AdminPanel = () => {
         const fetchProducts = async() => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${backUrl}/api/products`);
+                const response = await axios.get(`${backUrl}api/products`);
                 setProducts(response.data);
             } catch (error) {
                 const errorMessage = error.response?.data?.message || "Error al cargar los productos"

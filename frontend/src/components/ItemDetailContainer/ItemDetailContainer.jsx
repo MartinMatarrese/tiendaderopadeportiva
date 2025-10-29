@@ -3,6 +3,8 @@ import { ItemDetail } from "../ItemDetail/ItemDetail";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
+const backUrl = process.env.REACT_APP_BACK_URL;
+
 export const ItemDetailContainer = () => {
     const [product, setProduct] = useState(null);
     const { itemId } = useParams();
@@ -11,7 +13,7 @@ export const ItemDetailContainer = () => {
 
     useEffect(() => {
         const token = sessionStorage.getItem("token");
-        const url = `http://localhost:8080/api/products/${itemId}`;
+        const url = `${backUrl}api/products/${itemId}`;
         axios.get(url, {
             headers: token ? { Authorization: `Bearer ${token}`} : {}
             }

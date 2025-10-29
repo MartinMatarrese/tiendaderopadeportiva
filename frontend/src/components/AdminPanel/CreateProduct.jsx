@@ -36,7 +36,7 @@ export const CreateProduct = () => {
         setMessage("");
 
         try {
-            await axios.post(`${backUrl}/api/products`, {...product, price: (product.price), stock: (product.stock)}, {withCredentials: true});
+            await axios.post(`${backUrl}api/products`, {...product, price: (product.price), stock: (product.stock)}, {withCredentials: true});
            Swal.fire({
                 position: "center", 
                 icon: "success", 

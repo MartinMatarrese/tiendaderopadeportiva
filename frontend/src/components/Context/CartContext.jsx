@@ -12,7 +12,7 @@ export const CartProvider = ({children}) => {
     const [error, setError] = useState(false);
     const { user } = useAuth();
     const bacUrl = process.env.REACT_APP_BACK_URL;
-    const API_URL = `${bacUrl}/api/carts`;
+    const API_URL = `${bacUrl}api/carts`;
     const userId = user?._id || user?.id;
 
     const loadUserCart = useCallback(async() => {

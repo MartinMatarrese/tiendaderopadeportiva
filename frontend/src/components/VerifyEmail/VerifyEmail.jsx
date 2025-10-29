@@ -17,7 +17,7 @@ export const VerifyEmail = () => {
             try {
                 console.log("Verificando email con token: ", token);
                 
-                const response = await axios.get(`${backUrl}/users/verify-email/${token}`, { withCredentials: true });
+                const response = await axios.get(`${backUrl}users/verify-email/${token}`, { withCredentials: true });
                 console.log("Respuesta del backend: ", response.data);
                 Swal.fire({
                     position: "center",

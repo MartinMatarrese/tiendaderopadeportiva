@@ -24,15 +24,6 @@ export const Register = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-        //     const url = "http://localhost:8080/users/register";
-        //     await axios.post(url, formData);
-        //     Swal.fire({
-        //     position: "center",
-        //     icon: "success",
-        //     title: "Registado con éxito",
-        //     showConfirmButton: false,
-        //     timer: 1500
-        //   });
             await register(formData);
             setTimeout(() => {
                     navigate("/login")

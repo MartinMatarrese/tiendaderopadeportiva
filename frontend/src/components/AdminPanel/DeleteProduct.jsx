@@ -31,7 +31,7 @@ export const DeleteProduct = ({productId, productTitle, onDelete, onCancel}) => 
             try {
                 setLoading(true);
 
-                await axios.delete(`${backUrl}/api/products/${productId}`, { withCredentials: true });
+                await axios.delete(`${backUrl}api/products/${productId}`, { withCredentials: true });
 
                 Swal.fire({
                     position: "center",

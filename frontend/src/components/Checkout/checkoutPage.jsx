@@ -51,7 +51,7 @@ const CheckoutPage = () => {
             console.log("2. Enviando datos al backend:", requestData);
             
             const response = await axios.post(
-                `${backUrl}/api/payments/create-preference`,
+                `${backUrl}api/payments/create-preference`,
                 requestData,
                 { 
                     withCredentials: true,
