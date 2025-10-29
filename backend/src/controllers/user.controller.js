@@ -155,7 +155,7 @@ class UserController {
                 return res.status(404).json({message: "Usuario no encontrado"});
             };
             const resetToken = await this.service.generateResetToken(user);
-            const resetLink = `${frontendUrl}/tiendaderopadeportiva/reset-password?token=${resetToken}`;
+            const resetLink = `${frontendUrl}reset-password?token=${resetToken}`;
             
             await sendMail(
                 email,

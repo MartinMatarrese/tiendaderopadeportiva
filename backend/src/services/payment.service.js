@@ -27,7 +27,7 @@ class PaymentService {
                 throw new Error("cartId es inválido: " + cartId)
             }            
             const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${frontendUrl}payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
-            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
+            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
 
             console.log("🎯 Creando preferencia para cartId:", cartId);
             console.log("📦 Productos en carrito:", cart.products);
