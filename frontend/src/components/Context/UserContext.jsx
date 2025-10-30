@@ -244,7 +244,7 @@ export const AuthProvider = ({ children }) => {
         };
     };
 
-    const checkAuthWithToken = async(token) => {
+    const checkAuthWithToken = useCallback(async(token) => {
         try {
             setLoading(true);
 
@@ -268,7 +268,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         };
-    };
+    }, []);
 
     useEffect(() => {        
         const urlParams = new URLSearchParams(window.location.search);
@@ -279,7 +279,7 @@ export const AuthProvider = ({ children }) => {
             
             window.history.replaceState({}, document.title, window.location.pathname);
         }
-        
+
     }, [checkAuthWithToken]);
 
     const forgotPassword = async(email) => {
