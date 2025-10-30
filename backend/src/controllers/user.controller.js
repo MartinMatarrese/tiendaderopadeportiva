@@ -130,7 +130,7 @@ class UserController {
                 path: "/"
             })
 
-            res.redirect(`${frontendUrl}`);
+            res.redirect(`${frontendUrl}auth-success?token=${token}`);
                         
         } catch (error) {
             next(error)
