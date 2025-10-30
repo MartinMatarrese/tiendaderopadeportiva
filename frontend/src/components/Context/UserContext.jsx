@@ -247,14 +247,10 @@ export const AuthProvider = ({ children }) => {
     const checkAuthWithToken = async(token) => {
         try {
             setLoading(true);
-            console.log("🔐 checkAuthWithToken - INICIADO");
-            console.log("🔐 Token recibido:", token ? "✅ VÁLIDO" : "❌ NULL");
 
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            console.log("🔐 Header Authorization configurado");
 
             const response = await axios.get(`${BackUrl}users/current`);
-             console.log("✅ checkAuthWithToken - ÉXITO:", response.data);           
 
             const userData = response.data.user;
 
@@ -262,16 +258,8 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             sessionStorage.setItem("user", JSON.stringify(userData));
             sessionStorage.setItem("token", token);
-
-            console.log("✅ Usuario autenticado y guardado");            
             
         } catch (error) {
-            console.error("❌ checkAuthWithToken - ERROR COMPLETO:", {
-                status: error.response?.status,
-                data: error.response?.data,
-                headers: error.config?.headers,
-                url: error.config?.url
-            });
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("user");
             delete axios.defaults.headers.common["Authorization"];
@@ -282,25 +270,16 @@ export const AuthProvider = ({ children }) => {
         };
     };
 
-    useEffect(() => {
-        console.log("UseEffect del token URL - INICIADO");
-        
+    useEffect(() => {        
         const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("auth_token");
-
-        console.log("URL completa:", window.location.href);
-        console.log("token encontrado en URL:", token);
-               
+        const token = urlParams.get("auth_token");               
     
         if(token) {
-            console.log("token detectado en URL, llamando a checkAutWithToken");
             checkAuthWithToken(token);
-            console.log("Limpiando URL...");
             
             window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            console.log("No se encontró token en la URL");            
         }
+        
     }, [checkAuthWithToken]);
 
     const forgotPassword = async(email) => {

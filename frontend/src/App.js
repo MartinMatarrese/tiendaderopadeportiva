@@ -21,7 +21,6 @@ import { PaymentPending } from "./components/Payment/PaymentPending";
 import { VerifyEmail } from "./components/VerifyEmail/VerifyEmail";
 import { AdminPanel } from "./components/AdminPanel/AdminPanel";
 import { CreateProduct } from "./components/AdminPanel/CreateProduct";
-// import AuthSuccess from "./components/AuthSuccess/AuthSuccess";
 
 const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
 
@@ -48,7 +47,6 @@ function App (){
                         <Route path="/verify-email/:token" element={<VerifyEmail/>}/>
                         <Route path="/forgot-password" element={<ForgotPassword/>}/>
                         <Route path="/reset-password" element={<ResetPassword/>}/>
-                        {/* <Route path="/auth-success" element={<AuthSuccess/>}/> */}
                         <Route path="/checkout" element={<CheckoutPage/>}/>
                         <Route path="/payments/success" element={<PaymentSuccess/>}/>
                         <Route path="/payments/failure" element={<PaymentFailure/>}/>
