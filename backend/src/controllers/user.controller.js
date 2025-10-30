@@ -129,6 +129,7 @@ class UserController {
             //     maxAge: 30 * 60 * 1000,
             //     path: "/"
             // })
+            
 
             res.redirect(`${frontendUrl}auth-success?token=${token}`);
                         
