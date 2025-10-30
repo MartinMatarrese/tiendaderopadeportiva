@@ -10,7 +10,7 @@ import Carrito from "./components/Carrito/Carrito";
 import { Footer } from "./components/Footer/Footer";
 import { Login } from "./components/login/login";
 import { Register } from "./components/Register/register";
-import { AuthProvider } from "./components/Context/UserContext";
+import { AuthProvider, useAuth } from "./components/Context/UserContext";
 import ForgotPassword from "./components/login/forgotPassword";
 import ResetPassword from "./components/login/resetPassword";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
@@ -21,11 +21,25 @@ import { PaymentPending } from "./components/Payment/PaymentPending";
 import { VerifyEmail } from "./components/VerifyEmail/VerifyEmail";
 import { AdminPanel } from "./components/AdminPanel/AdminPanel";
 import { CreateProduct } from "./components/AdminPanel/CreateProduct";
-import AuthSuccess from "./components/AuthSuccess/AuthSuccess";
+// import AuthSuccess from "./components/AuthSuccess/AuthSuccess";
+import { useEffect } from "react";
 
 const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
 
 function App (){
+    const { checkAuthWithToken } = useAuth();
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("auth_token");
+
+        if(token) {
+            console.log("token detectado en URL, procesando...");
+            checkAuthWithToken(token);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        };
+    }, [checkAuthWithToken]);
+
     return(
         <div>
             <AuthProvider>
@@ -48,7 +62,7 @@ function App (){
                         <Route path="/verify-email/:token" element={<VerifyEmail/>}/>
                         <Route path="/forgot-password" element={<ForgotPassword/>}/>
                         <Route path="/reset-password" element={<ResetPassword/>}/>
-                        <Route path="/auth-success" element={<AuthSuccess/>}/>
+                        {/* <Route path="/auth-success" element={<AuthSuccess/>}/> */}
                         <Route path="/checkout" element={<CheckoutPage/>}/>
                         <Route path="/payments/success" element={<PaymentSuccess/>}/>
                         <Route path="/payments/failure" element={<PaymentFailure/>}/>

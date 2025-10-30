@@ -244,6 +244,35 @@ export const AuthProvider = ({ children }) => {
         };
     };
 
+    const checkAuthWithToken = async(token) => {
+        try {
+            setLoading(true);
+            console.log("Verificando token recibido vía URL");
+
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            const response = await axios.get(`${BackUrl}users/current`);
+            const userData = response.data.user;
+
+            setUser(userData);
+            setIsAuthenticated(true);
+            sessionStorage.setItem("user", JSON.stringify(userData));
+            sessionStorage.setItem("token", token);
+
+            console.log("Autenticación exitosa con token de URL");            
+            
+        } catch (error) {
+            console.error("Error autenticando con token:", error);
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user");
+            delete axios.defaults.headers.common["Authorization"];
+            setUser(null);
+            setIsAuthenticated(false);
+        } finally {
+            setLoading(false);
+        };
+    };
+
     const forgotPassword = async(email) => {
         try {
             console.log("Enaviando solicitud de forgot-password para email: ", email);
@@ -355,7 +384,7 @@ export const AuthProvider = ({ children }) => {
     };
                           
     return (
-        <AuthContext.Provider value={{ user, login, register, resendVerification, forgotPassword, resetPassword, logout, loading, isAuthenticated, startSessionTimer, timeLeft }}>
+        <AuthContext.Provider value={{ user, login, register, resendVerification, forgotPassword, resetPassword, logout, loading, isAuthenticated, checkAuthWithToken, startSessionTimer, timeLeft }}>
             {children}
         </AuthContext.Provider>
     );
