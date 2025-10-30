@@ -21,13 +21,33 @@ export const AuthProvider = ({ children }) => {
             try {
                 setLoading(true);
                 console.log("Intentando autenticación...");
-                console.log("Cookies disponibles:", document.cookie);                
+                console.log("Cookies disponibles:", document.cookie);
+
+                const token = sessionStorage.getItem("token");
+                const storedUser = sessionStorage.getItem("user");
+
+                if(!token) {
+                    setUser(null);
+                    setIsAuthenticated(false);
+                    setLoading(false);
+                    return;
+                };
+
+                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+                if(storedUser) {
+                    setUser(JSON.parse(storedUser));
+                    setIsAuthenticated(true);
+                    setLoading(false);
+                    return;
+                }
                 
                 const response = await axios.get(`${BackUrl}users/current`, { withCredentials: true});
                 console.log("Autenticación exitosa:", response.data);
                 
                 setUser(response.data.user);
                 setIsAuthenticated(true);
+                sessionStorage.setItem("user", JSON.stringify(response.data.user));
             } catch (error) {
                 console.error("❌ Error de autenticación COMPLETO:", {
                     status: error.response?.status,
@@ -39,6 +59,9 @@ export const AuthProvider = ({ children }) => {
                         withCredentials: error.config?.withCredentials
                     }
                 });
+                sessionStorage.removeItem("token");
+                sessionStorage.removeItem("user");
+                delete axios.defaults.headers.common["Authorization"];
                 setUser(null);
                 setIsAuthenticated(false);
             } finally {
@@ -48,63 +71,6 @@ export const AuthProvider = ({ children }) => {
         checkAuth()
     }, []);
     
-    // const checkAuth = async() => {
-    //     try {
-    //         const token = sessionStorage.getItem("token");
-    //         if(!token) {
-    //             setLoading(false)
-    //             return;
-    //         }
-    //         const response = await axios.get("http://localhost:8080/users/current", {
-    //             headers: { Authorization: `Bearer ${token}` },
-    //             withCredentials: true
-    //         });
-    //         const userData = response.data;
-    //         setUser(userData);
-    //         sessionStorage.setItem("user", JSON.stringify(userData));
-    //     } catch (error) {
-    //         console.error("Error verificando autenticación:", error);
-    //         sessionStorage.removeItem("token");
-    //         sessionStorage.removeItem("user");
-    //         setUser(null);
-    //     } finally {
-    //         setLoading(false)
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     const initAuth = async() => {
-    //         try {
-    //             const storedUser = sessionStorage.getItem("user");
-    //             const storedToken = sessionStorage.getItem("token");
-    //             if(storedUser && storedToken) {
-    //                 setUser(JSON.parse(storedUser));
-    //                 // await checkAuth();
-    //                 return;
-    //             };
-
-    //             if(typeof window != "undefined") {
-    //                 const query = new URLSearchParams(window.location.search);
-    //                 const token = query.get("token");                    
-    //                 if( token ) {
-    //                     const response = await axios.get(`${BackUrl}/users/current`, {
-    //                         headers: { Authorization: `Bearer ${token}`},
-    //                         withCredentials: true
-    //                     })
-    //                     const userData = response.data;
-    //                     sessionStorage.setItem("user", JSON.stringify(userData));
-    //                     sessionStorage.setItem("token", token);
-    //                     window.history.replaceState({}, document.title, "/");
-    //                 }
-    //             }
-    //         } catch(error) {
-    //             console.error("Error al inicializar auth", error);                
-    //         } finally {
-    //             setLoading(false)
-    //         }
-    //     };
-    //     initAuth();
-    // }, []);
     useEffect(() => {
         if(user && !sessionTimer) {
             startSessionTimer();
@@ -165,8 +131,6 @@ export const AuthProvider = ({ children }) => {
             }
         }
     }, [sessionTimer]);
-
-    // const isAuthenticated = !!user;
 
     const register = async(userData) => {
         try {
@@ -246,9 +210,12 @@ export const AuthProvider = ({ children }) => {
             console.log("Login exitoso - User data:", user);
             
             sessionStorage.setItem("token", token);
-            sessionStorage.setItem("user", JSON.stringify(user)) 
-            
-            setUser(user); 
+            sessionStorage.setItem("user", JSON.stringify(user));
+
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            setUser(user);
+            setIsAuthenticated(true);
                     
             Swal.fire({ 
                 toast: true,
@@ -258,7 +225,7 @@ export const AuthProvider = ({ children }) => {
                 showConfirmButton: false, 
                 timer: 1500 
             });
-            // navigate(`/?token=${token}`);
+        
             if(navigateCallBack) {
                 navigateCallBack()
             } else {
@@ -352,12 +319,30 @@ export const AuthProvider = ({ children }) => {
                      
     const logout = async( navigate ) => { 
         try {
-            await axios.post(`${BackUrl}users/logout`, {}, { withCredentials: true });
+            await axios.post(`${BackUrl}users/logout`, {}, {
+                headers: {
+                    Authorization: `Bearer ${sessionStorage.getItem("token")}`
+                }
+             });
 
             setUser(null);
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("user");
                         
+        } catch (error) {            
+            Swal.fire({ 
+                position: "center",
+                icon: "error",
+                title: error.response?.data?.error || "Intenta nuevamente", 
+                showConfirmButton: false, timer: 1500 
+            });
+        } finally {
+            setUser(null);
+            setIsAuthenticated(false);
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user");
+            delete axios.defaults.headers.common["Authorization"];
+
             Swal.fire({ 
                 position: "center",
                 icon: "success",
@@ -366,13 +351,6 @@ export const AuthProvider = ({ children }) => {
                 timer: 1500
             });
             navigate("/");
-        } catch (error) {            
-            Swal.fire({ 
-                position: "center",
-                icon: "error",
-                title: error.response?.data?.error || "Intenta nuevamente", 
-                showConfirmButton: false, timer: 1500 
-            });
         };
     };
                           
