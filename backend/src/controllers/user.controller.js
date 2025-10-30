@@ -121,14 +121,14 @@ class UserController {
             if(!user) return res.status(401).send("No autorizado");
             const token = this.service.generateToken(user);
             
-            res
-            .cookie("token", token, {
-                httpOnly: false,
-                secure: true,
-                sameSite: "none",
-                maxAge: 30 * 60 * 1000,
-                path: "/"
-            })
+            // res
+            // .cookie("token", token, {
+            //     httpOnly: false,
+            //     secure: true,
+            //     sameSite: "none",
+            //     maxAge: 30 * 60 * 1000,
+            //     path: "/"
+            // })
 
             res.redirect(`${frontendUrl}auth-success?token=${token}`);
                         
