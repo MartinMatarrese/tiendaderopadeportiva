@@ -273,6 +273,17 @@ export const AuthProvider = ({ children }) => {
         };
     };
 
+    useEffect(() => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get("auth_token");
+    
+            if(token) {
+                console.log("token detectado en URL, procesando...");
+                checkAuthWithToken(token);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            };
+        }, [checkAuthWithToken]);
+
     const forgotPassword = async(email) => {
         try {
             console.log("Enaviando solicitud de forgot-password para email: ", email);
