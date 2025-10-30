@@ -274,15 +274,25 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get("auth_token");
+        console.log("UseEffect del token URL - INICIADO");
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("auth_token");
+
+        console.log("URL completa:", window.location.href);
+        console.log("token encontrado en URL:", token);
+               
     
-            if(token) {
-                console.log("token detectado en URL, procesando...");
-                checkAuthWithToken(token);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            };
-        }, [checkAuthWithToken]);
+        if(token) {
+            console.log("token detectado en URL, llamando a checkAutWithToken");
+            checkAuthWithToken(token);
+            console.log("Limpiando URL...");
+            
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+            console.log("No se encontró token en la URL");            
+        }
+    }, [checkAuthWithToken]);
 
     const forgotPassword = async(email) => {
         try {
