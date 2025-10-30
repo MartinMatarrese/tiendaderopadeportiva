@@ -130,8 +130,12 @@ class UserController {
             //     path: "/"
             // })
 
-
-            res.redirect(`${frontendUrl}?auth_token=${token}`);
+            const redirectUrl = `${frontendUrl}?auth_token=${token}`;
+            console.log("Google Auth - Redirigiendo a:", redirectUrl);
+            console.log("Token generado:", token);
+            
+            
+            res.redirect(redirectUrl);
                         
         } catch (error) {
             next(error)
