@@ -150,7 +150,7 @@ export const UpdateProduct = ({ productId, onUpdate, onCancel }) => {
             </div>
 
             <form onSubmit={handleSubmit} className="product-form">
-                <div className="from-grid">
+                <div className="form-grid">
                     <div className="form-group">
                         <label>URL de la imagen *</label>
                         <input 

@@ -125,13 +125,159 @@
     transform: none;
 }
 
-@media sceen and (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
+@media screen and(max-width: 1024px) {
+    .admin-panel {
+        max-width: 90%;
+        margin: 20px auto;
+        padding: 25px;
     }
 
+    .admin-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .admin-header p {
+        font-size: 1rem;
+    }
+
+    .form-grid {
+        gap: 15px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+
+    .submit-btn {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+}
+@media screen and (max-width: 768px) {
+    .admin-panel {
+        max-width: 95%;
+        margin: 15px auto;
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .admin-header {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+    }
+
+    .admin-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+}
+
+@media screen and(max-width: 480px) {
     .admin-panel {
         margin: 10px;
-        padding: 20px;
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .admin-header h2 {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+    }
+
+    .admin-header p {
+        font-size: 0.9rem;
+    }
+
+    .form-grid {
+        gap: 12px;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-width: 1px;
+    }
+
+    .form-group textarea {
+        min-height: 70px;
+    }
+
+    .submit-btn {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .message {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and(max-width: 360px) {
+    .admin-panel {
+        margin: 5px;
+        padding: 12px;
+    }
+
+    .admin-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .admin-header p {
+        font-size: 0.85rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+
+    .submit-btn {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and(min-width: 1440px) {
+    .admin-panel {
+        max-width: 900px;
+    }
+
+    .form-grid {
+        gap: 25px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 14px 18px;
+        font-size: 1.05rem;
+    }
+
+    .submit-btn {
+        padding: 16px 28px;
+        font-size: 1.15rem;
     }
 }
