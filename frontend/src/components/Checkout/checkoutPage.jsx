@@ -68,25 +68,22 @@ const CheckoutPage = () => {
             };
 
             console.log("5. Abriendo Mercado Pago en nueva pestaña");
-
-            window.location.href = paymentUrl;
             
-            // if(paymentUrl) {
-            //     console.log("5. Abriendo Mercado Pago en nueva pestaña");
-            //     const link = document.createElement("a");
-            //     link.href = paymentUrl;
-            //     link.target = "_blank";
-            //     link.rel = "noopener noreferrer";
-            //     document.body.appendChild(link);
-            //     link.click();
-            //     document.body.removeChild(link);
-            //     console.log("6. Pestaña abierta - completar pago en Mercado Pago");
+            if(paymentUrl) {
+                console.log("5. Abriendo Mercado Pago en nueva pestaña");
+                const link = document.createElement("a");
+                link.href = paymentUrl;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log("6. Pestaña abierta - completar pago en Mercado Pago");
                 
-            // } else {
-            //     throw new Error("No se pudo obtener la url del pago de la respuesta")
-            // }
+            } else {
+                throw new Error("No se pudo obtener la url del pago de la respuesta")
+            }
             
-            // window.location.href = response.data.init_point;
         } catch (error) {
             console.error("Error completo al procesar el pago: ", error);
             if(error.code === "ECONNABORTED") {

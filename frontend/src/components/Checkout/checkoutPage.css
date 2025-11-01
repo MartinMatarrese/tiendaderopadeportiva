@@ -240,7 +240,12 @@
     font-size: 0.9rem;
 }
 
-@media sceend and (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
+    .checkout-container {
+        max-width: 95%;
+        padding: 20px;
+    }
+
     .checkout-content {
         gap: 30px;
     }
@@ -249,9 +254,14 @@
     .payment-section {
         padding: 25px;
     }
+
+    .checkout-header h1 {
+        padding: 16px 25px;
+        font-size: 1.2rem;
+    }
 }
 
-@media sceend and (max-width: 768px) {
+@media screen and(max-width: 900px) {
     .checkout-container {
         padding: 15px;
     }
@@ -266,9 +276,29 @@
         font-size: 2rem;
     }
 
+    .back-button {
+        align-self: center;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 20px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .checkout-container {
+        padding: 15px;
+        max-width: 100%;
+    }
+
+    .checkout-header h1 {
+        font-size: 1.8rem;
+    }
+
     .checkout-content {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 20px;
     }
 
     .order-summary,
@@ -276,29 +306,8 @@
         padding: 20px;
     }
 
-    .payment-button {
-        padding: 16px 25px;
-        font-size: 1.1rem;
-    }
-}
-
-@media sceend and (max-width: 480px) {
-    .checkout-container {
-        padding: 10px;
-    }
-
-    .checkout-header h1 {
-        font-size: 1.8rem;
-    }
-
-    .back-button {
-        padding: 10px 20px;
-        font-size: 0.9rem;
-    }
-
-    .order-summary,
-    .payment-section {
-        padding: 15px;
+    .order-items {
+        max-height: 300px;
     }
 
     .order-item {
@@ -310,48 +319,223 @@
     }
 
     .payment-button {
-        padding: 14px 20px;
-        font-size: 1rem;
+        padding: 16px 25px;
+        font-size: 1.1rem;
     }
 
     .order-total h3 {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .checkout-container {
+        padding: 10px;
+    }
+
+    .checkout-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .back-button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .order-item {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+
+    .order-item h4 {
+        font-size: 1rem;
+    }
+
+    .order-item p {
+        font-size: 0.85rem;
+    }
+
+    .payment-button {
+        padding: 14px 20px;
+        font-size: 1rem;
+        border-radius: 25px;
+    }
+
+    .order-total {
+        padding: 15px;
+    }
+
+    .order-total h3 {
+        font-size: 1.4rem;
+    }
+
+    .payment-security p {
+        font-size: 0.8rem;
+    }
+
+    .error-message {
+        padding: 12px;
+        font-size: 0.9rem;
     }
 
     .order-items::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
     }
 
     .order-items::-webkit-scrollbar-track {
         background: #f1f1f1;
-        border-radius: 3px;
+        border-radius: 2px;
     }
 
     .order-items::-webkit-scrollbar-thumb {
         background: #dc3545;
-        border-radius: 3px;
+        border-radius: 2px;
     }
 
     .order-items::-webkit-scrollbar-thumb:hover {
         background: #c82333;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px)
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+}
+
+@media screen and(max-width: 360px) {
+    .checkout-container {
+        padding: 8px;
     }
 
-    .checkout-container {
-        animation: fadeIn 0.5s ease-out;
+    .checkout-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 12px;
+    }
+
+    .order-summary h2,
+    .payment-section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
     }
 
     .order-item {
-        animation: fadeIn 0.3s ease-out;
+        padding: 10px;
     }
+
+    .order-item h4 {
+        font-size: 0.95rem;
+    }
+
+    .order-item p {
+        font-size: 0.8rem;
+        margin: 3px 0;
+    }
+
+    .payment-button {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+
+    .order-total {
+        padding: 12px;
+    }
+
+    .order-total h3 {
+        font-size: 1.2rem;
+    }
+
+    .back-button {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+@media screen and(min-width: 1440px) {
+    .checkout-container {
+        max-width: 1300px;
+        padding: 30px;
+    }
+
+    .checkout-content {
+        gap: 50px;
+    }
+
+    .order-summary,
+    .payment-section {
+        padding: 40px;
+    }
+
+    .checkout-header h1 {
+        font-size: 3rem;
+    }
+
+    .order-summary h2,
+    .payment-section h2 {
+        font-size: 2rem;
+    }
+
+    .payment-button {
+        padding: 20px 35px;
+        font-size: 1.4rem;
+    }
+
+    .order-item {
+        padding: 25px;
+    }
+
+    .order-item h4 {
+        font-size: 1.3rem;
+    }
+
+    .order-item p {
+        font-size: 1.1rem;
+    }
+}
+
+@media screen and (max-height: 600px) and (orientation: landscape) {
+    .checkout-container {
+        min-height: auto;
+        padding: 10px;
+    }
+
+    .order-items {
+        max-height: 200px;
+    }
+
+    .order-item {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+
+    .checkout-header {
+        margin-bottom: 15px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px)
+    }
+    to {
+        opacity: 1;
+         transform: translateY(0);
+    }
+}
+
+.checkout-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.order-item {
+    animation: fadeIn 0.3s ease-out;
 }

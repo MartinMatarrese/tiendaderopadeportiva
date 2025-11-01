@@ -23,17 +23,154 @@
     border-radius: 2px;
 }
 
+@media screen and(max-width: 1024px) {
+    .titulo {
+        font-size: 1.8rem;
+        margin-bottom: 18px;
+    }
+
+    .titulo::after {
+        width: 50px;
+        height: 2.5px;
+        bottom: -6px;
+    }
+}
+
+@media screen and(max-width: 900px) {
+    .titulo {
+        font-size: 1.7rem;
+        margin-bottom: 16px;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+}
 @media screen and (max-width: 768px) {
     .container {
-        height: 3000px;
+        height: auto;
+        min-height: 100vh;
+        padding: 0 10px;
     }
+
+    .titulo {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+    }
+
+    .titulo::after {
+        width: 45px;
+        height: 2px;
+        bottom: -5px;
+    }
+
     .category-camisetas {
-        height: 1250px;
+        height: auto;
+        min-height: 1250px;
     }
+
     .category-camperas {
-        height: 800px;
+        height: auto;
+        min-height: 800px;
     }
+
     .category-shorts {
-        height: 800px;
+        height: auto;
+        min-height: 800px;
     }    
+}
+
+@media screen and(max-width: 480px) {
+    .titulo {
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+        padding: 0 10px;
+    }
+
+    .titulo::after {
+        width: 40px;
+        height: 2px;
+        bottom: -4px;
+    }
+
+    .container {
+        padding: 0 8px;
+    }
+
+    .category-camisetas {
+        min-height: 1100px;
+    }
+
+    .category-camperas {
+        min-height: 700px;
+    }
+
+    .category-shorts {
+        min-height: 700px;
+    }
+}
+
+@media screen and(max-width: 360px) {
+    .titulo {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .titulo::after {
+        width: 35px;
+        height: 1.5px;
+        bottom: -3px;
+    }
+
+    .container {
+        padding: 0 5px;
+    }
+
+    .category-camisetas {
+        min-height: 1000px;
+    }
+
+    .category-camperas {
+        min-height: 650px;
+    }
+
+    .category-shorts {
+        min-height: 650px;
+    }
+}
+
+@media screen and(min-width: 1440px) {
+    .titulo {
+        font-size: 2.5rem;
+        margin-bottom: 25px;
+    }
+
+    .titulo::after {
+        width: 80px;
+        height: 4px;
+        bottom: -10px;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+@media screen and(max-height: 600px) and(orientation: landscape) {
+    .container {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .titulo {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+    }
+
+    .category-camisetas,
+    .category-camperas,
+    .category-shorts {
+        min-height: auto;
+    }
 }
