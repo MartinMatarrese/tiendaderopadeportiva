@@ -58,8 +58,17 @@ class UserController {
             res
             .cookie("token", token, { httpOnly: true })
             .json({ message: "Login Ok", token, user: {
+                _id: user._id,
                 first_name: user.first_name,
                 last_name: user.last_name,
+                email: user.email,
+                role: user.role,
+                cart: user.cart,
+                age: user.age,
+                profilePic: user.profilePic,
+                isVerified: user.isVerified,
+                fromGoogle: user.fromGoogle
+
             }});
             
         } catch(error) {
