@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import "./ItemListContainer.css";
 import axios from "axios";
 import { useAuth } from "../Context/UserContext";
+import Swal from "sweetalert2";
 
 const backUrl = process.env.REACT_APP_BACK_URL;
 
@@ -26,13 +27,13 @@ export const ItemListContainer = () => {
                     setUser(res.data.user);
                 } catch (error) {
                     Swal.fire({
-                    position: "center",
-                    icon: "warning",
-                    title: "Error",
-                    text: "Error al obtener el usuario",
-                    showConfirmButton: true,
-                    confirmButtonText: "Entendido"
-                });                        
+                        position: "center",
+                        icon: "warning",
+                        title: "Error",
+                        text: "Error al obtener el usuario",
+                        showConfirmButton: true,
+                        confirmButtonText: "Entendido"
+                    });                        
                 };
             };
             fetchCurrentUser({});
