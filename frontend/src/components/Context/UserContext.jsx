@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
         if(sessionTimer) {
             clearInterval(sessionTimer)
         }
-        setTimeLeft(29 * 60);
+        setTimeLeft(30 * 60);
 
         const handleLogout = async() => {
             if(sessionTimer) {
@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }) => {
                 icon: "success", 
                 title: `Bienvenido ${user.first_name} ${user.last_name}`, 
                 showConfirmButton: false, 
-                timer: 1500 
+                timer: 2000 
             });
         
             if(navigateCallBack) {
@@ -244,7 +244,7 @@ export const AuthProvider = ({ children }) => {
         };
     };
 
-    const checkAuthWithToken = useCallback(async(token) => {
+    const checkAuthWithToken = useCallback(async(token, showAlert = false) => {
         try {
             setLoading(true);
 
@@ -258,6 +258,17 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             sessionStorage.setItem("user", JSON.stringify(userData));
             sessionStorage.setItem("token", token);
+
+            if(showAlert) {
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: `Bienvenido ${userData.first_name} ${userData.last_name}`,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
             
         } catch (error) {
             sessionStorage.removeItem("token");
@@ -265,6 +276,16 @@ export const AuthProvider = ({ children }) => {
             delete axios.defaults.headers.common["Authorization"];
             setUser(null);
             setIsAuthenticated(false);
+
+            if(showAlert) {
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Error de autenticación",
+                    text: errorMessage,
+                    confirmButtonText: "Aceptar"
+                });
+            }
         } finally {
             setLoading(false);
         };
@@ -275,10 +296,11 @@ export const AuthProvider = ({ children }) => {
         const token = urlParams.get("auth_token");               
     
         if(token) {
-            checkAuthWithToken(token);
-            
+            checkAuthWithToken(token, true);
+
             window.history.replaceState({}, document.title, window.location.pathname);
-        }
+
+        };        
 
     }, [checkAuthWithToken]);
 

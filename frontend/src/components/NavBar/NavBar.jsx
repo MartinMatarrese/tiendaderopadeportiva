@@ -129,7 +129,7 @@ export const NavBar = () => {
             )}
 
             <div className="nav-right-container">
-                {user && timeLeft <= 600 && (
+                {user && (
                     <div className="nav-timer">
                         <span className="nav-timer-icon">⏱️</span>
                         <span className="nav-timer-text">
