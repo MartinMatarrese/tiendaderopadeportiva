@@ -251,12 +251,19 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
             const response = await axios.get(`${BackUrl}users/current`);
+            console.log("🔍 Response from /users/current:", response);
+            console.log("🔍 response.data:", response.data);
+            console.log("🔍 response.data.user:", response.data.user);
+            console.log("🔍 response.data.first_name:", response.data.first_name);
 
-            const { user } = response.data;
+            // const { user } = response.data;
+            const userData = response.data.user || response.data;
+            console.log("userData:", userData);
+            
 
-            setUser(user);
+            setUser(userData);
             setIsAuthenticated(true);
-            sessionStorage.setItem("user", JSON.stringify(user));
+            sessionStorage.setItem("user", JSON.stringify(userData));
             sessionStorage.setItem("token", token);
 
             if(showAlert) {
@@ -264,7 +271,7 @@ export const AuthProvider = ({ children }) => {
                     toast: true,
                     position: "top-end",
                     icon: "success",
-                    title: `Bienvenido ${user.first_name} ${user.last_name}`,
+                    title: `Bienvenido ${userData.first_name} ${userData.last_name}`,
                     showConfirmButton: false,
                     timer: 2000
                 });
