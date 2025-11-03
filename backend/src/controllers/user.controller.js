@@ -90,14 +90,14 @@ class UserController {
             const responseData = {
                 user: {
                     _id: user._id,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
+                    first_name: user.nombre,
+                    last_name: user.apellido,
                     email: user.email,
                     role: user.role,
-                    cart: user.cart,
-                    age: user.age,
+                    cart: user.carrito,
+                    age: user.edad,
                     profilePic: user.profilePic,
-                    isVerified: user.isVerified,
+                    isVerified: user.verificado,
                     fromGoogle: user.fromGoogle
                 }
             };
