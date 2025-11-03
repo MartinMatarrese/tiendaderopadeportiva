@@ -80,9 +80,7 @@ class UserController {
 
     privateData = async(req, res, next) => {
         try {    
-            const user = req.user;
-            console.log("UserObject en priverData:", user);
-            
+            const user = req.user;            
             if(!user) {                
                 return res.status(401).json({error: "No autorizado"})
             }
@@ -101,8 +99,6 @@ class UserController {
                     fromGoogle: user.fromGoogle
                 }
             };
-
-            console.log("responseData:", responseData);
             
             res.json(responseData);            
                 
@@ -134,23 +130,9 @@ class UserController {
             
             if(!user) return res.status(401).send("No autorizado");
             const token = this.service.generateToken(user);
-            
-            // res
-            // .cookie("token", token, {
-            //     httpOnly: false,
-            //     secure: true,
-            //     sameSite: "none",
-            //     maxAge: 30 * 60 * 1000,
-            //     path: "/"
-            // })
 
-            const redirectUrl = `${frontendUrl}?auth_token=${token}`;
-            console.log("Google Auth - Redirigiendo a:", redirectUrl);
-            console.log("Token generado:", token);
-            
-            
-            res.redirect(redirectUrl);
-                        
+            const redirectUrl = `${frontendUrl}?auth_token=${token}`;           
+            res.redirect(redirectUrl);                        
         } catch (error) {
             next(error)
         };
