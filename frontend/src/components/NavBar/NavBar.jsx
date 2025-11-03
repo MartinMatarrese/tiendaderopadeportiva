@@ -129,6 +129,7 @@ export const NavBar = () => {
             )}
 
             <div className="nav-right-container">
+                <CartWidget />
                 {user && (
                     <div className="nav-timer">
                         <span className="nav-timer-icon">⏱️</span>
@@ -146,7 +147,6 @@ export const NavBar = () => {
                         )}
                     </div>
                 )}
-                <CartWidget />
             </div>
         </nav>
     );

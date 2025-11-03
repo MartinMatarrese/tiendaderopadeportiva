@@ -252,11 +252,11 @@ export const AuthProvider = ({ children }) => {
 
             const response = await axios.get(`${BackUrl}users/current`);
 
-            const userData = response.data.user;
+            const { user } = response.data;
 
             setUser(userData);
             setIsAuthenticated(true);
-            sessionStorage.setItem("user", JSON.stringify(userData));
+            sessionStorage.setItem("user", JSON.stringify(user));
             sessionStorage.setItem("token", token);
 
             if(showAlert) {
@@ -264,7 +264,7 @@ export const AuthProvider = ({ children }) => {
                     toast: true,
                     position: "top-end",
                     icon: "success",
-                    title: `Bienvenido ${userData.first_name} ${userData.last_name}`,
+                    title: `Bienvenido ${user.first_name} ${user.last_name}`,
                     showConfirmButton: false,
                     timer: 2000
                 });
