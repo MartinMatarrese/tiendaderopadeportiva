@@ -20,9 +20,6 @@ export const AuthProvider = ({ children }) => {
         const checkAuth = async() => {
             try {
                 setLoading(true);
-                console.log("Intentando autenticación...");
-                console.log("Cookies disponibles:", document.cookie);
-
                 const token = sessionStorage.getItem("token");
                 const storedUser = sessionStorage.getItem("user");
 
@@ -42,23 +39,11 @@ export const AuthProvider = ({ children }) => {
                     return;
                 }
                 
-                const response = await axios.get(`${BackUrl}users/current`, { withCredentials: true});
-                console.log("Autenticación exitosa:", response.data);
-                
+                const response = await axios.get(`${BackUrl}users/current`, { withCredentials: true});                
                 setUser(response.data.user);
                 setIsAuthenticated(true);
                 sessionStorage.setItem("user", JSON.stringify(response.data.user));
             } catch (error) {
-                console.error("❌ Error de autenticación COMPLETO:", {
-                    status: error.response?.status,
-                    statusText: error.response?.statusText,
-                    data: error.response?.data,
-                    headers: error.response?.header,
-                    config: {
-                        url: error.config?.url,
-                        withCredentials: error.config?.withCredentials
-                    }
-                });
                 sessionStorage.removeItem("token");
                 sessionStorage.removeItem("user");
                 delete axios.defaults.headers.common["Authorization"];
@@ -98,7 +83,14 @@ export const AuthProvider = ({ children }) => {
             try {
                 await axios.post(`${BackUrl}users/logout`, {}, { withCredentials: true })
             } catch (error) {
-                console.error("Error en logout automático:", error);
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    title: "Error",
+                    text: "Error en logout automatico",
+                    showConfirmButton: true,
+                    confirmButtonText: "Entendido"
+                });
             } finally {
                 setUser(null);
                 sessionStorage.removeItem("token");
@@ -155,7 +147,6 @@ export const AuthProvider = ({ children }) => {
 
             return response.data;
         } catch (error) {
-            console.log("Register error", error.response?.data);
             let errormsg = "Error en el registro";
             
             if(error.response?.data?.message?.includes("ya existe")) {
@@ -190,7 +181,6 @@ export const AuthProvider = ({ children }) => {
 
             return response.data;
         } catch (error) {
-            console.log("Resend verification error", error.response?.data);
             Swal.fire({
                 position: "center",
                 icon: "error",
@@ -206,9 +196,7 @@ export const AuthProvider = ({ children }) => {
     const login = async( credentials, navigate, navigateCallBack ) => { 
         try { 
             const response = await axios.post(`${BackUrl}users/login`, credentials, { withCredentials: true, }); 
-            const { token, user } = response.data;
-            console.log("Login exitoso - User data:", user);
-            
+            const { token, user } = response.data;            
             sessionStorage.setItem("token", token);
             sessionStorage.setItem("user", JSON.stringify(user));
 
@@ -233,7 +221,6 @@ export const AuthProvider = ({ children }) => {
             }
 
         } catch (error) { 
-            console.log("Login error", error.response?.data);
             Swal.fire({ 
                 position: "center", 
                 icon: "error", 
@@ -251,15 +238,7 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
             const response = await axios.get(`${BackUrl}users/current`);
-            console.log("🔍 Response from /users/current:", response);
-            console.log("🔍 response.data:", response.data);
-            console.log("🔍 response.data.user:", response.data.user);
-            console.log("🔍 response.data.first_name:", response.data.first_name);
-
-            // const { user } = response.data;
-            const userData = response.data.user || response.data;
-            console.log("userData:", userData);
-            
+            const userData = response.data.user || response.data;            
 
             setUser(userData);
             setIsAuthenticated(true);
@@ -308,7 +287,13 @@ export const AuthProvider = ({ children }) => {
                     await checkAuthWithToken(token, true);
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } catch (error) {
-                    console.error("Error en GoogleAuth:", error);
+                    Swal.fire({
+                        position: "center",
+                        icon: "error",
+                        title: "Error de autenticación",
+                        text: "No se pudo completar el inicio de sesión con Google.",
+                        confirmButtonText: "Aceptar"
+                    });
                     
                 }
             }
@@ -319,13 +304,8 @@ export const AuthProvider = ({ children }) => {
     }, [checkAuthWithToken]);
 
     const forgotPassword = async(email) => {
-        try {
-            console.log("Enaviando solicitud de forgot-password para email: ", email);
-            
+        try {            
             const response = await axios.post(`${BackUrl}users/forgot-password`, {email}, {withCredentials: true});
-
-            console.log("Respuesta recibida:", response.data);
-
             Swal.fire({ 
                     position: "center", 
                     icon: "success", 
@@ -345,8 +325,6 @@ export const AuthProvider = ({ children }) => {
             
             return response.data;
         } catch (error) {
-            console.log("Forgot password error", error.response?.data);
-
             let errorMessage = "No se pudo enviar el email de recuperación";
 
             if(error.response?.data?.message?.includes("Gmail") || error.response?.data?.message?.includes("configuración")) {
@@ -380,7 +358,6 @@ export const AuthProvider = ({ children }) => {
 
             return response.data
         } catch (error) {
-            console.log("Reset password", error.response?.data);
             Swal.fire({ 
                 position: "center", 
                 icon: "error", 

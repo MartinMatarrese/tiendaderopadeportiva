@@ -25,7 +25,14 @@ export const ItemListContainer = () => {
                     });
                     setUser(res.data.user);
                 } catch (error) {
-                    console.error("Error al obtener el usuario:", error);                        
+                    Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    title: "Error",
+                    text: "Error al obtener el usuario",
+                    showConfirmButton: true,
+                    confirmButtonText: "Entendido"
+                });                        
                 };
             };
             fetchCurrentUser({});
@@ -36,7 +43,6 @@ export const ItemListContainer = () => {
         const url = categoryId ? `${backUrl}api/products?category=${categoryId}` : `${backUrl}api/products`;
         axios.get(url)
             .then(response => {
-                console.log(response.data);
                 if(response.data && Array.isArray(response.data)) {
                     setProducts(response.data)
                 }

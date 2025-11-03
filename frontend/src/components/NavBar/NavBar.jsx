@@ -48,16 +48,6 @@ export const NavBar = () => {
         setDropdownOpen(false)
     }
 
-    useEffect(() => {
-        console.log("🔍 NavBar Debug:", {
-            user: user,
-            isAuthenticated: isAuthenticated,
-            loading: loading,
-            userRole: user?.role,
-            isAdmin: user?.role === "admin"
-        });
-    }, [user, isAuthenticated, loading]);
-
     if(loading) {
         return (
             <nav className="menu"> 
