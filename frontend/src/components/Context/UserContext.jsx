@@ -282,7 +282,7 @@ export const AuthProvider = ({ children }) => {
                     position: "center",
                     icon: "error",
                     title: "Error de autenticación",
-                    text: errorMessage,
+                    text: "No se pudo completar el inicio de sesión",
                     confirmButtonText: "Aceptar"
                 });
             }
