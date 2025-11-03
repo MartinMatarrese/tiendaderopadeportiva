@@ -1,7 +1,5 @@
 import { userService } from "../services/user.service.js";
 import { sendMail } from "../config/gmail.config.js";
-import jwt from "jsonwebtoken";
-import { use } from "react";
 
 
 const frontendUrl = process.env.FRONTEND_URL;
