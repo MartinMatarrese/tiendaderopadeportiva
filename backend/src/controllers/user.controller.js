@@ -1,6 +1,7 @@
 import { userService } from "../services/user.service.js";
 import { sendMail } from "../config/gmail.config.js";
 import jwt from "jsonwebtoken";
+import { use } from "react";
 
 
 const frontendUrl = process.env.FRONTEND_URL;
@@ -82,11 +83,13 @@ class UserController {
     privateData = async(req, res, next) => {
         try {    
             const user = req.user;
+            console.log("UserObject en priverData:", user);
+            
             if(!user) {                
                 return res.status(401).json({error: "No autorizado"})
             }
-            
-            res.json({
+
+            const responseData = {
                 user: {
                     _id: user._id,
                     first_name: user.first_name,
@@ -99,7 +102,11 @@ class UserController {
                     isVerified: user.isVerified,
                     fromGoogle: user.fromGoogle
                 }
-            });            
+            };
+
+            console.log("responseData:", responseData);
+            
+            res.json(responseData);            
                 
         } catch(error) {
             next(error)
