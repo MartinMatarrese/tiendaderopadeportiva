@@ -303,10 +303,17 @@ export const AuthProvider = ({ children }) => {
         const token = urlParams.get("auth_token");               
     
         if(token) {
-            checkAuthWithToken(token, true);
+            const handleGoogleAuth = async() => {
+                try {
+                    await checkAuthWithToken(token, true);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error("Error en GoogleAuth:", error);
+                    
+                }
+            }
 
-            window.history.replaceState({}, document.title, window.location.pathname);
-
+            handleGoogleAuth();
         };        
 
     }, [checkAuthWithToken]);
