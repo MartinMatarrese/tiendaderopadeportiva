@@ -254,7 +254,7 @@ export const AuthProvider = ({ children }) => {
 
             const { user } = response.data;
 
-            setUser(userData);
+            setUser(user);
             setIsAuthenticated(true);
             sessionStorage.setItem("user", JSON.stringify(user));
             sessionStorage.setItem("token", token);
