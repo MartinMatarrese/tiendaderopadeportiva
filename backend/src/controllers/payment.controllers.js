@@ -60,54 +60,127 @@ class PaymentController {
     handleSuccess = async(req, res, next) => {
         try {
             const { payment_id, status, external_reference, cartId } = req.query;
-            const paymentData = {
-                    paymentId: payment_id,
-                    status,
-                    cartId: external_reference || cartId
-                };
+
+            console.log("Parámetros recibidos en handleSuccess:", {
+                payment_id,
+                status,
+                external_reference,
+                cartId
+            });
 
             if(status === "approved") {
                 const cartIdToProcess = external_reference;
-                
+
                 if(!cartIdToProcess) {
                     console.error("No hay external_reference (cartId)");
-                    return res.redirect(`${frontendUrl}payments/failure?message=error_procesando_pago`);
-                };
-
-                console.log("Procesando compra para cartId:", cartIdToProcess);
-
-                const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
-                const { ticket, productsOutStock } = resuladoCompra;
-
-                if(productsOutStock.length > 0) {
-                    console.warn("Algunos productos estaban sin stock:", productsOutStock);
-                    return res.redirect(`${frontendUrl}payments/failure?message=stock_insuficiente`);
-                };
-
-                paymentData.amount = ticket.amount;
-                paymentData.ticketId = ticket._id?.toString();
-        
-                const payment = await paymentService.createPayment(paymentData);
-
-                try {
-                    const user = await userService.getUserById(paymentData.userId)
-                    const cart = await cartServices.getCartById(cartId)
-                    await sendGmail(ticket, user.email, cart.products)
-                    console.log(`Email de confirmación enviado a ${user.email}`);
-                    
-                } catch(error) {
-                    console.error("Error al enviar el email de confirmación", error.message);                    
+                    return res.redirect(`${frontendUrl}payments/failure?message=missing_cart_id`);
                 }
 
-                return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}&ticketId=${ticket._id}`);
+                console.log("Procesando compra aporvada por cartId:", cartIdToProcess);
+                
+                try {
+                    const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
+                    const { ticket, productsOutStock } = resuladoCompra;
 
-            };
-            await paymentService.createPayment(paymentData);
+                    if(productsOutStock.length > 0) {
+                        console.warn("Algunos productos sin Stock:", productsOutStock);
+                        return res.redirect(`${frontendUrl}payments/failure?message=stock=insuficiente`)
+                    };
 
-            return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}`)
+                    const paymentData = {
+                        payment_id: payment_id,
+                        status,
+                        cartId: cartIdToProcess,
+                        amount: ticket.amount,
+                        ticketId: ticket._id?.toString()
+                    }
+
+                    const payment = await paymentService.createPayment(paymentData);
+
+                    try {
+                        const user = await userService.getUserById(paymentData.userId);
+                        const cart = await cartServices.getCartById(cartIdToProcess);
+                        await sendGmail(ticket, user.email, cart.products);
+                        console.log(`Email de confirmación enviado a ${user.email}`);
+                        
+                    } catch (error) {
+                        console.error("Error al enviar el email:", error.message);                        
+                    };
+
+                    return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}&tickerId=${ticket._id}`);
+                } catch (error) {
+                    console.error("Error al procesar la compra");
+                    return res.redirect(`${frontendUrl}payments/failure?message=error_procesando_compra`)                    
+                };
+            } else {
+                console.log(`Pago no aprobado ${status}`);
+                
+                const paymentData = {
+                    paymentId: payment_id || "null",
+                    status: status || "null",
+                    cartId: external_reference || cartId || "null"
+                };
+
+                await paymentService.createPayment(paymentData);
+
+                let errorMessage = "pago_rechazado";
+
+                if(status === "rejected") errorMessage = "pago_rechazado";
+                else if(status === "cancelled") errorMessage = "pago_cancelado";
+                else if(status === "in_process") errorMessage = "pago_pendiente";
+                else errorMessage = "error_desconocido";
+
+                return res.redirect(`${frontendUrl}payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
+            }
+            
+            // const paymentData = {
+            //         paymentId: payment_id,
+            //         status,
+            //         cartId: external_reference || cartId
+            //     };
+
+            // if(status === "approved") {
+            //     const cartIdToProcess = external_reference;
+                
+            //     if(!cartIdToProcess) {
+            //         console.error("No hay external_reference (cartId)");
+            //         return res.redirect(`${frontendUrl}payments/failure?message=error_procesando_pago`);
+            //     };
+
+            //     console.log("Procesando compra para cartId:", cartIdToProcess);
+
+            //     const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
+            //     const { ticket, productsOutStock } = resuladoCompra;
+
+            //     if(productsOutStock.length > 0) {
+            //         console.warn("Algunos productos estaban sin stock:", productsOutStock);
+            //         return res.redirect(`${frontendUrl}payments/failure?message=stock_insuficiente`);
+            //     };
+
+            //     paymentData.amount = ticket.amount;
+            //     paymentData.ticketId = ticket._id?.toString();
+        
+            //     const payment = await paymentService.createPayment(paymentData);
+
+            //     try {
+            //         const user = await userService.getUserById(paymentData.userId)
+            //         const cart = await cartServices.getCartById(cartId)
+            //         await sendGmail(ticket, user.email, cart.products)
+            //         console.log(`Email de confirmación enviado a ${user.email}`);
+                    
+            //     } catch(error) {
+            //         console.error("Error al enviar el email de confirmación", error.message);                    
+            //     }
+
+            //     return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}&ticketId=${ticket._id}`);
+
+            // };
+            // await paymentService.createPayment(paymentData);
+
+            // return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}`)
         } catch (error) {
             console.error("Error en handleSuccess: ", error);            
-            res.redirect(`${frontendUrl}payments/failure?message=error_procesando_pago`);
+            res.redirect(`${frontendUrl}payments/failure?message=error_interno`);
         };
     };
 
