@@ -3,17 +3,20 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./Payment.css";
 
-const backUrl = process.env.REACT_APP_BACK_URL;
-
 export const PaymentSuccess = () => {
     const navigate = useNavigate();
     const [ searchParams ] = useSearchParams()
     const [ processing, setProcessing ] = useState(true);
+    const [ paymentData, setPaymentData ] = useState(null);
     const payment_id = searchParams.get("payment_id");
     const externalReference = searchParams.get("external_reference");
     const ticketId = searchParams.get("ticketId")
 
-    const showSuccessMessage = (paymentId) => {
+    useEffect(() => {
+        proccessPayment();
+    }, []);
+
+    const showSuccessMessage = (paymentId, ticketId) => {
         Swal.fire({
             position: "center",
             icon: "success",
@@ -71,21 +74,20 @@ export const PaymentSuccess = () => {
     const proccessPayment = async() => {
         try {
             setProcessing(true);
-
-            const paymentId = payment_id
-            const cartId = externalReference;
-
-            console.log("Procesando pago exitoso:", {paymentId, cartId});
+            console.log("Procesando pago exitoso:", { payment_id, externalReference, ticketId});
 
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            if(!paymentId) {
-                console.warn("No hay ID de pago - Mostrando mensage genérico");
-                showGenricSuccess();
-                return;
-            };
+            setPaymentData({
+                paymentId: payment_id,
+                ticketId: ticketId
+            })
 
-            showSuccessMessage(paymentId);
+            if(payment_id) {
+                showSuccessMessage(payment_id, ticketId);
+            } else {
+                showGenricSuccess();
+            }
 
         } catch (error) {
             console.error("Error en confirmación:", error);
@@ -95,49 +97,55 @@ export const PaymentSuccess = () => {
         };
     };
 
-    return (
-        <div className="payment-result success">
-            <div className="payment-container">
-                {processing ? (
+    if(processing) {
+        return (
+            <div className="payment-result success">
+                <div className="payment-container">
                     <div className="processing-payment">
                         <div className="loading-spinner large"></div>
                         <h1>Confirmando pago...</h1>
-                        <p>Estamos processando tu transacción</p>
+                        <p>Estamos procesando tu transacción</p>
                         {payment_id && (
                             <div className="payment-details">
                                 <p><strong>ID de transacción:</strong> {payment_id}</p>
                             </div>
                         )}
                         {ticketId && (
-                            <div className="payments-details">
-                                <p><strong>Número de ordern:</strong> {ticketId}</p>
+                            <div className="payment-details">
+                                <p><strong>Número de orden:</strong> {ticketId}</p>
                             </div>
                         )}
                     </div>
-                ) : (
-                    <div className="payment-complete">
-                        <div className="success-icon">✅</div>
-                        <h1>¡Gracias por tu compra!</h1>
-                        <p>Tu pedido ha sido confirmado exitosamente</p>
-                        {(payment_id) && (
-                            <div className="payment-summary">
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className="payment-result success">
+            <div className="payment-container">
+                <div className="payment-complete">
+                    <div className="success-icon">✅</div>
+                    <h1>¡Gracias por tu compra!</h1>
+                    <p>Tu pedido ha sido confirmado exitosamente</p>
+                    {paymentData?.payment_id && (
+                        <div className="payment-summary">
+                            <div className="summary-item">
+                                <span>ID de transacción:</span>
+                                <strong>{paymentData.payment_id}</strong>
+                            </div>
+                            {paymentData.ticketId && (
                                 <div className="summary-item">
-                                    <span>ID de transacción:</span>
-                                    <strong>{payment_id}</strong>
+                                    <span>Número de orden:</span>
+                                    <span>{paymentData.ticketId}</span>
                                 </div>
-                                {ticketId && (
-                                    <div className="summary-item">
-                                        <span>Número de orden:</span>
-                                        <span>{ticketId}</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        <button className="continue-shhoping-btn" onClick={() => navigate("/")}>
-                            Continuar comprando
-                        </button>
-                    </div>
-                )}
+                            )}
+                        </div>
+                    )}
+                    <button className="continue-shhoping-btn" onClick={() => navigate("/")}>
+                        Continuar comprando
+                    </button>
+                </div>
             </div>
         </div>
     );
