@@ -46,7 +46,7 @@ class PaymentService {
                     pending: pendingUrl
                 },
                 external_reference: cartId,
-                auto_return: "approved",
+                // auto_return: "approved",
                 sandbox_mode: !isProduction,
             };
 
