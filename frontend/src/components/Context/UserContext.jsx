@@ -209,7 +209,7 @@ export const AuthProvider = ({ children }) => {
                 toast: true,
                 position: "top-end", 
                 icon: "success", 
-                title: `Bienvenido ${user.first_name} ${user.last_name}`, 
+                title: `Bienvenido/a ${user.first_name} ${user.last_name}`, 
                 showConfirmButton: false, 
                 timer: 2000 
             });
