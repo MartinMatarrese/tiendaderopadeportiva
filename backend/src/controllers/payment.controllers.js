@@ -202,19 +202,35 @@ class PaymentController {
             console.log("Consultando estado para preferenceId:", preferenceId);
             if(!preferenceId) {
                 return res.status(400).json({error: "preferenceId es requerido"});
-            }
+            };
+
+            console.log("🔄 Obteniendo preferencia...");
+            const preference = await mercadopago.preferences.get(preferenceId);
+            const cartId = preference.body.external_reference;
+
+            console.log("🔍 Preferencia encontrada - cartId:", cartId);
+            console.log("🔍 External reference:", cartId);
+
+            if(!cartId) {
+                return res.json({
+                    status: "not_found",
+                    message: "No se encontró external_preferencece en la preferencia"
+                });
+            };
+
+            console.log("🔄 Buscando pagos por cartId:", cartId);
 
             const paymentSearch = await mercadopago.payment.search({
                 qs: {
-                    "external_reference": preferenceId,
+                    "external_reference": cartId,
                     "sort": "date_created",
                     "criteria": "desc"
                 }
             });
 
-            console.log("Resultado de búsqueda:", paymentSearch.body.results.length);;
+             console.log("📊 Resultados encontrados:", paymentSearch.body.results?.length || 0);
             
-            if(paymentSearch.body.results.length === 0) {
+            if(paymentSearch.body.results || paymentSearch.body.results.length === 0) {
                 return res.json({
                     status: "not_found",
                     message: "No se encontraron pagos para esta preferencia"
@@ -222,8 +238,13 @@ class PaymentController {
             };
 
             const latestPayment = paymentSearch.body.results[0];
-            console.log("Estado del pago: ", latestPayment.status);
-            console.log("External reference del pago: ", latestPayment.external_reference);           
+
+            console.log("✅ PAGO ENCONTRADO:", {
+                status: latestPayment.status,
+                id: latestPayment.id,
+                external_reference: latestPayment.external_reference,
+                date_approved: latestPayment.date_approved
+            });
             
 
             res.json({
@@ -236,7 +257,17 @@ class PaymentController {
             
         } catch (error) {
             console.error("Error en getPaymentStatus:", error);
-            next(error);
+            if (error.status === 404) {
+                return res.json({ 
+                    status: 'preference_not_found',
+                    message: 'Preferencia no encontrada' 
+                });
+            }
+        
+            res.status(500).json({ 
+                error: "Error al consultar el estado del pago",
+                details: error.message 
+            });
         }
     }
 
