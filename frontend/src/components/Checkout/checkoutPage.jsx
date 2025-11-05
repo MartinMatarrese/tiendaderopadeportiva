@@ -6,7 +6,7 @@ import axios from "axios";
 import "./checkoutPage.css";
 
 const backUrl = process.env.REACT_APP_BACK_URL;
-const claveMp = process.env.REACT_AP_PUBLIC_KEY_MP;
+const claveMp = process.env.REACT_APP_PUBLIC_KEY_MP;
 
 const CheckoutPage = () => {
     const { cart, total, cartId, userId } = useCart();
