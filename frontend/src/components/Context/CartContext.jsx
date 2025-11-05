@@ -17,10 +17,19 @@ export const CartProvider = ({children}) => {
 
     const loadUserCart = useCallback(async() => {
         try {
+            console.log("🛒 loadUserCart - INICIANDO:", { user: user?.email, userCart: user?.cart });
+
             if(!user || !user.cart) return;
+
             const response = await axios.get(`${API_URL}/${user.cart}`, { withCredentials: true });
+            console.log("Carrito cargado dedse BD:", response.data);
+            
             setCartId(user.cart);
             setCart(response.data.products || response.data.items || []);
+            console.log("🛒 loadUserCart - COMPLETADO:", { 
+                cartId: user.cart, 
+                cartItems: response.data.products || response.data.items || [] 
+            });
         } catch (error) {
             console.error("Error cargando el carrito:", error);            
         }
@@ -35,7 +44,7 @@ export const CartProvider = ({children}) => {
     }
 
     const addItem = async(item, cantidad) => {
-        console.log("Agregando producto:", item, "Cantidad:", cantidad);
+        console.log("🛒 addItem - INICIANDO:", { item, cantidad, cartId, user })
         setError(false);
 
         if(!user) {
@@ -47,9 +56,13 @@ export const CartProvider = ({children}) => {
         
         if(!currentCartId) {
             try {
+                console.log("Creando nuevo carrito...");
+                
                 const response = await axios.post(API_URL, {}, { withCredentials: true });
                 currentCartId = response.data._id || response.data.id;
                 setCartId(currentCartId);
+                console.log("Nuevo carrito creado:", currentCartId);
+                
             } catch (error) {
                 console.error("Error creando el carrito");
                 
@@ -59,15 +72,30 @@ export const CartProvider = ({children}) => {
         };
 
         try {
+            console.log("🛒 Agregando producto al carrito:", { currentCartId, itemId: item.id, cantidad });
             await axios.post(`${API_URL}/${currentCartId}/products/${item.id}`, { quantity: cantidad }, { withCredentials: true });
-            if(!isInCart(item.id)) {
-                setCart(prev => [...prev, {...item, quantity: cantidad}]);
-            } else {
-                setCart(prev => prev.map(prod => prod.id === item.id ? {...prod, quantity: (prod.quantity || prod.cantidad || 0)  + cantidad } : prod));
-            }
+            console.log("Producto agregado a la BD - Recargando carrito completo...");
+            
+            const cartResponse = await axios.get(`${API_URL}/${currentCartId}`, {withCredentials: true})
+            const fullCart = cartResponse.data.products || cartResponse.data.items || [];
+
+            console.log("Carrito recargado desde BD: ", fullCart);
+            
+            setCart(fullCart);
+            console.log("🛒 addItem - COMPLETADO:", { 
+                currentCartId, 
+                cartLength: fullCart.length,
+                cartItems: fullCart 
+            });
+
+            // if(!isInCart(item.id)) {
+            //     setCart(prev => [...prev, {...item, quantity: cantidad}]);
+            // } else {
+            //     setCart(prev => prev.map(prod => prod.id === item.id ? {...prod, quantity: (prod.quantity || prod.cantidad || 0)  + cantidad } : prod));
+            // }
         } catch (error) {
             setError("Error agregando producto al carrito");
-            console.error("Error:", error);            
+            console.error("Errorn agregando producto:", error);
         };
     };
 

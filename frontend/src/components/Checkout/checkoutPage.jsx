@@ -17,6 +17,16 @@ const CheckoutPage = () => {
     const [ checkoutUrl, setCheckoutUrl ] = useState("")
 
     useEffect(() => {
+        console.log("🔍 CheckoutPage - ESTADO COMPLETO:", {
+            cartId: cartId,
+            cart: cart,
+            cartLength: cart.length,
+            userId: userId,
+            total: total
+        });
+    }, [cartId, cart, userId, total]);
+
+    useEffect(() => {
         if(cart.length === 0) {
             navigate("/Carrito");
         } else {
