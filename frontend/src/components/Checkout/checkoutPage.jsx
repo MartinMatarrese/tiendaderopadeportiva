@@ -19,7 +19,12 @@ const CheckoutPage = () => {
     useEffect(() => {
         const loadMercadoPagoSDK = () => {
             return new Promise((resolve) => {
-                if(window.MP_DEVICE_SESSION_ID) {
+                if(window.MercadoPago) {
+                    console.log("✅ SDK ya cargado");
+                    const mp = new window.MercadoPago(claveMp, {
+                        locale: "es-AR"
+                    });
+                    window.mp = mp;
                     resolve();
                     return;
                 };
@@ -31,6 +36,7 @@ const CheckoutPage = () => {
                         locale: "es-AR"
                     });
                     window.mp = mp;
+                    console.log("✅ MercadoPago instance creada");
                     resolve();
                 };
                 script.onerror = () => {
@@ -42,13 +48,33 @@ const CheckoutPage = () => {
             });
         };
 
-        loadMercadoPagoSDK();
+        loadMercadoPagoSDK().catch(error => {
+            console.error("Error en carga SDK:", error);
+        });
     }, []);
 
     const initializeCheckout = async() => {
         try {
-            console.log("Inicializando checkout embebido...");
-            checkoutContainerRef.current.innerHTML = "";
+            console.log("🎯 Inicializando checkout embebido...");
+            console.log("🔍 preferenceId:", preferenceId);
+            console.log("🔍 window.mp:", window.mp);
+            console.log("🔍 checkoutContainerRef:", checkoutContainerRef.current);
+            if(!window.mp) {
+                console.error("❌ MercadoPago SDK no se esta cargando");
+                setError("Error: SDK de pago, no cargado");
+                return;
+            };
+
+            if (!checkoutContainerRef.current) {
+                console.error("❌ Contenedor del checkout no encontrado");
+                return;
+            };
+
+            checkoutContainerRef.current.innerHTML = "<p>🔄 Inicializando checkout...</p>";
+            console.log("🚀 Creando bricks builder...");
+            console.log("✅ Bricks builder creado");
+
+            console.log("🚀 Creando wallet brick...");
             const bricksBuilder = await window.mp.bricks();
             await bricksBuilder.create("Wallet", "checkout-container", {
                 initialization: {
@@ -63,19 +89,28 @@ const CheckoutPage = () => {
                 },
                 callbacks: {
                     onReady: () => {
-                        console.log("✅ Checkout embebido listo");                        
+                        console.log("✅ Checkout embebido listo y renderizado");
+                        setError("");
                     },
                     onError: (error) => {
                         console.error("❌ Error en checkout:", error);
-                        setError("Error en el sistema de pago: " + error.message)
+                        setError("Error en el sistema de pago: " + error.message);
+                        checkoutContainerRef.current.innerHTML = 
+                            '<p style="color: red;">❌ Error cargando el método de pago</p>';
                     }
                 }
             });
-            
+
+            console.log("✅ Checkout inicialización completada");
+                        
         } catch (error) {
             console.error("❌ Error inicializando checkout:", error);
             setError("Error al inicializar el pago: " + error.message);
-        }
+            if (checkoutContainerRef.current) {
+                checkoutContainerRef.current.innerHTML = 
+                    '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+            };
+        };
     };
 
     useEffect(() => {
@@ -339,6 +374,17 @@ const CheckoutPage = () => {
                         <div className="mercado-pago-embedded">
                             <div ref={checkoutContainerRef} id="checkout-container" className="wallet-container">
                                 <p>Cargando metodo de pago...</p>
+                            </div>
+                            <div className="fallback-payment" style={{marginTop: "20px", textAlign: "center"}}>
+                                <p>Si no ves el método de pago usa este enlace:</p>
+                                <button className="mp-manual-button" onClick={() => {
+                                    window.open(
+                                        `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`,
+                                        '_blank'
+                                    );
+                                }}>
+                                    🔗 Abrir Mercado Pago para pagar
+                                </button>
                             </div>
                             <div className="polling-status">
                                 <p>⏳Esperando confirmación de pago... ({pollingCount}/60)</p>
