@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
-import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import axios from "axios";
 import "./checkoutPage.css";
 
@@ -15,10 +14,75 @@ const CheckoutPage = () => {
     const [ error, setError ] = useState("");
     const [ preferenceId, setPreferenceId ] = useState(null);
     const [ pollingCount, setPollingCount ] = useState(0);
+    const checkoutContainerRef = useRef(null);
 
     useEffect(() => {
-        initMercadoPago(claveMp)
+        const loadMercadoPagoSDK = () => {
+            return new Promise((resolve) => {
+                if(window.MP_DEVICE_SESSION_ID) {
+                    resolve();
+                    return;
+                };
+
+                const script = document.createElement("script");
+                script.src = "https://sdk.mercadopago.com/js/v2";
+                script.onload = () => {
+                    const mp = new window.MercadoPago(claveMp, {
+                        locale: "es-AR"
+                    });
+                    window.mp = mp;
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error("Error cargando SDK de Mercado Pago");
+                    setError("Error al cargar el sistema de pagp")
+                    resolve();
+                };
+                document.body.appendChild("script");
+            });
+        };
+
+        loadMercadoPagoSDK();
     }, []);
+
+    const initializeCheckout = async() => {
+        try {
+            console.log("Inicializando checkout embebido...");
+            checkoutContainerRef.current.innerHTML = "";
+            const bricksBuilder = await window.mp.bricks();
+            await bricksBuilder.create("Wallet", "checkout-container", {
+                initialization: {
+                    preferenceId: preferenceId
+                },
+                customization: {
+                    visual: {
+                        style: {
+                            theme: "default"
+                        }
+                    }
+                },
+                callbacks: {
+                    onReady: () => {
+                        console.log("✅ Checkout embebido listo");                        
+                    },
+                    onError: (error) => {
+                        console.error("❌ Error en checkout:", error);
+                        setError("Error en el sistema de pago: " + error.message)
+                    }
+                }
+            });
+            
+        } catch (error) {
+            console.error("❌ Error inicializando checkout:", error);
+            setError("Error al inicializar el pago: " + error.message);
+        }
+    };
+
+    useEffect(() => {
+        if(preferenceId && window.mp && checkoutContainerRef.current) {
+            initializeCheckout();
+        }
+    }, [preferenceId]);
 
     useEffect(() => {
         if(cart.length === 0) {
@@ -71,12 +135,14 @@ const CheckoutPage = () => {
                             external_reference: paymentStatus.external_reference
                         }
                     });
+                } else {
+                    setPollingCount(prev => prev + 1)
                 };
 
             } catch (error) {
                 console.error("Error en polling", error);
                 setPollingCount(prev => prev + 1);
-            }
+            };
         };
 
         const interval = setInterval(() => {
@@ -271,26 +337,16 @@ const CheckoutPage = () => {
 
                     {preferenceId && (
                         <div className="mercado-pago-embedded">
-                            <div className="wallet-container">
-                                <Wallet
-                                    initialization={{preferenceId: preferenceId}}
-                                    customization={{
-                                        visual: {
-                                            buttonBackground: "black"
-                                        }
-                                    }}
-                                />
+                            <div ref={checkoutContainerRef} id="checkout-container" className="wallet-container">
+                                <p>Cargando metodo de pago...</p>
+                            </div>
+                            <div className="polling-status">
+                                <p>⏳Esperando confirmación de pago... ({pollingCount}/60)</p>
+                                <div className="loading-spinner small"></div>
                             </div>
                             <button className="cancel-button" onClick={() => setPreferenceId(null)}>
                                 Cancelar y volver
                             </button>
-                        </div>
-                    )}
-
-                    {preferenceId && (
-                        <div className="polling-status">
-                            <p>⏳ Esperando confirmación de pago... ({pollingCount}/60)</p>
-                            <div className="loading-spinner small"></div>
                         </div>
                     )}
                     <div className="payment-security">
