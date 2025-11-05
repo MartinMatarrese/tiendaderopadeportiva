@@ -31,6 +31,10 @@ class PaymentService {
 
             console.log("🎯 Creando preferencia para cartId:", cartId);
             console.log("📦 Productos en carrito:", cart.products);
+            console.log("🔍 ESTRUCTURA COMPLETA del primer producto:", JSON.stringify(cart.products[0], null, 2));
+            console.log("🔍 id_prod del primer producto:", cart.products[0]?.id_prod);
+            console.log("🔍 Precio del primer producto:", cart.products[0]?.id_prod?.price);
+            console.log("🔍 Tipo del precio:", typeof cart.products[0]?.id_prod?.price);
 
             const items = cart.products.map(p => ({
                     title: p.id_prod.title,
@@ -39,6 +43,9 @@ class PaymentService {
                     currency_id: "ARS"
                     
                 }));
+
+                console.log("Items procesados:", items);
+                
 
             const preference = {
                 items: items,
