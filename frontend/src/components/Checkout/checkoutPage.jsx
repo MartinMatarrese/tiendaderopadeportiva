@@ -185,7 +185,6 @@ const CheckoutPage = () => {
             }
 
             const requestData = {
-                userId: userId,
                 cartId: cartId
             };
 

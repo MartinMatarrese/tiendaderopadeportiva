@@ -250,7 +250,7 @@ export const AuthProvider = ({ children }) => {
                     toast: true,
                     position: "top-end",
                     icon: "success",
-                    title: `Bienvenido ${userData.first_name} ${userData.last_name}`,
+                    title: `Bienvenido/a ${userData.first_name} ${userData.last_name}`,
                     showConfirmButton: false,
                     timer: 2000
                 });
