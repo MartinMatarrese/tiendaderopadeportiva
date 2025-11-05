@@ -18,33 +18,35 @@ class PaymentService {
         try {
             const env = process.env.NODE_ENV || "development"
             const isProduction = env === "production";
-            const isTest = env === "test";
-            const successUrl = isTest ? "https://example.com/success" : isProduction ? `${frontendUrl}payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
-            console.log("URL de éxito completa:", successUrl);
-            console.log("cartId:", cartId);
-            console.log("cartId es válido?", cartId && cartId !== "undefined");
-            if(!cartId && cartId === "undefined") {
-                throw new Error("cartId es inválido: " + cartId)
-            }            
-            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${frontendUrl}payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
-            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
+            // const isTest = env === "test";
+            // const successUrl = isTest ? "https://example.com/success" : isProduction ? `${frontendUrl}payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
+            // console.log("URL de éxito completa:", successUrl);
+            // console.log("cartId:", cartId);
+            // console.log("cartId es válido?", cartId && cartId !== "undefined");
+            // if(!cartId && cartId === "undefined") {
+            //     throw new Error("cartId es inválido: " + cartId)
+            // }            
+            // const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${frontendUrl}payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
+            // const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
 
             console.log("🎯 Creando preferencia para cartId:", cartId);
             console.log("📦 Productos en carrito:", cart.products);
 
-            const preference = {
-                items: cart.products.map(p => ({
+            const items = cart.products.map(p => ({
                     title: p.id_prod.title,
                     quantity: p.quantity,
                     unit_price: p.id_prod.price,
                     currency_id: "ARS"
                     
-                })),
-                back_urls: {
-                    success: successUrl,
-                    failure: failureUrl,
-                    pending: pendingUrl
-                },
+                }));
+
+            const preference = {
+                items: items,
+                // back_urls: {
+                //     success: successUrl,
+                //     failure: failureUrl,
+                //     pending: pendingUrl
+                // },
                 external_reference: cartId,
                 // auto_return: "approved",
                 sandbox_mode: !isProduction,

@@ -1,3 +1,4 @@
+import mercadopago from "mercadopago";
 import { cartServices } from "../services/cart.service.js";
 import { sendGmail } from "../services/email.service.js";
 import { paymentService } from "../services/payment.service.js";
@@ -12,13 +13,15 @@ class PaymentController {
 
     createPreference = async(req, res, next) => {
         try {
-            const { cartId, cart } = req.body;
+            const { cartId, cart, userId } = req.body;
             
             if(!cart || !Array.isArray(cart.products) || cart.products.length === 0){                 
                 throw new Error("El carrito esta vacio o no se encontró");
             };
-            const preference = await this.paymentService.createPreference({ cartId, cart });
-            res.status(200).json({ init_point: preference.init_point });
+
+            const preference = await this.paymentService.createPreference({ userId, cartId, cart });
+
+            res.status(200).json({ id: preference.id });
         } catch (error) {            
             next(error);
         };
@@ -183,6 +186,47 @@ class PaymentController {
             res.redirect(`${frontendUrl}payments/failure?message=error_interno`);
         };
     };
+
+    getPaymentStatus = async(req, res, next) => {
+        try {
+            const { preferenceId } = req.params;
+            console.log("Consultando estado para preferenceId:", preferenceId);
+            if(!preferenceId) {
+                return res.status(400).json({error: "preferenceId es requerido"});
+            }
+
+            const paymentSearch = await mercadopago.payment.search({
+                qs: {
+                    "preference_id": preferenceId,
+                    "sort": "date_created",
+                    "criteria": "desc"
+                }
+            });
+
+            console.log("Resultado de búsqueda:", paymentSearch.body.results.length);;
+            
+            if(paymentSearch.body.results.length === 0) {
+                return res.json({
+                    status: "not_found",
+                    message: "No se encontraron pagos para esta preferencia"
+                });
+            };
+
+            const latestPayment = paymentSearch.body.results[0];
+
+            res.json({
+                status: latestPayment.status,
+                payment_id: latestPayment.id,
+                external_reference: latestPayment.external_reference,
+                date_approved: latestPayment.date_approved,
+                status_detail: latestPayment.status_detail
+            });
+            
+        } catch (error) {
+            console.error("Error en getPaymentStatus:", error);
+            next(error);
+        }
+    }
 
     getPaymentById = async(req, res, next) => {
         try {
