@@ -35,17 +35,27 @@ class PaymentService {
             console.log("🔍 id_prod del primer producto:", cart.products[0]?.id_prod);
             console.log("🔍 Precio del primer producto:", cart.products[0]?.id_prod?.price);
             console.log("🔍 Tipo del precio:", typeof cart.products[0]?.id_prod?.price);
+            console.log("🔍 ESTRUCTURA del primer producto en el DTO:", {
+                id_prod: cart.products[0]?.id_prod,
+                title: cart.products[0]?.title, 
+                price: cart.products[0]?.price,
+                quantity: cart.products[0]?.quantity
+            });
 
             const items = cart.products.map(p => ({
-                    title: p.id_prod.title,
-                    quantity: p.quantity,
-                    unit_price: p.id_prod.price,
-                    currency_id: "ARS"
+                title: p.title || "producto",
+                quantity: p.quantity || 1,
+                unit_price: Number(p.price) || 0,
+                currency_id: "ARS"
                     
-                }));
+            }));
 
-                console.log("Items procesados:", items);
+            console.log("Items procesados:", items);
+            const invalidItems = items.filter(item => !item.unit_price || item.unit_price === 0);
+            if(invalidItems.length > 0) {
+                throw new Error(`Items sin precio Válido ${invalidItems.length}`);
                 
+            }
 
             const preference = {
                 items: items,
