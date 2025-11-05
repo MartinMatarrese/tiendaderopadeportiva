@@ -66,7 +66,7 @@ class PaymentService {
                 // },
                 external_reference: cartId,
                 // auto_return: "approved",
-                sandbox_mode: !isProduction,
+                sandbox_mode: true,
             };
 
             console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
