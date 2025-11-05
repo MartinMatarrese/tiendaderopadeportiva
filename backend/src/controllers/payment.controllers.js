@@ -206,7 +206,7 @@ class PaymentController {
 
             const paymentSearch = await mercadopago.payment.search({
                 qs: {
-                    "preference_id": preferenceId,
+                    "external_reference": preferenceId,
                     "sort": "date_created",
                     "criteria": "desc"
                 }
@@ -222,6 +222,9 @@ class PaymentController {
             };
 
             const latestPayment = paymentSearch.body.results[0];
+            console.log("Estado del pago: ", latestPayment.status);
+            console.log("External reference del pago: ", latestPayment.external_reference);           
+            
 
             res.json({
                 status: latestPayment.status,
