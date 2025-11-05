@@ -13,11 +13,20 @@ class PaymentController {
 
     createPreference = async(req, res, next) => {
         try {
-            const { cartId, cart, userId } = req.body;
+            const { cartId } = req.body;
+            console.log("cartId recibido en createPreference:", cartId);
+
+            if(!cartId) {
+                throw new Error("cartId es requerido");                
+            }
+            
+            const cart = await cartServices.getCartById(cartId)
             
             if(!cart || !Array.isArray(cart.products) || cart.products.length === 0){                 
                 throw new Error("El carrito esta vacio o no se encontró");
             };
+
+            const userId = req.user._id;
 
             const preference = await this.paymentService.createPreference({ userId, cartId, cart });
 
