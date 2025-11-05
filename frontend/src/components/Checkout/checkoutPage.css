@@ -219,20 +219,14 @@
     margin-top: 20px;
 }
 
-.wallet-container {
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 15px;
+.checkout-iframe-container {
+    margin-top: 20px;
+    text-align: center;
 }
 
-#checkout-container {
-    width: 100%;
-    min-height: 100px;
+.checkout-iframe-container iframe {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
 }
 
 .cancel-button {

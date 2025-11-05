@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -14,110 +14,7 @@ const CheckoutPage = () => {
     const [ error, setError ] = useState("");
     const [ preferenceId, setPreferenceId ] = useState(null);
     const [ pollingCount, setPollingCount ] = useState(0);
-    const checkoutContainerRef = useRef(null);
-
-    useEffect(() => {
-        const loadMercadoPagoSDK = () => {
-            return new Promise((resolve) => {
-                if(window.MercadoPago) {
-                    console.log("✅ SDK ya cargado");
-                    const mp = new window.MercadoPago(claveMp, {
-                        locale: "es-AR"
-                    });
-                    window.mp = mp;
-                    resolve();
-                    return;
-                };
-
-                const script = document.createElement("script");
-                script.src = "https://sdk.mercadopago.com/js/v2";
-                script.onload = () => {
-                    const mp = new window.MercadoPago(claveMp, {
-                        locale: "es-AR"
-                    });
-                    window.mp = mp;
-                    console.log("✅ MercadoPago instance creada");
-                    resolve();
-                };
-                script.onerror = () => {
-                    console.error("Error cargando SDK de Mercado Pago");
-                    setError("Error al cargar el sistema de pagp")
-                    resolve();
-                };
-                document.body.appendChild("script");
-            });
-        };
-
-        loadMercadoPagoSDK().catch(error => {
-            console.error("Error en carga SDK:", error);
-        });
-    }, []);
-
-    const initializeCheckout = async() => {
-        try {
-            console.log("🎯 Inicializando checkout embebido...");
-            console.log("🔍 preferenceId:", preferenceId);
-            console.log("🔍 window.mp:", window.mp);
-            console.log("🔍 checkoutContainerRef:", checkoutContainerRef.current);
-            if(!window.mp) {
-                console.error("❌ MercadoPago SDK no se esta cargando");
-                setError("Error: SDK de pago, no cargado");
-                return;
-            };
-
-            if (!checkoutContainerRef.current) {
-                console.error("❌ Contenedor del checkout no encontrado");
-                return;
-            };
-
-            checkoutContainerRef.current.innerHTML = "<p>🔄 Inicializando checkout...</p>";
-            console.log("🚀 Creando bricks builder...");
-            console.log("✅ Bricks builder creado");
-
-            console.log("🚀 Creando wallet brick...");
-            const bricksBuilder = await window.mp.bricks();
-            await bricksBuilder.create("Wallet", "checkout-container", {
-                initialization: {
-                    preferenceId: preferenceId
-                },
-                customization: {
-                    visual: {
-                        style: {
-                            theme: "default"
-                        }
-                    }
-                },
-                callbacks: {
-                    onReady: () => {
-                        console.log("✅ Checkout embebido listo y renderizado");
-                        setError("");
-                    },
-                    onError: (error) => {
-                        console.error("❌ Error en checkout:", error);
-                        setError("Error en el sistema de pago: " + error.message);
-                        checkoutContainerRef.current.innerHTML = 
-                            '<p style="color: red;">❌ Error cargando el método de pago</p>';
-                    }
-                }
-            });
-
-            console.log("✅ Checkout inicialización completada");
-                        
-        } catch (error) {
-            console.error("❌ Error inicializando checkout:", error);
-            setError("Error al inicializar el pago: " + error.message);
-            if (checkoutContainerRef.current) {
-                checkoutContainerRef.current.innerHTML = 
-                    '<p style="color: red;">❌ Error: ' + error.message + '</p>';
-            };
-        };
-    };
-
-    useEffect(() => {
-        if(preferenceId && window.mp && checkoutContainerRef.current) {
-            initializeCheckout();
-        }
-    }, [preferenceId]);
+    const [ checkoutUrl, setCheckoutUrl ] = useState("")
 
     useEffect(() => {
         if(cart.length === 0) {
@@ -126,6 +23,38 @@ const CheckoutPage = () => {
             console.log("Carrito en checkout: ", cart);
         }
     }, [cart, navigate])
+
+    const createPreference = async() => {
+        setLoading(true);
+        setError("");
+        setPollingCount(0)
+        try {
+            console.log("1. Creando preferencia...");
+            if(!cartId || cart.length === 0) {
+                throw new Error("Carrito inválido");
+            }
+
+            const requestData = { cartId: cartId };
+
+            console.log("2. Enviando datos al backend:", requestData);
+
+            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, {withCredentials: true, timeout: 15000});
+
+            console.log("3. Preferencia creada");
+
+            setPreferenceId(response.data.id);
+
+            const url = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
+            
+            setCheckoutUrl(url)
+            
+        } catch (error) {
+            console.error("Error al crear la preferencia de pago:", error);
+            setError(error.response?.data?.message || "Error al inicarlizar el pago");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
         if(!preferenceId || pollingCount >= 60) return;
@@ -148,7 +77,7 @@ const CheckoutPage = () => {
                         }
                     });
 
-                } else if(paymentStatus === "rejected") {
+                } else if(paymentStatus.status === "rejected") {
                     console.log("Pago rechazado - Redirigiendo a failure");
                     navigate("/payments/failure", {
                         state: {
@@ -158,11 +87,11 @@ const CheckoutPage = () => {
                         }
                     });
 
-                } else if(paymentStatus === "in_process") {
+                } else if(paymentStatus.status === "in_process") {
                     console.log("Pago en proceso - Continuando poling");
                     setPollingCount(prev => prev + 1);
 
-                } else if(paymentStatus === "pending") {
+                } else if(paymentStatus.status === "pending") {
                     console.log("Pago pendiente - reedirigiendo a pending");
                     navigate("/payments/pending", {
                         state: {
@@ -191,126 +120,119 @@ const CheckoutPage = () => {
         };
 
         return () => clearInterval(interval);
-    }, [preferenceId, pollingCount, navigate]);
+    }, [preferenceId, pollingCount, navigate]);    
 
-    // const handlePayment = async() => {
-    //     setLoading(true);
-    //     setError("");
+    // useEffect(() => {
+    //     const loadMercadoPagoSDK = () => {
+    //         return new Promise((resolve) => {
+    //             if(window.MercadoPago) {
+    //                 console.log("✅ SDK ya cargado");
+    //                 const mp = new window.MercadoPago(claveMp, {
+    //                     locale: "es-AR"
+    //                 });
+    //                 window.mp = mp;
+    //                 resolve();
+    //                 return;
+    //             };
+
+    //             const script = document.createElement("script");
+    //             script.src = "https://sdk.mercadopago.com/js/v2";
+    //             script.onload = () => {
+    //                 const mp = new window.MercadoPago(claveMp, {
+    //                     locale: "es-AR"
+    //                 });
+    //                 window.mp = mp;
+    //                 console.log("✅ MercadoPago instance creada");
+    //                 resolve();
+    //             };
+    //             script.onerror = () => {
+    //                 console.error("Error cargando SDK de Mercado Pago");
+    //                 setError("Error al cargar el sistema de pagp")
+    //                 resolve();
+    //             };
+    //             document.body.appendChild(script);
+    //         });
+    //     };
+
+    //     loadMercadoPagoSDK().catch(error => {
+    //         console.error("Error en carga SDK:", error);
+    //     });
+    // }, []);
+
+    // const initializeCheckout = async() => {
     //     try {
-    //         console.log("1. Verificando carrito...");
-            
-    //         if(!cartId) {
-    //             throw new Error("No hay carrito activo");
-    //         }
-
-    //         if(cart.length === 0) {
-    //             throw new Error("El carrito esta vacio");
-    //         }
-
-    //         const requestData = {
-    //             userId: userId,
-    //             cartId: cartId,
-    //             cart: {
-    //                 products: cart.map(item => ({
-    //                     id_prod: {
-    //                         title: item.title,
-    //                         price: item.price
-    //                     },
-    //                     quantity: item.quantity
-    //                 }))
-    //             }
+    //         console.log("🎯 Inicializando checkout embebido...");
+    //         console.log("🔍 preferenceId:", preferenceId);
+    //         console.log("🔍 window.mp:", window.mp);
+    //         console.log("🔍 checkoutContainerRef:", checkoutContainerRef.current);
+    //         if(!window.mp) {
+    //             console.error("❌ MercadoPago SDK no se esta cargando");
+    //             setError("Error: SDK de pago, no cargado");
+    //             return;
     //         };
 
-    //         console.log("2. Enviando datos al backend:", requestData);
-            
-    //         const response = await axios.post(
-    //             `${backUrl}api/payments/create-preference`,
-    //             requestData,
-    //             { 
-    //                 withCredentials: true,
-    //                 timeout: 1500
-    //             }
-    //         );
-    //         console.log("3. Respuesta del backend:", response.data);
-    //         const paymentData = response.data;
-    //         const paymentUrl = paymentData.init_point;
-    //         console.log("4. Url de pago obtenida...", paymentUrl);
-
-    //         if(!paymentUrl) {
-    //             throw new Error("No se pudo obtener la URL de pago de la respuesta")
+    //         if (!checkoutContainerRef.current) {
+    //             console.error("❌ Contenedor del checkout no encontrado");
+    //             return;
     //         };
 
-    //         console.log("5. Abriendo Mercado Pago en nueva pestaña");
-            
-    //         if(paymentUrl) {
-    //             console.log("5. Abriendo Mercado Pago en nueva pestaña");
-    //             const link = document.createElement("a");
-    //             link.href = paymentUrl;
-    //             link.target = "_blank";
-    //             link.rel = "noopener noreferrer";
-    //             document.body.appendChild(link);
-    //             link.click();
-    //             document.body.removeChild(link);
-    //             console.log("6. Pestaña abierta - completar pago en Mercado Pago");
-                
-    //         } else {
-    //             throw new Error("No se pudo obtener la url del pago de la respuesta")
-    //         }
-            
+    //         checkoutContainerRef.current.innerHTML = "<p>🔄 Inicializando checkout...</p>";
+    //         console.log("🚀 Creando bricks builder...");
+    //         console.log("✅ Bricks builder creado");
+
+    //         console.log("🚀 Creando wallet brick...");
+    //         const bricksBuilder = await window.mp.bricks();
+    //         await bricksBuilder.create("Wallet", "checkout-container", {
+    //             initialization: {
+    //                 preferenceId: preferenceId
+    //             },
+    //             customization: {
+    //                 visual: {
+    //                     style: {
+    //                         theme: "default"
+    //                     }
+    //                 }
+    //             },
+    //             callbacks: {
+    //                 onReady: () => {
+    //                     console.log("✅ Checkout embebido listo y renderizado");
+    //                     setError("");
+    //                 },
+    //                 onError: (error) => {
+    //                     console.error("❌ Error en checkout:", error);
+    //                     setError("Error en el sistema de pago: " + error.message);
+    //                     checkoutContainerRef.current.innerHTML = 
+    //                         '<p style="color: red;">❌ Error cargando el método de pago</p>';
+    //                 }
+    //             }
+    //         });
+
+    //         console.log("✅ Checkout inicialización completada");
+                        
     //     } catch (error) {
-    //         console.error("Error completo al procesar el pago: ", error);
-    //         if(error.code === "ECONNABORTED") {
-    //             setError("Timeout: El servidor tardó demasiado en responder")
-    //         } else if(error.response) {
-    //             setError(error.response.data?.message || 
-    //                     error.response.data?.error || 
-    //                     `Error del servidor: ${error.response.status}`)
-    //         } else if(error.rquest) {
-    //             setError("Error de conexión. Verifica tu internet")
-    //         } else {
-    //             setError(error.response?.data?.message || "Error al inicializar el pago");
-    //         }
-    //     } finally {
-    //         setLoading(false)
-    //     }
+    //         console.error("❌ Error inicializando checkout:", error);
+    //         setError("Error al inicializar el pago: " + error.message);
+    //         if (checkoutContainerRef.current) {
+    //             checkoutContainerRef.current.innerHTML = 
+    //                 '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+    //         };
+    //     };
     // };
 
-    const createPreference = async() => {
-        setLoading(true);
-        setError("");
-        setPollingCount(0)
-        try {
-            console.log("1. Creando preferencia...");
-            if(!cartId || cart.length === 0) {
-                throw new Error("Carrito inválido");
-            }
+    // useEffect(() => {
+    //     if(preferenceId && window.mp && checkoutContainerRef.current) {
+    //         initializeCheckout();
+    //     }
+    // }, [preferenceId]);
 
-            const requestData = {
-                cartId: cartId
-            };
+    // const handlePaymentInit = () => {
+    //     createPreference();
+    // }
 
-            console.log("2. Enviando datos al backend:", requestData);
-            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, {withCredentials: true, timeout: 15000});
-
-            console.log("3. Preferencia creada");
-            setPreferenceId(response.data.id);           
-            
-        } catch (error) {
-            console.error("Error al crear la preferencia de pago:", error);
-            setError(error.response?.data?.message || "Error al inicarlizar el pago");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handlePaymentInit = () => {
-        createPreference();
-    }
-
-    const handlePaymentSuccess = () => {
-        console.log("Pago completado exitosamente");
-        navigate("")        
-    }
+    // const handlePaymentSuccess = () => {
+    //     console.log("Pago completado exitosamente");
+    //     navigate("")        
+    // }
 
     if(cart.length === 0) {
         return (
@@ -358,7 +280,7 @@ const CheckoutPage = () => {
                     )}
 
                     {!preferenceId && (
-                        <button className={`payment-button ${loading ? "loading" : ""}`} onClick={handlePaymentInit} disabled={loading}>
+                        <button className={`payment-button ${loading ? "loading" : ""}`} onClick={createPreference} disabled={loading}>
                         {loading ? (
                             <>
                                 <div className="spinner"></div>
@@ -370,24 +292,19 @@ const CheckoutPage = () => {
                     </button>                        
                     )}
 
-                    {preferenceId && (
-                        <div className="mercado-pago-embedded">
-                            <div ref={checkoutContainerRef} id="checkout-container" className="wallet-container">
-                                <p>Cargando metodo de pago...</p>
-                            </div>
-                            <div className="fallback-payment" style={{marginTop: "20px", textAlign: "center"}}>
-                                <p>Si no ves el método de pago usa este enlace:</p>
-                                <button className="mp-manual-button" onClick={() => {
-                                    window.open(
-                                        `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`,
-                                        '_blank'
-                                    );
-                                }}>
-                                    🔗 Abrir Mercado Pago para pagar
-                                </button>
-                            </div>
+                    {preferenceId && checkoutUrl && (
+                        <div className="checkout-iframe-container">
+                            <h3>✅ Preferencia creada - Complete el pago:</h3>
+                            <iframe
+                                src={checkoutUrl}
+                                width="100%"
+                                height="600"
+                                style={{border: "none", borderRadius: "8px"}}
+                                title="Mercado Pago Checkout"
+                                allowPaymentRequest
+                            />
                             <div className="polling-status">
-                                <p>⏳Esperando confirmación de pago... ({pollingCount}/60)</p>
+                                <p>⏳Esperando confirmación de pago... ({pollingCount}/10)</p>
                                 <div className="loading-spinner small"></div>
                             </div>
                             <button className="cancel-button" onClick={() => setPreferenceId(null)}>
