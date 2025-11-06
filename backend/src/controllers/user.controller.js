@@ -92,7 +92,7 @@ class UserController {
                     last_name: user.apellido,
                     email: user.email,
                     role: user.role,
-                    cart: user.carrito,
+                    cart: user.carrito?.id || user.carrito,
                     age: user.edad,
                     profilePic: user.profilePic,
                     isVerified: user.verificado,
