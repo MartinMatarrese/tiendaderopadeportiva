@@ -21,13 +21,30 @@ export const CartProvider = ({children}) => {
 
             if(!user || !user.cart) return;
 
-            const response = await axios.get(`${API_URL}/${user.cart}`, { withCredentials: true });
+            let userCartId;
+
+            if(typeof user.cart === "object" && user.cart !== "null") {
+                userCartId = user.cart._id
+                console.log("user.cart es un objeto - ID:", userCartId);                
+            } else if(typeof user.cart === "string") {
+                userCartId = user.cart
+                console.log("user.cart es string - ID:", userCartId);                
+            } else {
+                console.log("No hay carrito asociado al usuario");
+                return;                
+            }
+
+            console.log("Cargando carrito con ID:", userCartId);
+            
+
+            const response = await axios.get(`${API_URL}/${userCartId}`, { withCredentials: true });
+
             console.log("Carrito cargado dedse BD:", response.data);
             
-            setCartId(user.cart);
+            setCartId(userCartId);
             setCart(response.data.products || response.data.items || []);
             console.log("🛒 loadUserCart - COMPLETADO:", { 
-                cartId: user.cart, 
+                cartId: userCartId, 
                 cartItems: response.data.products || response.data.items || [] 
             });
         } catch (error) {
