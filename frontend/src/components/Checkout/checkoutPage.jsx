@@ -67,7 +67,7 @@ const CheckoutPage = () => {
     }
 
     useEffect(() => {
-        if(!preferenceId || pollingCount >= 60) return;
+        if(!preferenceId || pollingCount >= 30) return;
 
         const checkPaymentStatus = async() => {
             try {
@@ -97,19 +97,16 @@ const CheckoutPage = () => {
                         }
                     });
 
-                } else if(paymentStatus.status === "in_process") {
-                    console.log("Pago en proceso - Continuando poling");
+                } else if(paymentStatus.status === "in_process" || paymentStatus.status === "pending") {
+                    console.log("Pago en proceso/pendiente - Continuando poling");
                     setPollingCount(prev => prev + 1);
 
-                } else if(paymentStatus.status === "pending") {
-                    console.log("Pago pendiente - reedirigiendo a pending");
-                    navigate("/payments/pending", {
-                        state: {
-                            payment_id: paymentStatus.payment_id,
-                            external_reference: paymentStatus.external_reference
-                        }
-                    });
+                } else if(paymentStatus.status === "not_found") {
+                    console.log("Pago no encontrado (usuario no completó) - Continuando polling");
+                    setPollingCount(prev => prev + 1);
                 } else {
+                    console.log("Estado desconocido:", paymentStatus.status);
+                    
                     setPollingCount(prev => prev + 1)
                 };
 
@@ -119,130 +116,10 @@ const CheckoutPage = () => {
             };
         };
 
-        const interval = setInterval(() => {
-            checkPaymentStatus()
-        }, 5000);
-
-        if(pollingCount >= 60) {
-            clearInterval(interval);
-            console.log("Polling timeout - Máximo de intentos alcanzado");
-            setError("Tiempo de espera agotado. Verifica el estado de tu pago");
-        };
+        const interval = setInterval(checkPaymentStatus, 3000);
 
         return () => clearInterval(interval);
     }, [preferenceId, pollingCount, navigate]);    
-
-    // useEffect(() => {
-    //     const loadMercadoPagoSDK = () => {
-    //         return new Promise((resolve) => {
-    //             if(window.MercadoPago) {
-    //                 console.log("✅ SDK ya cargado");
-    //                 const mp = new window.MercadoPago(claveMp, {
-    //                     locale: "es-AR"
-    //                 });
-    //                 window.mp = mp;
-    //                 resolve();
-    //                 return;
-    //             };
-
-    //             const script = document.createElement("script");
-    //             script.src = "https://sdk.mercadopago.com/js/v2";
-    //             script.onload = () => {
-    //                 const mp = new window.MercadoPago(claveMp, {
-    //                     locale: "es-AR"
-    //                 });
-    //                 window.mp = mp;
-    //                 console.log("✅ MercadoPago instance creada");
-    //                 resolve();
-    //             };
-    //             script.onerror = () => {
-    //                 console.error("Error cargando SDK de Mercado Pago");
-    //                 setError("Error al cargar el sistema de pagp")
-    //                 resolve();
-    //             };
-    //             document.body.appendChild(script);
-    //         });
-    //     };
-
-    //     loadMercadoPagoSDK().catch(error => {
-    //         console.error("Error en carga SDK:", error);
-    //     });
-    // }, []);
-
-    // const initializeCheckout = async() => {
-    //     try {
-    //         console.log("🎯 Inicializando checkout embebido...");
-    //         console.log("🔍 preferenceId:", preferenceId);
-    //         console.log("🔍 window.mp:", window.mp);
-    //         console.log("🔍 checkoutContainerRef:", checkoutContainerRef.current);
-    //         if(!window.mp) {
-    //             console.error("❌ MercadoPago SDK no se esta cargando");
-    //             setError("Error: SDK de pago, no cargado");
-    //             return;
-    //         };
-
-    //         if (!checkoutContainerRef.current) {
-    //             console.error("❌ Contenedor del checkout no encontrado");
-    //             return;
-    //         };
-
-    //         checkoutContainerRef.current.innerHTML = "<p>🔄 Inicializando checkout...</p>";
-    //         console.log("🚀 Creando bricks builder...");
-    //         console.log("✅ Bricks builder creado");
-
-    //         console.log("🚀 Creando wallet brick...");
-    //         const bricksBuilder = await window.mp.bricks();
-    //         await bricksBuilder.create("Wallet", "checkout-container", {
-    //             initialization: {
-    //                 preferenceId: preferenceId
-    //             },
-    //             customization: {
-    //                 visual: {
-    //                     style: {
-    //                         theme: "default"
-    //                     }
-    //                 }
-    //             },
-    //             callbacks: {
-    //                 onReady: () => {
-    //                     console.log("✅ Checkout embebido listo y renderizado");
-    //                     setError("");
-    //                 },
-    //                 onError: (error) => {
-    //                     console.error("❌ Error en checkout:", error);
-    //                     setError("Error en el sistema de pago: " + error.message);
-    //                     checkoutContainerRef.current.innerHTML = 
-    //                         '<p style="color: red;">❌ Error cargando el método de pago</p>';
-    //                 }
-    //             }
-    //         });
-
-    //         console.log("✅ Checkout inicialización completada");
-                        
-    //     } catch (error) {
-    //         console.error("❌ Error inicializando checkout:", error);
-    //         setError("Error al inicializar el pago: " + error.message);
-    //         if (checkoutContainerRef.current) {
-    //             checkoutContainerRef.current.innerHTML = 
-    //                 '<p style="color: red;">❌ Error: ' + error.message + '</p>';
-    //         };
-    //     };
-    // };
-
-    // useEffect(() => {
-    //     if(preferenceId && window.mp && checkoutContainerRef.current) {
-    //         initializeCheckout();
-    //     }
-    // }, [preferenceId]);
-
-    // const handlePaymentInit = () => {
-    //     createPreference();
-    // }
-
-    // const handlePaymentSuccess = () => {
-    //     console.log("Pago completado exitosamente");
-    //     navigate("")        
-    // }
 
     if(cart.length === 0) {
         return (
