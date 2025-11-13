@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/tiendaderopadeportiva/static/css/main.48e42e11.css",
-    "main.js": "/tiendaderopadeportiva/static/js/main.d7941488.js",
+    "main.js": "/tiendaderopadeportiva/static/js/main.a3907dca.js",
     "static/media/instagram.svg": "/tiendaderopadeportiva/static/media/instagram.4bd4a3cb2dbc5631444eee37b275b051.svg",
     "index.html": "/tiendaderopadeportiva/index.html",
     "static/media/facebook.svg": "/tiendaderopadeportiva/static/media/facebook.7b970ce00e3ade9b33d4e2941ac36c5c.svg",
     "static/media/shopping-cart.svg": "/tiendaderopadeportiva/static/media/shopping-cart.33ce5d1587bf4a7a971bb64d9418e125.svg",
     "main.48e42e11.css.map": "/tiendaderopadeportiva/static/css/main.48e42e11.css.map",
-    "main.d7941488.js.map": "/tiendaderopadeportiva/static/js/main.d7941488.js.map"
+    "main.a3907dca.js.map": "/tiendaderopadeportiva/static/js/main.a3907dca.js.map"
   },
   "entrypoints": [
     "static/css/main.48e42e11.css",
-    "static/js/main.d7941488.js"
+    "static/js/main.a3907dca.js"
   ]
 }
