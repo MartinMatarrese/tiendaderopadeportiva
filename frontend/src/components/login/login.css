@@ -152,12 +152,239 @@
     text-decoration: underline;
 }
 
-/* @meddia (max-width: 400px) {
+@media screen and (max-width: 1024px) {
     .login-container {
-        padding: 24px 16px;
+        padding: 30px 20px;
+        max-width: 340px;
     }
-    
+
     .login-titulo {
-        font-size: 24px
+        font-size: 26px;
+        margin-bottom: 22px;
     }
-} */
+}
+
+@media screen and (max-width: 900px) {
+    .login-container {
+        padding: 28px 20px;
+        max-width: 330px;
+    }
+
+    .login-titulo {
+        font-size: 24px;
+    }
+
+    .input-box input {
+        padding: 11px 14px 11px 38px;
+        font-size: 13.5px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .login-main {
+        padding: 12px;
+    }
+
+    .login-container {
+        padding: 24px 18px;
+        max-width: 320px;
+        border-radius: 14px;
+    }
+
+    .login-titulo {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .input-box {
+        margin-top: 16px;
+    }
+
+    .input-box input {
+        padding: 10px 12px 10px 36px;
+        font-size: 13.5px;
+        border-radius: 10px;
+    }
+
+    .input-box i {
+        font-size: 16px;
+        left: 10px;
+    }
+
+    .login-button {
+        padding: 11px 0;
+        font-size: 15px;
+        margin-top: 22px;
+    }
+
+    .remember-forgot-box {
+        font-size: 12.5px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .login-main {
+        padding: 10px;
+    }
+
+    .login-container {
+        padding: 22px 16px;
+        max-width: 100%;
+        border-radius: 12px;
+        margin: 0 10px;
+    }
+
+    .login-titulo {
+        font-size: 20px;
+        margin-bottom: 18px;
+    }
+
+    .input-box {
+        margin-top: 14px;
+    }
+
+    .input-box input {
+        padding: 9px 12px 9px 34px;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+
+    .input-box i {
+        font-size: 15px;
+        left: 10px;
+    }
+
+    .btn-google {
+        margin: 10px 0 18px 0;
+    }
+
+    .login-button {
+        padding: 10px 0;
+        font-size: 14px;
+        margin-top: 20px;
+        border-radius: 8px;
+    }
+
+    .dont-have-an-account {
+        font-size: 13px;
+        margin-top: 16px;
+    }
+
+    .remember-forgot-box {
+        font-size: 12px;
+        margin-top: 14px;
+    }
+}
+
+@media  screen and (max-width: 360px) {
+    .login-container {
+        padding: 20px 14px;
+        border-radius: 10px;
+    }
+
+    .login-titulo {
+        font-size: 18px;
+        margin-bottom: 16px;
+    }
+
+    .input-box input {
+        padding: 8px 10px 8px 32px;
+        font-size: 12.5px;
+    }
+
+    .input-box i {
+        font-size: 14px;
+        left: 8px;
+    }
+
+    .login-button {
+        padding: 9px 0;
+        font-size: 13px;
+    }
+
+    .dont-have-an-account {
+        font-size: 12.5px;
+    }
+
+    .remember-forgot-box {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+}
+
+@media screen and (min-width: 1440px) {
+    .login-container {
+        max-width: 400px;
+        padding: 40px 30px;
+        border-radius: 20px;
+    }
+
+    .login-titulo {
+        font-size: 32px;
+        margin-bottom: 28px;
+    }
+
+    .input-box input {
+        padding: 14px 18px 14px 44px;
+        font-size: 15px;
+        border-radius: 14px;
+    }
+
+    .input-box i {
+        font-size: 20px;
+        left: 14px;
+    }
+
+    .login-button {
+        padding: 14px 0;
+        font-size: 17px;
+        margin-top: 28px;
+    }
+
+    .dont-have-an-account {
+        font-size: 15px;
+        margin-top: 22px;
+    }
+}
+
+@media screen and (max-height: 600px) and (orientation: landscape) {
+    .login-main {
+        height: auto;
+        min-height: 100dvh;
+        padding: 8px;
+        align-items: flex-start;
+    }
+
+    .login-container {
+        padding: 18px 20px;
+        margin: 10px 0;
+        max-width: 340px;
+    }
+
+    .login-titulo {
+        margin-bottom: 16px;
+        font-size: 20px;
+    }
+
+    .input-box {
+        margin-top: 12px;
+    }
+
+    .input-box input {
+        padding: 8px 12px 8px 36px;
+    }
+
+    .btn-google {
+        margin: 8px 0 16px 0;
+    }
+
+    .login-button {
+        margin-top: 18px;
+        padding: 10px 0;
+    }
+
+    .dont-have-an-account {
+        margin-top: 14px;
+    }
+}

@@ -15,6 +15,14 @@ export const CartProvider = ({children}) => {
     const API_URL = `${bacUrl}api/carts`;
     const userId = user?._id || user?.id;
 
+    useEffect(() => {
+        if(!user) {
+            setCart([]);
+            setCartId(null);
+        };
+
+    }, [user]);
+
     const loadUserCart = useCallback(async() => {
         try {
             console.log("🛒 loadUserCart - INICIANDO:", { user: user?.email, userCart: user?.cart });
