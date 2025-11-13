@@ -87,6 +87,8 @@ const CheckoutPage = () => {
                         }
                     });
 
+                    return;
+
                 } else if(paymentStatus.status === "rejected") {
                     console.log("Pago rechazado - Redirigiendo a failure");
                     navigate("/payments/failure", {
@@ -96,6 +98,8 @@ const CheckoutPage = () => {
                             status_detail: paymentStatus.status_detail
                         }
                     });
+
+                    return;
 
                 } else if(paymentStatus.status === "in_process" || paymentStatus.status === "pending") {
                     console.log("Pago en proceso/pendiente - Continuando poling");
