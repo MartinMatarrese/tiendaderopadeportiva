@@ -230,7 +230,7 @@ class PaymentController {
 
              console.log("📊 Resultados encontrados:", paymentSearch.body.results?.length || 0);
             
-            if(paymentSearch.body.results || paymentSearch.body.results.length === 0) {
+            if(!paymentSearch.body.results || paymentSearch.body.results.length === 0) {
                 return res.json({
                     status: "not_found",
                     message: "No se encontraron pagos para esta preferencia"
