@@ -54,9 +54,10 @@ const CheckoutPage = () => {
 
             setPreferenceId(response.data.id);
 
-            const url = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
+            const mercadoPagoUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
             
-            setCheckoutUrl(url)
+            // setCheckoutUrl(url)
+            window.location.replace(mercadoPagoUrl);
             
         } catch (error) {
             console.error("Error al crear la preferencia de pago:", error);
