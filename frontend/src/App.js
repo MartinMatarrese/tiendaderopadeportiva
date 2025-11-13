@@ -1,5 +1,4 @@
 import "./App.css";
-import { HashRouter as Router } from "react-router-dom";
 import { Titulo } from "./components/Titulo/Titulo";
 import { NavBar } from "./components/NavBar/NavBar";
 import { ItemListContainer } from "./components/ItemListContainer/ItemListContainer";
@@ -28,38 +27,36 @@ const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "
 function App (){
     return(
         <div>
-            <Router>
-                <AuthProvider>
-                    <BrowserRouter basename={basePath}>
-                        <Titulo/>
-                        <CartProvider>
-                        <NavBar/>
-                        <Routes>
-                            <Route path="/" element={<ItemListContainer/>}/>
-                            <Route path="/category/:categoryId" element={<ItemListContainer/>}/>
-                            <Route path="/admin" element={<AdminPanel/>}/>
-                            <Route path="/admin/create-product" element={<CreateProduct/>}/>
-                            <Route path="/item/:itemId" element={
-                                <ProtectedRoute>
-                                    <ItemDetailContainer/>
-                                </ProtectedRoute>}/>
-                            <Route path="/Carrito" element={<Carrito/>}/>
-                            <Route path="/login" element={<Login/>}/>
-                            <Route path="/register" element={<Register/>}/>
-                            <Route path="/verify-email/:token" element={<VerifyEmail/>}/>
-                            <Route path="/forgot-password" element={<ForgotPassword/>}/>
-                            <Route path="/reset-password" element={<ResetPassword/>}/>
-                            <Route path="/checkout" element={<CheckoutPage/>}/>
-                            <Route path="/payments/success" element={<PaymentSuccess/>}/>
-                            <Route path="/payments/failure" element={<PaymentFailure/>}/>
-                            <Route path="/payments/pending" element={<PaymentPending/>}/>
-                            <Route path="*" element={<Error/>}/>
-                        </Routes>
-                        </CartProvider>
-                        <Footer/>
-                    </BrowserRouter>
-                </AuthProvider>
-            </Router>
+            <AuthProvider>
+                <BrowserRouter basename={basePath}>
+                    <Titulo/>
+                    <CartProvider>
+                    <NavBar/>
+                    <Routes>
+                        <Route path="/" element={<ItemListContainer/>}/>
+                        <Route path="/category/:categoryId" element={<ItemListContainer/>}/>
+                        <Route path="/admin" element={<AdminPanel/>}/>
+                        <Route path="/admin/create-product" element={<CreateProduct/>}/>
+                        <Route path="/item/:itemId" element={
+                            <ProtectedRoute>
+                                <ItemDetailContainer/>
+                            </ProtectedRoute>}/>
+                        <Route path="/Carrito" element={<Carrito/>}/>
+                        <Route path="/login" element={<Login/>}/>
+                        <Route path="/register" element={<Register/>}/>
+                        <Route path="/verify-email/:token" element={<VerifyEmail/>}/>
+                        <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                        <Route path="/reset-password" element={<ResetPassword/>}/>
+                        <Route path="/checkout" element={<CheckoutPage/>}/>
+                        <Route path="/payments/success" element={<PaymentSuccess/>}/>
+                        <Route path="/payments/failure" element={<PaymentFailure/>}/>
+                        <Route path="/payments/pending" element={<PaymentPending/>}/>
+                        <Route path="*" element={<Error/>}/>
+                    </Routes>
+                    </CartProvider>
+                    <Footer/>
+                </BrowserRouter>
+            </AuthProvider>
         </div>
     )
 }
