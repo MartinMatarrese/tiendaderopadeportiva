@@ -20,27 +20,11 @@ class PaymentService {
             const isProduction = env === "production";
             const isTest = env === "test";
             const successUrl = isTest ? "https://example.com/success" : isProduction ? `${frontendUrl}#/payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
-            console.log("URL de éxito completa:", successUrl);
-            console.log("cartId:", cartId);
-            console.log("cartId es válido?", cartId && cartId !== "undefined");
             if(!cartId && cartId === "undefined") {
                 throw new Error("cartId es inválido: " + cartId)
             }            
             const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${frontendUrl}#/payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
             const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}#/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
-
-            console.log("🎯 Creando preferencia para cartId:", cartId);
-            console.log("📦 Productos en carrito:", cart.products);
-            console.log("🔍 ESTRUCTURA COMPLETA del primer producto:", JSON.stringify(cart.products[0], null, 2));
-            console.log("🔍 id_prod del primer producto:", cart.products[0]?.id_prod);
-            console.log("🔍 Precio del primer producto:", cart.products[0]?.id_prod?.price);
-            console.log("🔍 Tipo del precio:", typeof cart.products[0]?.id_prod?.price);
-            console.log("🔍 ESTRUCTURA del primer producto en el DTO:", {
-                id_prod: cart.products[0]?.id_prod,
-                title: cart.products[0]?.title, 
-                price: cart.products[0]?.price,
-                quantity: cart.products[0]?.quantity
-            });
 
             const items = cart.products.map(p => ({
                 title: p.title || "producto",
@@ -50,7 +34,6 @@ class PaymentService {
                     
             }));
 
-            console.log("Items procesados:", items);
             const invalidItems = items.filter(item => !item.unit_price || item.unit_price === 0);
             if(invalidItems.length > 0) {
                 throw new Error(`Items sin precio Válido ${invalidItems.length}`);
