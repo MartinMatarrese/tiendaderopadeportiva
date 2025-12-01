@@ -3,7 +3,8 @@ import { Titulo } from "./components/Titulo/Titulo";
 import { NavBar } from "./components/NavBar/NavBar";
 import { ItemListContainer } from "./components/ItemListContainer/ItemListContainer";
 import { ItemDetailContainer } from "./components/ItemDetailContainer/ItemDetailContainer";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Error from "./pages/Error";
 import { CartProvider } from "./components/Context/CartContext";
 import Carrito from "./components/Carrito/Carrito";
@@ -28,7 +29,7 @@ function App (){
     return (
         <div>
             <AuthProvider>
-                <BrowserRouter basename={basePath}>
+                <Router basename={basePath}>
                     <Titulo/>
                     <CartProvider>
                     <NavBar/>
@@ -55,7 +56,7 @@ function App (){
                     </Routes>
                     </CartProvider>
                     <Footer/>
-                </BrowserRouter>
+                </Router>
             </AuthProvider>
         </div>
     )
