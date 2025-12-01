@@ -1,16 +1,30 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./Payment.css";
 
 export const PaymentSuccess = () => {
     const navigate = useNavigate();
-    const [ searchParams ] = useSearchParams()
+    // const [ searchParams ] = useSearchParams()
     const [ processing, setProcessing ] = useState(true);
     const [ paymentData, setPaymentData ] = useState(null);
-    const payment_id = searchParams.get("payment_id");
-    const externalReference = searchParams.get("external_reference");
-    const ticketId = searchParams.get("ticketId")
+    // const payment_id = searchParams.get("payment_id");
+    // const externalReference = searchParams.get("external_reference");
+    // const ticketId = searchParams.get("ticketId")
+    const getUrlParams = () => {
+        const currentUrl = window.location.href;
+        console.log("URL Completa:", currentUrl);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        return {
+            payment_id: urlParams.get("payment_id") || urlParams.get("collection_id"),
+            external_reference: urlParams.get("external_reference"),
+            status: urlParams.get("status") || urlParams.get("collection_status"),
+            ticketId: urlParams.get("ticket"),
+            merchant_order_id: urlParams.get("marchant_order_id")
+        }
+    }
 
     useEffect(() => {
         proccessPayment();

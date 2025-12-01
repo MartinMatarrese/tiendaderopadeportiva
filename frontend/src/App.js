@@ -25,7 +25,7 @@ import { CreateProduct } from "./components/AdminPanel/CreateProduct";
 const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
 
 function App (){
-    return(
+    return (
         <div>
             <AuthProvider>
                 <BrowserRouter basename={basePath}>
