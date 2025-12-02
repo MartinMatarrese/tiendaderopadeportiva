@@ -20,12 +20,12 @@ class PaymentService {
             const env = process.env.NODE_ENV || "development"
             const isProduction = env === "production";
             const isTest = env === "test";
-            const successUrl = isTest ? "https://example.com/success" : isProduction ? `${backendUrl}#/payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
+            const successUrl = isTest ? "https://example.com/success" : isProduction ? `${backendUrl}api/payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
             if(!cartId && cartId === "undefined") {
                 throw new Error("cartId es inválido: " + cartId)
             }            
-            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${backendUrl}#/payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
-            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${backendUrl}#/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
+            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${backendUrl}api/payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
+            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${backendUrl}api/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
 
             const items = cart.products.map(p => ({
                 title: p.title || "producto",
