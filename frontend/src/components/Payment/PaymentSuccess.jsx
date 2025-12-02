@@ -24,7 +24,7 @@ export const PaymentSuccess = () => {
                 payment_id: urlParams.get("payment_id") || urlParams.get("collection_id"),
                 external_reference: urlParams.get("external_reference"),
                 status: urlParams.get("status") || urlParams.get("collection_status"),
-                ticketId: urlParams.get("ticket"),
+                // ticketId: urlParams.get("ticket"),
                 merchant_order_id: urlParams.get("merchant_order_id")
             }
         }
@@ -122,7 +122,7 @@ export const PaymentSuccess = () => {
             payment_id: urlParams.get("payment_id") || urlParams.get("collection_id"),
             external_reference: urlParams.get("external_reference"),
             status: urlParams.get("status") || urlParams.get("collection_status"),
-            ticketId: urlParams.get("ticket"),
+            // ticketId: urlParams.get("ticket"),
             merchant_order_id: urlParams.get("marchant_order_id")
         }
     }
