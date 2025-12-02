@@ -99,10 +99,14 @@ class PaymentController {
                         return res.redirect(`${frontendUrl}payments/failure?message=stock=insuficiente`)
                     };
 
+                    const cart = await cartServices.getCartById(cartIdToProcess);
+                    const userId = cart.userId || cart.user?._id || ticket.purchaser;
+
                     const paymentData = {
                         payment_id: payment_id,
                         status,
                         cartId: cartIdToProcess,
+                        userId: userId,
                         amount: ticket.amount,
                         ticketId: ticket._id?.toString()
                     }
@@ -110,7 +114,7 @@ class PaymentController {
                     const payment = await paymentService.createPayment(paymentData);
 
                     try {
-                        const user = await userService.getUserById(paymentData.userId);
+                        const user = await userService.getUserById(userId);
                         const cart = await cartServices.getCartById(cartIdToProcess);
                         await sendGmail(ticket, user.email, cart.products);
                         console.log(`Email de confirmación enviado a ${user.email}`);
