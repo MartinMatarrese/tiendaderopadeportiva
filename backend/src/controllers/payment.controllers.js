@@ -71,7 +71,9 @@ class PaymentController {
 
     handleSuccess = async(req, res, next) => {
         try {
-            const { payment_id, status, external_reference, cartId } = req.query;
+            const { payment_id, status, external_reference } = req.query;
+
+            const cartId = external_reference;
 
             console.log("Parámetros recibidos en handleSuccess:", {
                 payment_id,
@@ -79,6 +81,11 @@ class PaymentController {
                 external_reference,
                 cartId
             });
+
+            if(!cartId) {
+                console.error("No hay external_reference (cartId)");
+                return res.redirect(`${frontendUrl}payments/failure?message=missing_cart_id`)
+            }
 
             if(status === "approved") {
                 const cartIdToProcess = external_reference;
@@ -100,22 +107,51 @@ class PaymentController {
                     };
 
                     const cart = await cartServices.getCartById(cartIdToProcess);
-                    const userId = cart.userId || cart.user?._id || ticket.purchaser;
+                    // const userId = cart.userId || cart.user?._id || ticket.purchaser;
+                    console.log("CArrito obtenido:", {
+                        cartId: cart._id,
+                        userId: cart.userId,
+                        user: cart.user,
+                        products: cart.products?.length
+                    });
+
+                    let userId;
+                    if(cart.userId) {
+                        userId = cart.userId;
+                    } else if(cart.user && cart.user._id) {
+                        userId = cart.user._id;
+                    } else if(ticket.purchaser) {
+                        userId = ticket.purchaser;
+                    } else {
+                        console.error("No se pudo obtener userId");
+                        throw new Error("UserId no encontrado");                                               
+                    }
+
+                    console.log("UserId obtenido:", userId);                    
+                    
 
                     const paymentData = {
                         payment_id: payment_id,
-                        status,
-                        cartId: cartIdToProcess,
+                        status: status,
+                        cartId: cartId,
                         userId: userId,
                         amount: ticket.amount,
                         ticketId: ticket._id?.toString()
-                    }
+                    };
+
+                    console.log("Datos del pago a guardar:", paymentData);                    
 
                     const payment = await paymentService.createPayment(paymentData);
+                    console.log("Pago guardado en BD:", payment._ID);                    
 
                     try {
                         const user = await userService.getUserById(userId);
-                        const cart = await cartServices.getCartById(cartIdToProcess);
+                        // const cart = await cartServices.getCartById(cartIdToProcess);
+                        console.log("Usuario para email:", {
+                            user: user.email,
+                            nombre: user.first_name
+                        });
+                        
                         await sendGmail(ticket, user.email, cart.products);
                         console.log(`Email de confirmación enviado a ${user.email}`);
                         
@@ -149,51 +185,6 @@ class PaymentController {
                 return res.redirect(`${frontendUrl}payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
             }
             
-            // const paymentData = {
-            //         paymentId: payment_id,
-            //         status,
-            //         cartId: external_reference || cartId
-            //     };
-
-            // if(status === "approved") {
-            //     const cartIdToProcess = external_reference;
-                
-            //     if(!cartIdToProcess) {
-            //         console.error("No hay external_reference (cartId)");
-            //         return res.redirect(`${frontendUrl}payments/failure?message=error_procesando_pago`);
-            //     };
-
-            //     console.log("Procesando compra para cartId:", cartIdToProcess);
-
-            //     const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
-            //     const { ticket, productsOutStock } = resuladoCompra;
-
-            //     if(productsOutStock.length > 0) {
-            //         console.warn("Algunos productos estaban sin stock:", productsOutStock);
-            //         return res.redirect(`${frontendUrl}payments/failure?message=stock_insuficiente`);
-            //     };
-
-            //     paymentData.amount = ticket.amount;
-            //     paymentData.ticketId = ticket._id?.toString();
-        
-            //     const payment = await paymentService.createPayment(paymentData);
-
-            //     try {
-            //         const user = await userService.getUserById(paymentData.userId)
-            //         const cart = await cartServices.getCartById(cartId)
-            //         await sendGmail(ticket, user.email, cart.products)
-            //         console.log(`Email de confirmación enviado a ${user.email}`);
-                    
-            //     } catch(error) {
-            //         console.error("Error al enviar el email de confirmación", error.message);                    
-            //     }
-
-            //     return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}&ticketId=${ticket._id}`);
-
-            // };
-            // await paymentService.createPayment(paymentData);
-
-            // return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}`)
         } catch (error) {
             console.error("Error en handleSuccess: ", error);            
             res.redirect(`${frontendUrl}payments/failure?message=error_interno`);
