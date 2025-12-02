@@ -84,7 +84,7 @@ class PaymentController {
 
             if(!cartId) {
                 console.error("No hay external_reference (cartId)");
-                return res.redirect(`${frontendUrl}payments/failure?message=missing_cart_id`)
+                return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`)
             }
 
             if(status === "approved") {
@@ -92,7 +92,7 @@ class PaymentController {
 
                 if(!cartIdToProcess) {
                     console.error("No hay external_reference (cartId)");
-                    return res.redirect(`${frontendUrl}payments/failure?message=missing_cart_id`);
+                    return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`);
                 }
 
                 console.log("Procesando compra aporvada por cartId:", cartIdToProcess);
@@ -103,7 +103,7 @@ class PaymentController {
 
                     if(productsOutStock.length > 0) {
                         console.warn("Algunos productos sin Stock:", productsOutStock);
-                        return res.redirect(`${frontendUrl}payments/failure?message=stock=insuficiente`)
+                        return res.redirect(`${frontendUrl}#/payments/failure?message=stock=insuficiente`)
                     };
 
                     const cart = await cartServices.getCartById(cartIdToProcess);
@@ -159,10 +159,10 @@ class PaymentController {
                         console.error("Error al enviar el email:", error.message);                        
                     };
 
-                    return res.redirect(`${frontendUrl}payments/success?payment_id=${payment_id}&external_reference=${external_reference}&tickerId=${ticket._id}`);
+                    return res.redirect(`${frontendUrl}#/payments/success?payment_id=${payment_id}&external_reference=${external_reference}&tickerId=${ticket._id}`);
                 } catch (error) {
                     console.error("Error al procesar la compra");
-                    return res.redirect(`${frontendUrl}payments/failure?message=error_procesando_compra`)                    
+                    return res.redirect(`${frontendUrl}#/payments/failure?message=error_procesando_compra`)                    
                 };
             } else {
                 console.log(`Pago no aprobado ${status}`);
@@ -182,12 +182,12 @@ class PaymentController {
                 else if(status === "in_process") errorMessage = "pago_pendiente";
                 else errorMessage = "error_desconocido";
 
-                return res.redirect(`${frontendUrl}payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
+                return res.redirect(`${frontendUrl}#/payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
             }
             
         } catch (error) {
             console.error("Error en handleSuccess: ", error);            
-            res.redirect(`${frontendUrl}payments/failure?message=error_interno`);
+            res.redirect(`${frontendUrl}#/payments/failure?message=error_interno`);
         };
     };
 
