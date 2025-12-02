@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import Swal from "sweetalert2";
+import Swal from "sweetalert2";
 import "./Payment.css";
 
 export const PaymentSuccess = () => {
@@ -25,63 +25,59 @@ export const PaymentSuccess = () => {
                 external_reference: urlParams.get("external_reference"),
                 status: urlParams.get("status") || urlParams.get("collection_status"),
                 ticketId: urlParams.get("ticket"),
-                merchant_order_id: urlParams.get("marchant_order_id")
+                merchant_order_id: urlParams.get("merchant_order_id")
             }
         }
 
-        // const showSuccessMessage = (paymentId, ticketId) => {
-        //     Swal.fire({
-        //         position: "center",
-        //         icon: "success",
-        //         title: "¡Pago Exitoso!",
-        //         html: `
-        //             <div style="text-align: center;">
-        //                 <p>Tu compra ha sido procesada correctamente</p>
-        //                 <p><strong>ID de transacción:</strong></p>
-        //                 <p style="color: #e53935; font-weight: bold; font-size: 1.1em;">${paymentId}</p>
-        //                 ${ticketId ? `
-        //                     <p><strong>Número de orden:</strong></p>
-        //                     <p style= "color: #2d3748; font-weigth: bold; font-size: 1.1em;">${ticketId}</p>` : ""}
-        //                 <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
-        //                     Recibirás un email de confirmación en breve.
-        //                 </p>
-        //                 <p style="color: #38a169; font-size: 0.8em; margin-top: 10px;">
-        //                     ✅ El pago ya fue procesado en nuestro sistema
-        //                 </p>
-        //             </div>
-        //         `,
-        //         showConfirmButton: true,
-        //         confirmButtonText: "Continuar comprando",
-        //         confirmButtonColor: "#e53935",
-        //         width: 500
-        //     }).then(() => {
-        //         navigate("/");
-        //     });
-        // };
+        const showSuccessMessage = (paymentId, ticketId) => {
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "¡Pago Exitoso!",
+                html: `
+                    <div style="text-align: center;">
+                        <p>Tu compra ha sido procesada correctamente</p>
+                        <p><strong>ID de transacción:</strong></p>
+                        <p style="color: #e53935; font-weight: bold; font-size: 1.1em;">${paymentId}</p>
+                        ${ticketId ? `
+                            <p><strong>Número de orden:</strong></p>
+                            <p style= "color: #2d3748; font-weigth: bold; font-size: 1.1em;">${ticketId}</p>` : ""}
+                        <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                            Recibirás un email de confirmación en breve.
+                        </p>
+                        <p style="color: #38a169; font-size: 0.8em; margin-top: 10px;">
+                            ✅ El pago ya fue procesado en nuestro sistema
+                        </p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: "Aceptar",
+                confirmButtonColor: "#e53935",
+                width: 500
+            });
+        };
 
-        // const showGenricSuccess = () => {
-        //     Swal.fire({
-        //         position: "center",
-        //         icon: "success",
-        //         title: "¡Pago Exitoso!",
-        //         html: `
-        //             <div style="text-align: center;">
-        //                 <p>Tu pago fue procesado correctamente</p>
-        //                 <p style="color: #666; margin-top: 10px;">
-        //                     Gracias por tu compra. Recibirás un email de confirmación.
-        //                 </p>
-        //                 <p style="color: #38a169; font-size: 0.8em; margin-top: 10px;">
-        //                     ✅ Transacción completada exitosamente
-        //                 </p>
-        //             </div>
-        //         `,
-        //         showConfirmButton: true,
-        //         confirmButtonText: "Volver al inicio",
-        //         confirmButtonColor: "#e53935",
-        //     }).then(() => {
-        //         navigate("/");
-        //     });
-        // }
+        const showGenricSuccess = () => {
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "¡Pago Exitoso!",
+                html: `
+                    <div style="text-align: center;">
+                        <p>Tu pago fue procesado correctamente</p>
+                        <p style="color: #666; margin-top: 10px;">
+                            Gracias por tu compra. Recibirás un email de confirmación.
+                        </p>
+                        <p style="color: #38a169; font-size: 0.8em; margin-top: 10px;">
+                            ✅ Transacción completada exitosamente
+                        </p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: "Aceptar",
+                confirmButtonColor: "#e53935",
+            });
+        }
         
         const proccessPayment = async() => {
             try {
@@ -98,15 +94,15 @@ export const PaymentSuccess = () => {
                     externalReference: params.external_reference
                 })
                 
-                // if(params.payment_id) {
-                //     showSuccessMessage(params.payment_id, params.ticketId);
-                // } else {
-                //     showGenricSuccess();
-                // }
+                if(params.payment_id) {
+                    showSuccessMessage(params.payment_id, params.ticketId);
+                } else {
+                    showGenricSuccess();
+                }
 
             } catch (error) {
                 console.error("Error en confirmación:", error);
-                // showGenricSuccess();
+                showGenricSuccess();
             } finally {
                 setProcessing(false);
             };
@@ -118,7 +114,7 @@ export const PaymentSuccess = () => {
         localStorage.removeItem("cart");
         localStorage.removeItem("cartId");
         localStorage.removeItem("cartItems");
-    })
+    }, []);
 
     const getUrlParamsForRender = () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -167,11 +163,11 @@ export const PaymentSuccess = () => {
                     <div className="success-icon">✅</div>
                     <h1>¡Gracias por tu compra!</h1>
                     <p>Tu pedido ha sido confirmado exitosamente</p>
-                    {paymentData?.payment_id && (
+                    {paymentData?.paymentId && (
                         <div className="payment-summary">
                             <div className="summary-item">
                                 <span>ID de transacción:</span>
-                                <strong>{paymentData.payment_id}</strong>
+                                <strong>{paymentData.paymentId}</strong>
                             </div>
                             {paymentData.ticketId && (
                                 <div className="summary-item">
