@@ -114,6 +114,12 @@ export const PaymentSuccess = () => {
         proccessPayment();
     }, [navigate]);
 
+    useEffect(() => {
+        localStorage.removeItem("cart");
+        localStorage.removeItem("cartId");
+        localStorage.removeItem("cartItems");
+    })
+
     const getUrlParamsForRender = () => {
         const urlParams = new URLSearchParams(window.location.search);
         return {

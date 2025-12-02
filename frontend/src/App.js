@@ -23,13 +23,13 @@ import { VerifyEmail } from "./components/VerifyEmail/VerifyEmail";
 import { AdminPanel } from "./components/AdminPanel/AdminPanel";
 import { CreateProduct } from "./components/AdminPanel/CreateProduct";
 
-const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
+// const basePath = window.location.pathname.includes("/tiendaderopadeportiva") ? "/tiendaderopadeportiva" : "";
 
 function App (){
     return (
         <div>
             <AuthProvider>
-                <Router basename={basePath}>
+                <Router>
                     <Titulo/>
                     <CartProvider>
                     <NavBar/>
