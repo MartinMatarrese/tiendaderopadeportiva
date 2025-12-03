@@ -75,27 +75,26 @@ class PaymentController {
 
             const cartId = external_reference;
 
-            console.log("Parámetros recibidos en handleSuccess:", {
+            console.log("Mercado pago reedirigio al backend con:", {
                 payment_id,
                 status,
-                external_reference,
                 cartId
             });
 
-            if(!cartId) {
-                console.error("No hay external_reference (cartId)");
-                return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`)
-            }
+            // if(!cartId) {
+            //     console.error("No hay external_reference (cartId)");
+            //     return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`)
+            // }
 
             if(status === "approved") {
-                const cartIdToProcess = external_reference;
+                // const cartIdToProcess = external_reference;
 
-                if(!cartIdToProcess) {
-                    console.error("No hay external_reference (cartId)");
-                    return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`);
-                }
+                // if(!cartIdToProcess) {
+                //     console.error("No hay external_reference (cartId)");
+                //     return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`);
+                // }
 
-                console.log("Procesando compra aporvada por cartId:", cartIdToProcess);
+                // console.log("Procesando compra aporvada por cartId:", cartIdToProcess);
                 
                 try {
                     const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
@@ -106,8 +105,8 @@ class PaymentController {
                         return res.redirect(`${frontendUrl}#/payments/failure?message=stock=insuficiente`)
                     };
 
-                    const cart = await cartServices.getCartById(cartIdToProcess);
-                    // const userId = cart.userId || cart.user?._id || ticket.purchaser;
+                    const cart = await cartServices.getCartById(cartId);
+                    const userId = cart.userId || cart.user?._id || ticket.purchaser;
                     console.log("CArrito obtenido:", {
                         cartId: cart._id,
                         userId: cart.userId,
@@ -115,74 +114,100 @@ class PaymentController {
                         products: cart.products?.length
                     });
 
-                    let userId;
-                    if(cart.userId) {
-                        userId = cart.userId;
-                    } else if(cart.user && cart.user._id) {
-                        userId = cart.user._id;
-                    } else if(ticket.purchaser) {
-                        userId = ticket.purchaser;
-                    } else {
-                        console.error("No se pudo obtener userId");
-                        throw new Error("UserId no encontrado");                                               
+                    
+                    // if(cart.userId) {
+                    //     userId = cart.userId;
+                    // } else if(cart.user && cart.user._id) {
+                    //     userId = cart.user._id;
+                    // } else if(ticket.purchaser) {
+                    //     userId = ticket.purchaser;
+                    // } else {
+                    //     console.error("No se pudo obtener userId");
+                    //     throw new Error("UserId no encontrado");                                               
+                    // }
+
+                    try {
+                        await sendGmail({
+                            to: user.email,
+                            subject: `Confirmación de compra #${ticket.code}`,
+                            ticket: ticket,
+                            products: cart.products,
+                            userName: user.first_name
+                        });
+                        console.log(`Email enviado exitosamente a ${user.email}`);
+                        
+                    } catch (error) {
+                        console.error("Error enviando email:", error.message);
+                                                
                     }
 
                     console.log("UserId obtenido:", userId);                    
                     
 
                     const paymentData = {
-                        payment_id: payment_id,
-                        status: status,
-                        cartId: cartId,
-                        userId: userId,
+                        payment_id,
+                        status,
+                        cartId,
+                        userId,
                         amount: ticket.amount,
-                        ticketId: ticket._id?.toString()
+                        ticketId: ticket._id,
+                        emailSent: true
                     };
 
                     console.log("Datos del pago a guardar:", paymentData);                    
 
-                    const payment = await paymentService.createPayment(paymentData);
-                    console.log("Pago guardado en BD:", payment._ID);                    
+                    await paymentService.createPayment(paymentData);
+                    console.log("Pago registrad en BD");                    
 
-                    try {
-                        const user = await userService.getUserById(userId);
-                        // const cart = await cartServices.getCartById(cartIdToProcess);
-                        console.log("Usuario para email:", {
-                            user: user.email,
-                            nombre: user.first_name
-                        });
+                //     try {
+                //         const user = await userService.getUserById(userId);
+                //         // const cart = await cartServices.getCartById(cartIdToProcess);
+                //         console.log("Usuario para email:", {
+                //             user: user.email,
+                //             nombre: user.first_name
+                //         });
                         
-                        await sendGmail(ticket, user.email, cart.products);
-                        console.log(`Email de confirmación enviado a ${user.email}`);
+                //         await sendGmail(ticket, user.email, cart.products);
+                //         console.log(`Email de confirmación enviado a ${user.email}`);
                         
-                    } catch (error) {
-                        console.error("Error al enviar el email:", error.message);                        
-                    };
+                //     } catch (error) {
+                //         console.error("Error al enviar el email:", error.message);                        
+                //     };
 
-                    return res.redirect(`${frontendUrl}#/payments/success?payment_id=${payment_id}&external_reference=${external_reference}&tickerId=${ticket._id}`);
-                } catch (error) {
-                    console.error("Error al procesar la compra");
-                    return res.redirect(`${frontendUrl}#/payments/failure?message=error_procesando_compra`)                    
+                //     return res.redirect(`${frontendUrl}#/payments/success?payment_id=${payment_id}&external_reference=${external_reference}&tickerId=${ticket._id}`);
+                // } catch (error) {
+                //     console.error("Error al procesar la compra");
+                //     return res.redirect(`${frontendUrl}#/payments/failure?message=error_procesando_compra`)                    
+                // };
+                    const redirectUrl = `${frontendUrl}#/payments/success?ticketId=${ticket._id}&payment_id=${payment_id}`;
+                    console.log("Reedirigiendo a frontend:", redirectUrl);
+                    return res.redirect(redirectUrl);
+
+                } catch(error) {
+                    console.error("Error al procesar la compra:", error);
+                    return res.redirect(`${frontendUrl}#/payments/failure?message=error_procesando`);
                 };
-            } else {
-                console.log(`Pago no aprobado ${status}`);
                 
-                const paymentData = {
-                    paymentId: payment_id || "null",
-                    status: status || "null",
-                    cartId: external_reference || cartId || "null"
-                };
+            } else {
+                console.log(`Pago no aprobado. Status: ${status}`);
+                return res.redirect(`${frontendUrl}#/payments/failure?message=pago_${status}`)
+                
+                // const paymentData = {
+                //     paymentId: payment_id || "null",
+                //     status: status || "null",
+                //     cartId: external_reference || cartId || "null"
+                // };
 
-                await paymentService.createPayment(paymentData);
+                // await paymentService.createPayment(paymentData);
 
-                let errorMessage = "pago_rechazado";
+                // let errorMessage = "pago_rechazado";
 
-                if(status === "rejected") errorMessage = "pago_rechazado";
-                else if(status === "cancelled") errorMessage = "pago_cancelado";
-                else if(status === "in_process") errorMessage = "pago_pendiente";
-                else errorMessage = "error_desconocido";
+                // if(status === "rejected") errorMessage = "pago_rechazado";
+                // else if(status === "cancelled") errorMessage = "pago_cancelado";
+                // else if(status === "in_process") errorMessage = "pago_pendiente";
+                // else errorMessage = "error_desconocido";
 
-                return res.redirect(`${frontendUrl}#/payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
+                // return res.redirect(`${frontendUrl}#/payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
             }
             
         } catch (error) {
