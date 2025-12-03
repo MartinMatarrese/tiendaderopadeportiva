@@ -9,7 +9,7 @@ paymentRouter.post("/create-preference", jwtAuth, roleAuth(["user"]), paymentCon
 
 paymentRouter.get("/status/:preferenceId", jwtAuth, roleAuth(["user"]), paymentController.getPaymentStatus)
 
-paymentRouter.get("/success", jwtAuth, roleAuth(["user"]), paymentController.handleSuccess);
+paymentRouter.get("/success", paymentController.handleSuccess);
 
 paymentRouter.get("/", jwtAuth, roleAuth(["user"]), paymentController.getAllPayment);
 

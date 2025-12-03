@@ -71,33 +71,25 @@ class PaymentController {
 
     handleSuccess = async(req, res, next) => {
         try {
-            const { payment_id, status, external_reference } = req.query;
+            const { payment_id, status, external_reference, preference_id } = req.query;
 
             const cartId = external_reference;
 
             console.log("Mercado pago reedirigio al backend con:", {
                 payment_id,
                 status,
-                cartId
+                cartId: external_reference,
+                payment_id
             });
 
-            // if(!cartId) {
-            //     console.error("No hay external_reference (cartId)");
-            //     return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`)
-            // }
+            if(!payment_id || !external_reference) {
+                console.error("Datos incompletos de mercado pago");
+                return res.redirect(`${frontendUrl}#/payments/failure?message=datos_invalidos`);
+            };
 
-            if(status === "approved") {
-                // const cartIdToProcess = external_reference;
-
-                // if(!cartIdToProcess) {
-                //     console.error("No hay external_reference (cartId)");
-                //     return res.redirect(`${frontendUrl}#/payments/failure?message=missing_cart_id`);
-                // }
-
-                // console.log("Procesando compra aporvada por cartId:", cartIdToProcess);
-                
+            if(status === "approved") {                
                 try {
-                    const resuladoCompra = await cartServices.purchaseCart(cartIdToProcess);
+                    const resuladoCompra = await cartServices.purchaseCart(cartId);
                     const { ticket, productsOutStock } = resuladoCompra;
 
                     if(productsOutStock.length > 0) {
@@ -107,33 +99,11 @@ class PaymentController {
 
                     const cart = await cartServices.getCartById(cartId);
                     const userId = cart.userId || cart.user?._id || ticket.purchaser;
-                    console.log("CArrito obtenido:", {
-                        cartId: cart._id,
-                        userId: cart.userId,
-                        user: cart.user,
-                        products: cart.products?.length
-                    });
+                    const user = await userService.getUserByEmail(userId);
 
-                    
-                    // if(cart.userId) {
-                    //     userId = cart.userId;
-                    // } else if(cart.user && cart.user._id) {
-                    //     userId = cart.user._id;
-                    // } else if(ticket.purchaser) {
-                    //     userId = ticket.purchaser;
-                    // } else {
-                    //     console.error("No se pudo obtener userId");
-                    //     throw new Error("UserId no encontrado");                                               
-                    // }
 
                     try {
-                        await sendGmail({
-                            to: user.email,
-                            subject: `Confirmación de compra #${ticket.code}`,
-                            ticket: ticket,
-                            products: cart.products,
-                            userName: user.first_name
-                        });
+                        await sendGmail(ticket, user.email, cart.products);
                         console.log(`Email enviado exitosamente a ${user.email}`);
                         
                     } catch (error) {
@@ -150,8 +120,7 @@ class PaymentController {
                         cartId,
                         userId,
                         amount: ticket.amount,
-                        ticketId: ticket._id,
-                        emailSent: true
+                        ticketId: ticket._id
                     };
 
                     console.log("Datos del pago a guardar:", paymentData);                    
@@ -159,26 +128,7 @@ class PaymentController {
                     await paymentService.createPayment(paymentData);
                     console.log("Pago registrad en BD");                    
 
-                //     try {
-                //         const user = await userService.getUserById(userId);
-                //         // const cart = await cartServices.getCartById(cartIdToProcess);
-                //         console.log("Usuario para email:", {
-                //             user: user.email,
-                //             nombre: user.first_name
-                //         });
-                        
-                //         await sendGmail(ticket, user.email, cart.products);
-                //         console.log(`Email de confirmación enviado a ${user.email}`);
-                        
-                //     } catch (error) {
-                //         console.error("Error al enviar el email:", error.message);                        
-                //     };
-
-                //     return res.redirect(`${frontendUrl}#/payments/success?payment_id=${payment_id}&external_reference=${external_reference}&tickerId=${ticket._id}`);
-                // } catch (error) {
-                //     console.error("Error al procesar la compra");
-                //     return res.redirect(`${frontendUrl}#/payments/failure?message=error_procesando_compra`)                    
-                // };
+    
                     const redirectUrl = `${frontendUrl}#/payments/success?ticketId=${ticket._id}&payment_id=${payment_id}`;
                     console.log("Reedirigiendo a frontend:", redirectUrl);
                     return res.redirect(redirectUrl);
@@ -191,23 +141,6 @@ class PaymentController {
             } else {
                 console.log(`Pago no aprobado. Status: ${status}`);
                 return res.redirect(`${frontendUrl}#/payments/failure?message=pago_${status}`)
-                
-                // const paymentData = {
-                //     paymentId: payment_id || "null",
-                //     status: status || "null",
-                //     cartId: external_reference || cartId || "null"
-                // };
-
-                // await paymentService.createPayment(paymentData);
-
-                // let errorMessage = "pago_rechazado";
-
-                // if(status === "rejected") errorMessage = "pago_rechazado";
-                // else if(status === "cancelled") errorMessage = "pago_cancelado";
-                // else if(status === "in_process") errorMessage = "pago_pendiente";
-                // else errorMessage = "error_desconocido";
-
-                // return res.redirect(`${frontendUrl}#/payments/failure?message=${errorMessage}&payment_id=${payment_id}&external_rederence=${external_reference}`);
             }
             
         } catch (error) {
