@@ -6,9 +6,9 @@ mercadopago.configure({
     access_token: process.env.ACCES_TOKEN_MP
 });
 
-// const frontendUrl = process.env.FRONTEND_URL;
+const frontendUrl = process.env.FRONTEND_URL;
 const frontendLocal = process.env.FRONTEND_LOCAL;
-const backendUrl = process.env.BACKEND_URL;
+// const backendUrl = process.env.BACKEND_URL;
 
 class PaymentService {
     constructor() {
@@ -20,12 +20,12 @@ class PaymentService {
             const env = process.env.NODE_ENV || "development"
             const isProduction = env === "production";
             const isTest = env === "test";
-            const successUrl = isTest ? "https://example.com/success" : isProduction ? `${backendUrl}api/payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
+            const successUrl = isTest ? "https://example.com/success" : isProduction ? `${frontendUrl}#/payments/success` : `${frontendLocal}tiendaderopadeportiva/payments/success`;
             if(!cartId && cartId === "undefined") {
                 throw new Error("cartId es inválido: " + cartId)
             }            
-            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${backendUrl}api/payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
-            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${backendUrl}api/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
+            const failureUrl = isTest ? "https://example.com/failure" : isProduction ? `${frontendUrl}#/payments/failure` : `${frontendLocal}tiendaderopadeportiva/payments/failure`;
+            const pendingUrl = isTest ? "https://example.com/pending" : isProduction ? `${frontendUrl}#/payments/pending` : `${frontendLocal}tiendaderopadeportiva/payments/pending`;
 
             const items = cart.products.map(p => ({
                 title: p.title || "producto",
