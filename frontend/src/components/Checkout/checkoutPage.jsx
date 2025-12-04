@@ -5,7 +5,7 @@ import axios from "axios";
 import "./checkoutPage.css";
 
 const backUrl = process.env.REACT_APP_BACK_URL;
-const claveMp = process.env.REACT_APP_PUBLIC_KEY_MP;
+// const claveMp = process.env.REACT_APP_PUBLIC_KEY_MP;
 
 const CheckoutPage = () => {
     const { cart, total, cartId, userId } = useCart();
@@ -48,20 +48,60 @@ const CheckoutPage = () => {
 
             console.log("2. Enviando datos al backend:", requestData);
 
-            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, {withCredentials: true, timeout: 15000});
+            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, 
+                {
+                    withCredentials: true, 
+                    timeout: 15000,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
 
             console.log("3. Preferencia creada");
 
             setPreferenceId(response.data.id);
 
-            const mercadoPagoUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
+            const mercadoPagoUrl = response.data.init_point ||
+                                    response.data.sandbok_init_point ||
+                                    `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
             
             // setCheckoutUrl(url)
-            window.location.replace(mercadoPagoUrl);
+            // window.location.replace(mercadoPagoUrl);
+            const paymentWindow = window.open(mercadoPagoUrl, "_blank");
+
+            if(!paymentWindow) {
+                alert("Por favor permite ventanas emergentes para una mejora experiencia de pago. Redirigiendo...");
+                window.location.href = mercadoPagoUrl;
+                return;
+            }
+            
+            setPollingCount(1);
+
+            const checkWindowClosed = setInterval(() => {
+                if(paymentWindow.closed) {
+                    clearInterval(checkWindowClosed);
+                    console.log("Ventana de pago cerrada");
+                    setPollingCount(prev => Math.min(prev + 1, 30))
+                };
+            }, 1000);
             
         } catch (error) {
             console.error("Error al crear la preferencia de pago:", error);
-            setError(error.response?.data?.message || "Error al inicarlizar el pago");
+            let errorMessage = "Error al inicializar el pago";
+            if(error.response) {
+                errorMessage = error.response.data?.message || 
+                `Error ${error.response.status} : ${error.response.statusText}`;
+            } else if(error.request) {
+                errorMessage = "No se pudo conectar con el servidor"
+            }
+            setError(errorMessage);
+
+            if(error.response?.status === 401) {
+                setTimeout(() => navigate("/login"), 3000);
+            };
+
         } finally {
             setLoading(false);
         }
@@ -72,8 +112,16 @@ const CheckoutPage = () => {
 
         const checkPaymentStatus = async() => {
             try {
-                console.log(`Polling intento ${pollingCount + 1} para preferecnce:`, preferenceId);
-                const response = await axios.get(`${backUrl}api/payments/status/${preferenceId}`, {withCredentials: true, timeout: 10000});
+                console.log(`Polling intento ${pollingCount + 1}/30 para preferecnce:`, preferenceId);
+                const response = await axios.get(`${backUrl}api/payments/status/${preferenceId}`, 
+                    {
+                        withCredentials: true, 
+                        timeout: 10000,
+                        headers: {
+                            "Cache-Control": "no-cache"
+                        }
+                    }
+                );
 
                 const paymentStatus = response.data;                
                 console.log("Estado del pago:", paymentStatus);
