@@ -48,14 +48,11 @@ const CheckoutPage = () => {
 
             console.log("2. Enviando datos al backend:", requestData);
 
-            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, 
-                {
-                    withCredentials: true, 
-                    timeout: 15000,
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    }
+            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, { withCredentials: true, timeout: 15000
+                    // headers: {
+                    //     "Content-Type": "application/json",
+                    //     "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    // }
                 }
             );
 
