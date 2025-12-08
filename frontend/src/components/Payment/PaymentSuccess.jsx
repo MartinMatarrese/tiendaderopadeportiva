@@ -89,9 +89,10 @@ export const PaymentSuccess = () => {
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
                 setPaymentData({
-                    paymentId: params.payment_id,
-                    ticketId: params.ticketId,
-                    externalReference: params.external_reference
+                    external_reference: params.external_reference,
+                    merchant_order_id: params.merchant_order_id,
+                    payment_id: params.payment_id,
+                    status: params.status
                 })
                 
                 if(params.payment_id) {

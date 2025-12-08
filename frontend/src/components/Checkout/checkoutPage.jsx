@@ -115,7 +115,7 @@ const CheckoutPage = () => {
                         withCredentials: true, 
                         timeout: 10000,
                         headers: {
-                            "Cache-Control": "no-cache"
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
                         }
                     }
                 );
@@ -125,14 +125,39 @@ const CheckoutPage = () => {
                 
                 if(paymentStatus.status === "approved") {
                     console.log("Pago aprobado - Redirigiendo a success");
-                    navigate("/payments/success", {
+                    // localStorage.setItem("lastSuccessFullPayment", JSON.stringify({
+                    //     payment_id: paymentStatus.payment_id,
+                    //     ticketId: paymentStatus.ticketId,
+                    //     cartId: paymentStatus.external_reference || paymentStatus.cartId,
+                    //     amount: paymentStatus.amount,
+                    //     timestamp: Date.now()
+                    // }));
+                    const response = localStorage.setItem("lastSuccessFullPayment", JSON.stringify({
+                        date_aprovved: paymentStatus.date_aprovved,
+                        external_reference: paymentStatus.external_reference,
+                        payment_id: paymentStatus.payment_id,
+                        status: paymentStatus.status,
+                        status_detail: paymentStatus.status_detail
+                    }));
+
+                    console.log("Respuesta de Mercado Pago:", response);                    
+
+                    if(window.paymentWindow && !window.paymentWindow.closed) {
+                        window.paymentWindow.close();
+                    };
+
+                    const navigate = navigate("/payments/success", {
                         state: {
                             payment_id: paymentStatus.payment_id,
-                            external_reference: paymentStatus.external_reference,
+                            tikcetId: paymentStatus.ticketId,
+                            cartId: paymentStatus.external_reference || paymentStatus.cartId,
+                            amount: paymentStatus.amount,
                             status: paymentStatus.status
                         }
                     });
 
+                    console.log("Datos a la página de success:", navigate);
+                    
                     return;
 
                 } else if(paymentStatus.status === "rejected") {
@@ -144,7 +169,6 @@ const CheckoutPage = () => {
                             status_detail: paymentStatus.status_detail
                         }
                     });
-
                     return;
 
                 } else if(paymentStatus.status === "in_process" || paymentStatus.status === "pending") {
@@ -169,7 +193,7 @@ const CheckoutPage = () => {
         const interval = setInterval(checkPaymentStatus, 3000);
 
         return () => clearInterval(interval);
-    }, [preferenceId, pollingCount, navigate]);    
+    }, [preferenceId, pollingCount, navigate, backUrl]);
 
     if(cart.length === 0) {
         return (
