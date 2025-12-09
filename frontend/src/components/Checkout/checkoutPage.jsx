@@ -21,9 +21,11 @@ const CheckoutPage = () => {
             cartId: cartId,
             cart: cart,
             cartLength: cart.length,
-            userId: userId,
+            userId: userId._id,
             total: total
         });
+
+        //El userId: userId me esta dando undefined, por eso le agregué el _id
     }, [cartId, cart, userId, total]);
 
     useEffect(() => {
@@ -133,7 +135,7 @@ const CheckoutPage = () => {
                     //     timestamp: Date.now()
                     // }));
                     const response = localStorage.setItem("lastSuccessFullPayment", JSON.stringify({
-                        date_aprovved: paymentStatus.date_aprovved,
+                        date_approved: paymentStatus.date_approved,
                         external_reference: paymentStatus.external_reference,
                         payment_id: paymentStatus.payment_id,
                         status: paymentStatus.status,
@@ -146,10 +148,10 @@ const CheckoutPage = () => {
                         window.paymentWindow.close();
                     };
 
-                    const navigate = navigate("/payments/success", {
+                    navigate("/payments/success", {
                         state: {
                             payment_id: paymentStatus.payment_id,
-                            tikcetId: paymentStatus.ticketId,
+                            ticketId: paymentStatus.ticketId,
                             cartId: paymentStatus.external_reference || paymentStatus.cartId,
                             amount: paymentStatus.amount,
                             status: paymentStatus.status
