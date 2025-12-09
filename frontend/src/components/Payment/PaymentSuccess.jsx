@@ -122,7 +122,6 @@ export const PaymentSuccess = () => {
 
             } catch (error) {
                 console.error("Error en confirmación:", error);
-                showGenricSuccess();
             } finally {
                 setProcessing(false);
             };

@@ -195,7 +195,7 @@ const CheckoutPage = () => {
         const interval = setInterval(checkPaymentStatus, 3000);
 
         return () => clearInterval(interval);
-    }, [preferenceId, pollingCount, navigate, backUrl]);
+    }, [preferenceId, pollingCount, navigate]);
 
     if(cart.length === 0) {
         return (
