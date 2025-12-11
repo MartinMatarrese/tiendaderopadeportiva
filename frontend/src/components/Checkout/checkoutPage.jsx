@@ -16,45 +16,77 @@ const CheckoutPage = () => {
     const [ pollingCount, setPollingCount ] = useState(0);
     const [ checkoutUrl, setCheckoutUrl ] = useState("")
 
+    const getToken = () => {
+        return localStorage.getItem("token");
+    }
+
+    const token = getToken();
+    const user = localStorage.getItem("user");
+
     useEffect(() => {
         console.log("🔍 CheckoutPage - ESTADO COMPLETO:", {
             cartId: cartId,
             cart: cart,
             cartLength: cart.length,
-            userId: userId._id,
-            total: total
+            userId,
+            userIdType: typeof userId,
+            total: total,
+            tieneToken: !!getToken()
         });
 
+
+        if(!token || !user) {
+            console.warn("Usuario no autenticado, redirigiendo a login");
+            setError("Debes iniciar session para continuar");
+            setTimeout(() => navigate("/login"), 2000);
+        };
+
         //El userId: userId me esta dando undefined, por eso le agregué el _id
-    }, [cartId, cart, userId, total]);
+    }, [cartId, cart, userId, total, navigate]);
 
     useEffect(() => {
-        if(cart.length === 0) {
+        if(!cart || cart.length === 0) {
+            console.log("Carrito vacio redirigiendo...");
+            
             navigate("/Carrito");
         } else {
             console.log("Carrito en checkout: ", cart);
-        }
-    }, [cart, navigate])
+        };
+
+    }, [cart, navigate]);
 
     const createPreference = async() => {
         setLoading(true);
         setError("");
         setPollingCount(0)
+
         try {
             console.log("1. Creando preferencia...");
-            if(!cartId || cart.length === 0) {
+
+            if(!cartId || !cart || cart.length === 0) {
                 throw new Error("Carrito inválido");
+            };
+
+            const currentUserId = userId || JSON.parse(localStorage.getItem("user"))?._id;
+
+            if(!currentUserId) {
+                throw new Error("Usuario no identificado. Por favor inicie sessión nuevamente");                
             }
 
-            const requestData = { cartId: cartId };
+            console.log("UserId para pago:", currentUserId);            
+
+            const requestData = { 
+                cartId: cartId,
+                userId: currentUserId
+            };
 
             console.log("2. Enviando datos al backend:", requestData);
 
-            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, { withCredentials: true, timeout: 15000
-                    // headers: {
-                    //     "Content-Type": "application/json",
-                    //     "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    // }
+            const response = await axios.post(`${backUrl}api/payments/create-preference`, requestData, { withCredentials: true, timeout: 15000,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
                 }
             );
 
@@ -63,7 +95,7 @@ const CheckoutPage = () => {
             setPreferenceId(response.data.id);
 
             const mercadoPagoUrl = response.data.init_point ||
-                                    response.data.sandbok_init_point ||
+                                    response.data.sandbox_init_point ||
                                     `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
             
             // setCheckoutUrl(url)
@@ -74,7 +106,9 @@ const CheckoutPage = () => {
                 alert("Por favor permite ventanas emergentes para una mejora experiencia de pago. Redirigiendo...");
                 window.location.href = mercadoPagoUrl;
                 return;
-            }
+            };
+
+            window.paymentWindow = paymentWindow;
             
             setPollingCount(1);
 
@@ -88,13 +122,17 @@ const CheckoutPage = () => {
             
         } catch (error) {
             console.error("Error al crear la preferencia de pago:", error);
+
             let errorMessage = "Error al inicializar el pago";
+
             if(error.response) {
                 errorMessage = error.response.data?.message || 
                 `Error ${error.response.status} : ${error.response.statusText}`;
+
             } else if(error.request) {
                 errorMessage = "No se pudo conectar con el servidor"
             }
+
             setError(errorMessage);
 
             if(error.response?.status === 401) {
@@ -117,7 +155,7 @@ const CheckoutPage = () => {
                         withCredentials: true, 
                         timeout: 10000,
                         headers: {
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                            "Authorization": `Bearer ${token}`
                         }
                     }
                 );
@@ -139,7 +177,9 @@ const CheckoutPage = () => {
                         external_reference: paymentStatus.external_reference,
                         payment_id: paymentStatus.payment_id,
                         status: paymentStatus.status,
-                        status_detail: paymentStatus.status_detail
+                        status_detail: paymentStatus.status_detail,
+                        ticketId: paymentStatus.ticketId,
+                        timestamp: Date.now()
                     }));
 
                     console.log("Respuesta de Mercado Pago:", response);                    
@@ -154,16 +194,18 @@ const CheckoutPage = () => {
                             ticketId: paymentStatus.ticketId,
                             cartId: paymentStatus.external_reference || paymentStatus.cartId,
                             amount: paymentStatus.amount,
-                            status: paymentStatus.status
+                            status: paymentStatus.status,
+                            external_reference: paymentStatus.external_reference,
+                            date_approved: paymentStatus.date_approved,
+                            status_detail: paymentStatus.status_detail
                         }
                     });
-
-                    console.log("Datos a la página de success:", navigate);
                     
                     return;
 
                 } else if(paymentStatus.status === "rejected") {
                     console.log("Pago rechazado - Redirigiendo a failure");
+
                     navigate("/payments/failure", {
                         state: {
                             message: "Pago rechazado",
@@ -175,10 +217,12 @@ const CheckoutPage = () => {
 
                 } else if(paymentStatus.status === "in_process" || paymentStatus.status === "pending") {
                     console.log("Pago en proceso/pendiente - Continuando poling");
+
                     setPollingCount(prev => prev + 1);
 
                 } else if(paymentStatus.status === "not_found") {
                     console.log("Pago no encontrado (usuario no completó) - Continuando polling");
+
                     setPollingCount(prev => prev + 1);
                 } else {
                     console.log("Estado desconocido:", paymentStatus.status);
@@ -188,6 +232,7 @@ const CheckoutPage = () => {
 
             } catch (error) {
                 console.error("Error en polling", error);
+
                 setPollingCount(prev => prev + 1);
             };
         };
@@ -195,9 +240,10 @@ const CheckoutPage = () => {
         const interval = setInterval(checkPaymentStatus, 3000);
 
         return () => clearInterval(interval);
+
     }, [preferenceId, pollingCount, navigate]);
 
-    if(cart.length === 0) {
+    if(!cart || cart.length === 0) {
         return (
             <div className="checkout-container">
                 <div className="loading-checkout">

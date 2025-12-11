@@ -13,7 +13,7 @@ export const CartProvider = ({children}) => {
     const { user } = useAuth();
     const bacUrl = process.env.REACT_APP_BACK_URL;
     const API_URL = `${bacUrl}api/carts`;
-    const userId = user?._id || user?.id;
+    // const userId = user?._id || user?.id;
 
     useEffect(() => {
         if(!user) {
@@ -22,6 +22,45 @@ export const CartProvider = ({children}) => {
         };
 
     }, [user]);
+
+    const getUserId = () => {
+        if(user?._id || user?.id) {
+            return user._id || user.id;
+        };
+
+        try {
+            const storeUser = localStorage.getItem("user");
+            if(storeUser) {
+                const parsedUser = JSON.parse(storeUser);
+                return parsedUser?._id || parsedUser?.id;
+            };
+
+        } catch (error) {
+            console.error("Error parsing user form localStorage:", error);            
+        };
+
+        try {
+            const sessionUser = sessionStorage.getItem("user");
+            if(sessionUser) {
+                const parsedUser = JSON.parse(sessionUser);
+                return parsedUser?._id || parsedUser?.id;
+            };
+
+        } catch (error) {
+            console.error("Error en parsing user from sessionStorage:", error);            
+        };
+
+        return null;
+    }
+
+    const userId = getUserId();
+
+    console.log("cartContext - userId obtenido:", {
+        fromUserContext: user?._id,
+        fromLocalStorage: localStorage.getItem("user"),
+        finalUserId: userId
+    });
+    
 
     const loadUserCart = useCallback(async() => {
         try {

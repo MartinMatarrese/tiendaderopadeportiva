@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
         const checkAuth = async() => {
             try {
                 setLoading(true);
-                const token = sessionStorage.getItem("token");
-                const storedUser = sessionStorage.getItem("user");
+                const token = localStorage.getItem("token");
+                const storedUser = localStorage.getItem("user");
 
                 if(!token) {
                     setUser(null);
@@ -42,10 +42,10 @@ export const AuthProvider = ({ children }) => {
                 const response = await axios.get(`${BackUrl}users/current`, { withCredentials: true});                
                 setUser(response.data.user);
                 setIsAuthenticated(true);
-                sessionStorage.setItem("user", JSON.stringify(response.data.user));
+                localStorage.setItem("user", JSON.stringify(response.data.user));
             } catch (error) {
-                sessionStorage.removeItem("token");
-                sessionStorage.removeItem("user");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
                 delete axios.defaults.headers.common["Authorization"];
                 setUser(null);
                 setIsAuthenticated(false);
@@ -93,8 +93,8 @@ export const AuthProvider = ({ children }) => {
                 });
             } finally {
                 setUser(null);
-                sessionStorage.removeItem("token");
-                sessionStorage.removeItem("user");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
 
                 Swal.fire({
                     position: "center",
@@ -197,8 +197,8 @@ export const AuthProvider = ({ children }) => {
         try { 
             const response = await axios.post(`${BackUrl}users/login`, credentials, { withCredentials: true, }); 
             const { token, user } = response.data;            
-            sessionStorage.setItem("token", token);
-            sessionStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
 
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
@@ -242,8 +242,8 @@ export const AuthProvider = ({ children }) => {
 
             setUser(userData);
             setIsAuthenticated(true);
-            sessionStorage.setItem("user", JSON.stringify(userData));
-            sessionStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(userData));
+            localStorage.setItem("token", token);
 
             if(showAlert) {
                 Swal.fire({
@@ -257,8 +257,8 @@ export const AuthProvider = ({ children }) => {
             }
             
         } catch (error) {
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
             delete axios.defaults.headers.common["Authorization"];
             setUser(null);
             setIsAuthenticated(false);
@@ -372,13 +372,13 @@ export const AuthProvider = ({ children }) => {
         try {
             await axios.post(`${BackUrl}users/logout`, {}, {
                 headers: {
-                    Authorization: `Bearer ${sessionStorage.getItem("token")}`
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
              });
 
             setUser(null);
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
                         
         } catch (error) {            
             Swal.fire({ 
@@ -390,8 +390,8 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setUser(null);
             setIsAuthenticated(false);
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
             delete axios.defaults.headers.common["Authorization"];
 
             Swal.fire({ 
