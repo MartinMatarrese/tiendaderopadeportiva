@@ -23,43 +23,43 @@ export const CartProvider = ({children}) => {
 
     }, [user]);
 
-    const getUserId = () => {
-        if(user?._id || user?.id) {
-            return user._id || user.id;
-        };
+    // const getUserId = () => {
+    //     if(user?._id || user?.id) {
+    //         return user._id || user.id;
+    //     };
 
-        try {
-            const storeUser = localStorage.getItem("user");
-            if(storeUser) {
-                const parsedUser = JSON.parse(storeUser);
-                return parsedUser?._id || parsedUser?.id;
-            };
+    //     try {
+    //         const storeUser = localStorage.getItem("user");
+    //         if(storeUser) {
+    //             const parsedUser = JSON.parse(storeUser);
+    //             return parsedUser?._id || parsedUser?.id;
+    //         };
 
-        } catch (error) {
-            console.error("Error parsing user form localStorage:", error);            
-        };
+    //     } catch (error) {
+    //         console.error("Error parsing user form localStorage:", error);            
+    //     };
 
-        try {
-            const sessionUser = sessionStorage.getItem("user");
-            if(sessionUser) {
-                const parsedUser = JSON.parse(sessionUser);
-                return parsedUser?._id || parsedUser?.id;
-            };
+    //     try {
+    //         const sessionUser = sessionStorage.getItem("user");
+    //         if(sessionUser) {
+    //             const parsedUser = JSON.parse(sessionUser);
+    //             return parsedUser?._id || parsedUser?.id;
+    //         };
 
-        } catch (error) {
-            console.error("Error en parsing user from sessionStorage:", error);            
-        };
+    //     } catch (error) {
+    //         console.error("Error en parsing user from sessionStorage:", error);            
+    //     };
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    const userId = getUserId();
+    // const userId = getUserId();
 
-    console.log("cartContext - userId obtenido:", {
-        fromUserContext: user?._id,
-        fromLocalStorage: localStorage.getItem("user"),
-        finalUserId: userId
-    });
+    // console.log("cartContext - userId obtenido:", {
+    //     fromUserContext: user?._id,
+    //     fromLocalStorage: localStorage.getItem("user"),
+    //     finalUserId: userId
+    // });
     
 
     const loadUserCart = useCallback(async() => {
@@ -186,11 +186,11 @@ export const CartProvider = ({children}) => {
         }
     };
 
-    const isInCart = (itemId) => {
-        return (
-            cart.some(prod => prod.id === itemId)
-        );
-    };
+    // const isInCart = (itemId) => {
+    //     return (
+    //         cart.some(prod => prod.id === itemId)
+    //     );
+    // };
 
     const updateItemQuantity = async(itemId, newQuantity) => {
         if(!cartId) return;
@@ -209,6 +209,28 @@ export const CartProvider = ({children}) => {
         const precioTotal = cart.reduce((acc, prod) => acc + (prod.price * (prod.quantity || prod.cantidad || 0)), 0)
         setTotal(precioTotal)
     }, [cart]);
+
+    const getUserIdFromUser = (user) => {
+        if(!user) return null;
+
+        if(user._id && user._id.$oid) {
+            return user._id.$oid;
+        };
+
+        if(user._id && typeof user._id === "string") {
+            return user._id;
+        };
+
+        if(user._id) {
+            return user._id;
+        };
+
+        return null;
+    };
+
+    const userId = getUserIdFromUser(user);
+    console.log("CartContext - userId calculado:", userId);
+    
 
     return (
         <CartContext.Provider value={{cart, cartId, userId, addItem, removeItem, clearCart, cantidadTotal, total, error, updateItemQuantity, getTotalQuantity}}>
