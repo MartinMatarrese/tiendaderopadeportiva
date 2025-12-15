@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -31,25 +31,24 @@ const CheckoutPage = () => {
             console.error("Error parseando user:", e);
         }
     }, [cartContext]);
-    const { cart, total, cartId } = useCart();
+    const { cart, total, cartId, userId: cartUserId } = useCart();
     const navigate = useNavigate();
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState("");
     const [ preferenceId, setPreferenceId ] = useState(null);
     const [ pollingCount, setPollingCount ] = useState(0);
-    const [ checkoutUrl, setCheckoutUrl ] = useState("")
+    // const [ checkoutUrl, setCheckoutUrl ] = useState("")
 
-    const getToken = () => {
+    const getToken = useCallback(() => {
         return localStorage.getItem("token");
-    }
+    }, []);
 
-    const token = getToken();
     // const user = localStorage.getItem("user");
-    const getUserId = () => {
-        const { userId: ctxUserId } = useCart();
-        if(ctxUserId) {
-            console.log("userId del cartContext:", ctxUserId);
-            return ctxUserId;
+    const getUserId = useCallback(() => {
+        const { cartUserId } = useCart();
+        if(cartUserId) {
+            console.log("userId del cartContext:", cartUserId);
+            return cartUserId;
         };
 
         try {
@@ -91,30 +90,46 @@ const CheckoutPage = () => {
 
         console.error("No se pudo obtener userId de ninguna fuente");
         return null;        
-    }
+    }, [cartUserId])
 
     const userId = getUserId();
+    const token = getToken();
 
     useEffect(() => {
         console.log("🔍 CheckoutPage - ESTADO COMPLETO:", {
             cartId: cartId,
             cart: cart,
-            cartLength: cart.length,
-            userId,
+            cartLength: cart?.length || 0,
+            cartUserId: cartUserId,
+            calculateUserId: userId,
             tieneUserId: !!userId,
             total: total,
             tieneToken: !!getToken()
         });
 
+        if(!userId) {
+            console.error("userId no encontrado:", userId);
+            setError("Usuario no identificado. Por fovor inicie session nuevamente.")
 
-        if(!token || !user) {
-            console.warn("Usuario no autenticado, redirigiendo a login");
-            setError("Debes iniciar session para continuar");
-            setTimeout(() => navigate("/login"), 2000);
+            const timer = setTimeout(() => {
+                navigate("/login", {
+                    state: {
+                        from: "/checkout",
+                        message: "Por favor inicia session para continuar con la compra"
+                    }
+                });
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        };
+
+        if(!token) {
+            console.error("token no encontrado");
+            setError("Session expirada. Por favor inicia session nuevamente");
         };
 
         //El userId: userId me esta dando undefined, por eso le agregué el _id
-    }, [cartId, cart, userId, total, navigate]);
+    }, [cartId, cart, cartUserId, userId, token, total, navigate]);
 
     useEffect(() => {
         if(!cart || cart.length === 0) {
@@ -373,11 +388,10 @@ const CheckoutPage = () => {
                     </button>                        
                     )}
 
-                    {preferenceId && checkoutUrl && (
+                    {preferenceId && (
                         <div className="checkout-iframe-container">
                             <h3>✅ Preferencia creada - Complete el pago:</h3>
                             <iframe
-                                src={checkoutUrl}
                                 width="100%"
                                 height="600"
                                 style={{border: "none", borderRadius: "8px"}}
