@@ -13,7 +13,7 @@ export const CartProvider = ({children}) => {
     const { user } = useAuth();
     const bacUrl = process.env.REACT_APP_BACK_URL;
     const API_URL = `${bacUrl}api/carts`;
-    // const userId = user?._id || user?.id;
+    const userId = user?._id || user?.id;
 
     useEffect(() => {
         if(!user) {
@@ -210,26 +210,25 @@ export const CartProvider = ({children}) => {
         setTotal(precioTotal)
     }, [cart]);
 
-    const getUserIdFromUser = (user) => {
-        if(!user) return null;
+    // const getUserIdFromUser = (user) => {
+    //     if(!user) return null;
 
-        if(user._id && user._id.$oid) {
-            return user._id.$oid;
-        };
+    //     if(user._id && user._id.$oid) {
+    //         return user._id.$oid;
+    //     };
 
-        if(user._id && typeof user._id === "string") {
-            return user._id;
-        };
+    //     if(user._id && typeof user._id === "string") {
+    //         return user._id;
+    //     };
 
-        if(user._id) {
-            return user._id;
-        };
+    //     if(user._id) {
+    //         return user._id;
+    //     };
 
-        return null;
-    };
+    //     return null;
+    // };
 
-    const userId = getUserIdFromUser(user);
-    console.log("CartContext - userId calculado:", userId);
+    // const userId = getUserIdFromUser(user);
     
 
     return (
