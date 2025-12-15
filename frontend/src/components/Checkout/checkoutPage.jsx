@@ -53,40 +53,33 @@ const CheckoutPage = () => {
         };
 
         try {
-            const storedUser = localStorage.getItem("user");
-            if(storedUser) {
-                const user = JSON.parse(storedUser);
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            if(token) {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                const decoded = JSON.parse(window.atob(base64));
 
-                let userIdFromStorage = null;
+                console.log("Token decodificado:", decoded);
+                
+                const userIdFromToken = decoded._id || decoded.userId || decoded.user._id;
 
-                if(user._id && user._id.$oid) {
-                    userIdFromStorage = user._id.$oid;
-                    console.log("userId de BSON:", userIdFromStorage);                    
-                } else if(user._id && typeof user._id === "string") {
-                    userIdFromStorage = user._id;
-                    console.log("userId de string:", userIdFromStorage);
-                    
-                } else if(user.id) {
-                    userIdFromStorage = user.id;
-                    console.log("userId de campo id:", userIdFromStorage);                    
-                }
-
-                if(userIdFromStorage) {
-                    return userIdFromStorage;
+                if(userIdFromToken) {
+                    console.log("userId del token JWT:", userIdFromToken);
+                    return userIdFromToken;                    
                 }
             }
         } catch (error) {
-            console.error("Error obteniendo userId de localStorage:", error);            
+            console.error("Error decodificando token:", error);            
         };
 
         try {
-            const sessionUser = sessionStorage.getItem("user");
+            const sessionUser = localStorage.getItem("user");
             if(sessionUser) {
                 const user = JSON.parse(sessionUser);
-                return user?._id || user?.id;
+                console.log("User en localStorage no tiene _id:", user);                
             }
         } catch (error) {
-            console.error("Error obtenieniendo userId de sessionStorage:", error);            
+            console.error("Error:", error);
         };
 
         console.error("No se pudo obtener userId de ninguna fuente");
