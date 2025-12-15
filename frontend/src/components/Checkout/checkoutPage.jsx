@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -39,13 +39,14 @@ const CheckoutPage = () => {
     const [ pollingCount, setPollingCount ] = useState(0);
     // const [ checkoutUrl, setCheckoutUrl ] = useState("")
 
-    const getToken = () => {
+    const getToken = useCallback(() => {
         return localStorage.getItem("token");
-    };
+    }, []);
 
     // const user = localStorage.getItem("user");
-    const getUserId = () => {
-        const { cartUserId } = useCart();
+    const getUserId = useCallback(() => {
+        console.log("Buscanco userId...");
+        
         if(cartUserId) {
             console.log("userId del cartContext:", cartUserId);
             return cartUserId;
@@ -90,7 +91,7 @@ const CheckoutPage = () => {
 
         console.error("No se pudo obtener userId de ninguna fuente");
         return null;        
-    }
+    }, [cartUserId]);
 
     const userId = getUserId();
     const token = getToken();
@@ -129,7 +130,7 @@ const CheckoutPage = () => {
         };
 
         //El userId: userId me esta dando undefined, por eso le agregué el _id
-    }, [cartId, cart, cartUserId, userId, token, total, navigate]);
+    }, [cartId, cart, cartUserId, userId, token, getToken, total, navigate]);
 
     useEffect(() => {
         if(!cart || cart.length === 0) {
@@ -328,7 +329,7 @@ const CheckoutPage = () => {
 
         return () => clearInterval(interval);
 
-    }, [preferenceId, pollingCount, navigate]);
+    }, [preferenceId, pollingCount, navigate, backUrl, token, getToken]);
 
     if(!cart || cart.length === 0) {
         return (
