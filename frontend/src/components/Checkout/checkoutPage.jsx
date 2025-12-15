@@ -8,7 +8,30 @@ const backUrl = process.env.REACT_APP_BACK_URL;
 // const claveMp = process.env.REACT_APP_PUBLIC_KEY_MP;
 
 const CheckoutPage = () => {
-    const { cart, total, cartId, userId } = useCart();
+    const cartContext = useCart();
+    useEffect(() => {
+        console.log("🔍 DEBUG COMPLETO CheckoutPage:");
+        console.log("1. CartContext completo:", cartContext);
+        console.log("2. userId del CartContext:", cartContext.userId);
+        console.log("3. user de localStorage:", localStorage.getItem('user'));
+        console.log("4. user de sessionStorage:", sessionStorage.getItem('user'));
+        console.log("5. token de localStorage:", localStorage.getItem('token'));
+        console.log("6. token de sessionStorage:", sessionStorage.getItem('token'));
+        
+        // Verificar si user existe en localStorage pero no se parsea bien
+        try {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                const parsed = JSON.parse(storedUser);
+                console.log("7. User parseado de localStorage:", parsed);
+                console.log("8. _id del user parseado:", parsed._id);
+                console.log("9. Tipo de _id:", typeof parsed._id);
+            }
+        } catch (e) {
+            console.error("Error parseando user:", e);
+        }
+    }, [cartContext]);
+    const { cart, total, cartId } = useCart();
     const navigate = useNavigate();
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState("");
@@ -21,7 +44,56 @@ const CheckoutPage = () => {
     }
 
     const token = getToken();
-    const user = localStorage.getItem("user");
+    // const user = localStorage.getItem("user");
+    const getUserId = () => {
+        const { userId: ctxUserId } = useCart();
+        if(ctxUserId) {
+            console.log("userId del cartContext:", ctxUserId);
+            return ctxUserId;
+        };
+
+        try {
+            const storedUser = localStorage.getItem("user");
+            if(storedUser) {
+                const user = JSON.parse(storedUser);
+
+                let userIdFromStorage = null;
+
+                if(user._id && user._id.$oid) {
+                    userIdFromStorage = user._id.$oid;
+                    console.log("userId de BSON:", userIdFromStorage);                    
+                } else if(user._id && typeof user._id === "string") {
+                    userIdFromStorage = user._id;
+                    console.log("userId de string:", userIdFromStorage);
+                    
+                } else if(user.id) {
+                    userIdFromStorage = user.id;
+                    console.log("userId de campo id:", userIdFromStorage);                    
+                }
+
+                if(userIdFromStorage) {
+                    return userIdFromStorage;
+                }
+            }
+        } catch (error) {
+            console.error("Error obteniendo userId de localStorage:", error);            
+        };
+
+        try {
+            const sessionUser = sessionStorage.getItem("user");
+            if(sessionUser) {
+                const user = JSON.parse(sessionUser);
+                return user?._id || user?.id;
+            }
+        } catch (error) {
+            console.error("Error obtenieniendo userId de sessionStorage:", error);            
+        };
+
+        console.error("No se pudo obtener userId de ninguna fuente");
+        return null;        
+    }
+
+    const userId = getUserId();
 
     useEffect(() => {
         console.log("🔍 CheckoutPage - ESTADO COMPLETO:", {
@@ -29,7 +101,7 @@ const CheckoutPage = () => {
             cart: cart,
             cartLength: cart.length,
             userId,
-            userIdType: typeof userId,
+            tieneUserId: !!userId,
             total: total,
             tieneToken: !!getToken()
         });
