@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -39,12 +39,12 @@ const CheckoutPage = () => {
     const [ pollingCount, setPollingCount ] = useState(0);
     // const [ checkoutUrl, setCheckoutUrl ] = useState("")
 
-    const getToken = useCallback(() => {
+    const getToken = () => {
         return localStorage.getItem("token");
-    }, []);
+    };
 
     // const user = localStorage.getItem("user");
-    const getUserId = useCallback(() => {
+    const getUserId = () => {
         const { cartUserId } = useCart();
         if(cartUserId) {
             console.log("userId del cartContext:", cartUserId);
@@ -90,7 +90,7 @@ const CheckoutPage = () => {
 
         console.error("No se pudo obtener userId de ninguna fuente");
         return null;        
-    }, [cartUserId])
+    }
 
     const userId = getUserId();
     const token = getToken();
