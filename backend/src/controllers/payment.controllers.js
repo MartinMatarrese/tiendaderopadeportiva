@@ -89,30 +89,68 @@ class PaymentController {
 
             if(status === "approved") {                
                 try {
-                    const resuladoCompra = await cartServices.purchaseCart(cartId);
-                    const { ticket, productsOutStock } = resuladoCompra;
+                    console.log(`Procesando compra para carrito ${cartId}`);
+                    console.log("Tipo de cartId:", typeof cartId);                    
+                    
+                    const resultadoCompra = await cartServices.purchaseCart(cartId);
+                    console.log("🔍 DESPUÉS de purchaseCart - resultado:", {
+                        tieneTicket: !!resultadoCompra.ticket,
+                        ticketId: resultadoCompra.ticket?._id,
+                        ticketCode: resultadoCompra.ticket?.code,
+                        productsOutStock: resultadoCompra.productsOutStock?.length,
+                        userEmail: resultadoCompra.userEmail
+                    });
+                    const { ticket, productsOutStock } = resultadoCompra;
 
+                    console.log("ticket creado:", {
+                        id: ticket._id,
+                        code: ticket.code,
+                        amount: ticket.amount,
+                        purchaser: ticket.purchaser
+                    });
+                    
                     if(productsOutStock.length > 0) {
                         console.warn("Algunos productos sin Stock:", productsOutStock);
                         return res.redirect(`${frontendUrl}#/payments/failure?message=stock=insuficiente`)
                     };
 
+                    console.log(`Buscando carrito: ${cartId}`);
+
                     const cart = await cartServices.getCartById(cartId);
-                    const userId = cart.userId || cart.user?._id || ticket.purchaser;
-                    const user = await userService.getUserByEmail(userId);
+                    // const userId = cart.userId || cart.user?._id || ticket.purchaser;
+                    // const user = await userService.getUserByEmail(userId);
+                    let userId = null;
 
-
-                    try {
-                        await sendGmail(ticket, user.email, cart.products);
-                        console.log(`Email enviado exitosamente a ${user.email}`);
-                        
-                    } catch (error) {
-                        console.error("Error enviando email:", error.message);
-                                                
+                    if(cart.userId) {
+                        userId = cart.userId;
+                    } else if(cart.user && cart.user._id) {
+                        userId = cart.user._id;
+                    } else if(ticket.purchaser) {
+                        userId = ticket.purchaser;
+                    } else if(cart.user && cart.user.email) {
+                        const userByEmail = await userService.getUserByEmail(cart.user.email);
+                        userId = userByEmail._id;
                     }
 
+                    if(!userId) {
+                        console.error("No se pudo obtener userID");
+                        throw new Error("UserId no encontrado");                                                
+                    };
+
                     console.log("UserId obtenido:", userId);                    
-                    
+
+                    try {
+                        const user = await userService.getUserById(userId);
+                        if(user && user.email) {
+                            await sendGmail(ticket, user.email, cart.products);
+                            console.log(`Email enviado exitosamente a ${user.email}`);
+                        } else {
+                            console.warn("No se pudo obtener usuario para enviar email");                            
+                        }
+                        
+                    } catch (emailError) {
+                        console.error("Error enviando email:", emailError.message);                                                
+                    }                    
 
                     const paymentData = {
                         payment_id,
@@ -120,21 +158,30 @@ class PaymentController {
                         cartId,
                         userId,
                         amount: ticket.amount,
-                        ticketId: ticket._id
+                        ticketId: ticket._id,
+                        emailSend: true
                     };
 
                     console.log("Datos del pago a guardar:", paymentData);                    
 
-                    await paymentService.createPayment(paymentData);
-                    console.log("Pago registrad en BD");                    
+                    const savedPayment = await paymentService.createPayment(paymentData);
+                    console.log("Pago registrad en BD:", savedPayment._id);
 
+                    const queryParams = new URLSearchParams({
+                        ticketId: ticket._id.toString(),
+                        payment_id: payment_id,
+                        cartId: cartId,
+                        amount: ticket.amount,
+                        status: "approved"
+                    }).toString();
     
-                    const redirectUrl = `${frontendUrl}#/payments/success?ticketId=${ticket._id}&payment_id=${payment_id}`;
+                    const redirectUrl = `${frontendUrl}#/payments/success?${queryParams}`;
                     console.log("Reedirigiendo a frontend:", redirectUrl);
                     return res.redirect(redirectUrl);
 
                 } catch(error) {
-                    console.error("Error al procesar la compra:", error);
+                    console.error("Error al procesar la compra:", error.message);
+                    console.error("stack trace:", error.stack);                    
                     return res.redirect(`${frontendUrl}#/payments/failure?message=error_procesando`);
                 };
                 
@@ -144,7 +191,8 @@ class PaymentController {
             }
             
         } catch (error) {
-            console.error("Error en handleSuccess: ", error);            
+            console.error("Error en handleSuccess: ", error.message);
+            console.error("Stack trace:", error.stacj);             
             res.redirect(`${frontendUrl}#/payments/failure?message=error_interno`);
         };
     };
