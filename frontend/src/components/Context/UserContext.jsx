@@ -198,7 +198,16 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post(`${BackUrl}users/login`, credentials, { withCredentials: true, }); 
             const { token, user } = response.data;            
             localStorage.setItem("token", token);
-            localStorage.setItem("user", JSON.stringify(user));
+            // localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("user", JSON.stringify({
+                _id: user._id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                role: user.role,
+                cart: user.cart,
+                age: user.age
+            }));
 
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
