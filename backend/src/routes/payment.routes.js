@@ -7,7 +7,9 @@ const paymentRouter = Router();
 
 paymentRouter.post("/create-preference", jwtAuth, roleAuth(["user"]), paymentController.createPreference);
 
-paymentRouter.get("/status/:preferenceId", jwtAuth, roleAuth(["user"]), paymentController.getPaymentStatus)
+paymentRouter.get("/status/:preferenceId", jwtAuth, roleAuth(["user"]), paymentController.getPaymentStatus);
+
+paymentRouter.post("/webhook", paymentController.handleWebhook);
 
 paymentRouter.get("/success", paymentController.handleSuccess);
 
