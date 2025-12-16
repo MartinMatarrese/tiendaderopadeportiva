@@ -274,17 +274,17 @@ class PaymentController {
             const preference = await mercadopago.preferences.get(preferenceId);
             const cartId = preference.body.external_reference;
 
-            console.log("🔍 Preferencia encontrada - cartId:", cartId);
-            console.log("🔍 External reference:", cartId);
+            console.log("🔍 Preferencia encontrada - ID:", preferenceId, "cartId:", cartId);
+            console.log("🔍 Buscando pagos para esta preferencia especifica...");
 
-            if(!cartId) {
-                return res.json({
-                    status: "not_found",
-                    message: "No se encontró external_preferencece en la preferencia"
-                });
-            };
+            // if(!cartId) {
+            //     return res.json({
+            //         status: "not_found",
+            //         message: "No se encontró external_preferencece en la preferencia"
+            //     });
+            // };
 
-            console.log("🔄 Buscando pagos por cartId:", cartId);
+            // console.log("🔄 Buscando pagos por cartId:", cartId);
 
             const paymentSearch = await mercadopago.payment.search({
                 qs: {
@@ -295,30 +295,49 @@ class PaymentController {
             });
 
              console.log("📊 Resultados encontrados:", paymentSearch.body.results?.length || 0);
+            let latestPayment = null;
+
+            if(!paymentSearch.body.results || paymentSearch.body.results.length > 0) {
+                // return res.json({
+                //     status: "not_found",
+                //     message: "No se encontraron pagos para esta preferencia"
+                // });
+                latestPayment = paymentSearch.body.results[0];
+            };
+
+            // const latestPayment = paymentSearch.body.results[0];
+
+            // console.log("✅ PAGO ENCONTRADO:", {
+            //     status: latestPayment.status,
+            //     id: latestPayment.id,
+            //     external_reference: latestPayment.external_reference,
+            //     date_approved: latestPayment.date_approved
+            // });
             
-            if(!paymentSearch.body.results || paymentSearch.body.results.length === 0) {
+            if(!latestPayment) {
+                console.log("No hay pagos para esta preferencia (Aún no se pagó)");
                 return res.json({
-                    status: "not_found",
-                    message: "No se encontraron pagos para esta preferencia"
+                    status: "pending",
+                    message: "Esperando pago",
+                    preference_id: preferenceId,
+                    cartId: cartId
                 });
             };
 
-            const latestPayment = paymentSearch.body.results[0];
-
-            console.log("✅ PAGO ENCONTRADO:", {
+            console.log("Pago encontrado para esta preferencia:", {
                 status: latestPayment.status,
                 id: latestPayment.id,
-                external_reference: latestPayment.external_reference,
-                date_approved: latestPayment.date_approved
+                preference_relation: "VERIFICAR",
+                date_created: latestPayment.date_created
             });
             
-
             res.json({
                 status: latestPayment.status,
                 payment_id: latestPayment.id,
                 external_reference: latestPayment.external_reference,
                 date_approved: latestPayment.date_approved,
-                status_detail: latestPayment.status_detail
+                status_detail: latestPayment.status_detail,
+                current_preference_id: preferenceId
             });
             
         } catch (error) {
@@ -328,14 +347,14 @@ class PaymentController {
                     status: 'preference_not_found',
                     message: 'Preferencia no encontrada' 
                 });
-            }
+            };
         
             res.status(500).json({ 
                 error: "Error al consultar el estado del pago",
                 details: error.message 
             });
-        }
-    }
+        };
+    };
 
     getPaymentById = async(req, res, next) => {
         try {
