@@ -50,7 +50,7 @@ class PaymentService {
                 },
                 external_reference: cartId,
                 auto_return: "approved",
-                sandbox_mode: false,
+                sandbox_mode: isProduction,
                 metadata: {
                     userId: userId,
                     cartId: cartId
