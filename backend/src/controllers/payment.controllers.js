@@ -272,10 +272,8 @@ class PaymentController {
 
             console.log("🔄 Obteniendo preferencia...");
             const preference = await mercadopago.preferences.get(preferenceId);
-            const cartId = preference.body.external_reference;
+            // const cartId = preference.body.external_reference;
 
-            console.log("🔍 Preferencia encontrada - ID:", preferenceId, "cartId:", cartId);
-            console.log("🔍 Buscando pagos para esta preferencia especifica...");
 
             // if(!cartId) {
             //     return res.json({
@@ -286,24 +284,24 @@ class PaymentController {
 
             // console.log("🔄 Buscando pagos por cartId:", cartId);
 
-            const paymentSearch = await mercadopago.payment.search({
-                qs: {
-                    "external_reference": cartId,
-                    "sort": "date_created",
-                    "criteria": "desc"
-                }
-            });
+            // const paymentSearch = await mercadopago.payment.search({
+            //     qs: {
+            //         "external_reference": cartId,
+            //         "sort": "date_created",
+            //         "criteria": "desc"
+            //     }
+            // });
 
-             console.log("📊 Resultados encontrados:", paymentSearch.body.results?.length || 0);
-            let latestPayment = null;
+            //  console.log("📊 Resultados encontrados:", paymentSearch.body.results?.length || 0);
+            // let latestPayment = null;
 
-            if(!paymentSearch.body.results || paymentSearch.body.results.length > 0) {
-                // return res.json({
-                //     status: "not_found",
-                //     message: "No se encontraron pagos para esta preferencia"
-                // });
-                latestPayment = paymentSearch.body.results[0];
-            };
+            // if(!paymentSearch.body.results || paymentSearch.body.results.length > 0) {
+            //     // return res.json({
+            //     //     status: "not_found",
+            //     //     message: "No se encontraron pagos para esta preferencia"
+            //     // });
+            //     latestPayment = paymentSearch.body.results[0];
+            // };
 
             // const latestPayment = paymentSearch.body.results[0];
 
@@ -314,41 +312,71 @@ class PaymentController {
             //     date_approved: latestPayment.date_approved
             // });
             
-            if(!latestPayment) {
-                console.log("No hay pagos para esta preferencia (Aún no se pagó)");
-                return res.json({
-                    status: "pending",
-                    message: "Esperando pago",
-                    preference_id: preferenceId,
-                    cartId: cartId
+            // if(!latestPayment) {
+            //     console.log("No hay pagos para esta preferencia (Aún no se pagó)");
+            //     return res.json({
+            //         status: "pending",
+            //         message: "Esperando pago",
+            //         preference_id: preferenceId,
+            //         cartId: cartId
+            //     });
+            // };
+
+            // console.log("Pago encontrado para esta preferencia:", {
+            //     status: latestPayment.status,
+            //     id: latestPayment.id,
+            //     preference_relation: "VERIFICAR",
+            //     date_created: latestPayment.date_created
+            // });
+            
+            // res.json({
+            //     status: latestPayment.status,
+            //     payment_id: latestPayment.id,
+            //     external_reference: latestPayment.external_reference,
+            //     date_approved: latestPayment.date_approved,
+            //     status_detail: latestPayment.status_detail,
+            //     current_preference_id: preferenceId
+            // });
+
+            let paymentStatus = "pending";
+            let paymentId = null;
+
+            if(preference.body.payments && preference.body.length > 0) {
+                const latestPayment = preference.body.payments[preference.body.payments.length - 1];
+                paymentStatus = latestPayment.status;
+                paymentId = latestPayment.id;
+            } else if(preference.body.metadata && preference.body.metadata.payment_id) {
+                paymentId = preference.body.metadata.payment_id;
+                const paymentResponse = await mercadopago.payment.findById(paymentId);
+                paymentStatus = paymentResponse.body.status;
+            } else {
+                console.log("Buscando pagos con metadata.preference_id:", preferenceId);
+                const paymentSearch = await mercadopago.payment.search({
+                    qs: {
+                        "metadata_preference_id": `${preferenceId}`,
+                        "sort": "date_created",
+                        "criteria": "desc"
+                    }
                 });
+
+                if(paymentSearch.body.results && paymentSearch.body.results.length > 0) {
+                    const latestPayment = paymentSearch.body.results[0];
+                    paymentStatus = latestPayment.status;
+                    paymentId = latestPayment.id;
+                };
             };
 
-            console.log("Pago encontrado para esta preferencia:", {
-                status: latestPayment.status,
-                id: latestPayment.id,
-                preference_relation: "VERIFICAR",
-                date_created: latestPayment.date_created
-            });
-            
+            console.log("Estado deretminado:", { paymentStatus, paymentId });
+
             res.json({
-                status: latestPayment.status,
-                payment_id: latestPayment.id,
-                external_reference: latestPayment.external_reference,
-                date_approved: latestPayment.date_approved,
-                status_detail: latestPayment.status_detail,
-                current_preference_id: preferenceId
+                status: paymentStatus,
+                payment_id: paymentId,
+                preference_id: preferenceId,
+                cartId: preference.body.external_reference
             });
             
         } catch (error) {
-            console.error("Error en getPaymentStatus:", error);
-            if (error.status === 404) {
-                return res.json({ 
-                    status: 'preference_not_found',
-                    message: 'Preferencia no encontrada' 
-                });
-            };
-        
+            console.error("Error en getPaymentStatus:", error);        
             res.status(500).json({ 
                 error: "Error al consultar el estado del pago",
                 details: error.message 
