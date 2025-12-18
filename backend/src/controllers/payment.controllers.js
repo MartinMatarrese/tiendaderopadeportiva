@@ -79,7 +79,7 @@ class PaymentController {
                 return res.status(400).send("Firma requerida");
             };
 
-            const expectedSignature = crypto.createhmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
+            const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
 
             if(signature !== expectedSignature) {
                 console.error("Firma de Webhook inválida - Posible ataque");
