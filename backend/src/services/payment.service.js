@@ -50,17 +50,35 @@ class PaymentService {
                 },
                 external_reference: cartId,
                 auto_return: "approved",
-                sandbox_mode: isProduction,
+                sandbox_mode: !isProduction,
                 metadata: {
                     userId: userId,
                     cartId: cartId,
-                    preferencid: preferenceResponse.body.id
                 }
             };
 
             console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
 
             const response = await mercadopago.preferences.create(preference);
+            const preferenceId = response.body.id;
+            console.log("Preferencia creada en MP. ID:", preferenceId);
+
+            try {
+                const updatePreference = {
+                    ...preference,
+                    metadata: {
+                        ...preference.metadata,
+                        preferenceId: preferenceId
+                    }
+                };
+
+                await mercadopago.preferences.update(preferenceId, updatePreference);
+                console.log("Metadata actualizado con preferenceId:", preferenceId);
+                
+            } catch (updateError) {
+                console.warn("No se pudo actualizar metadata (no crítico):", updateError.message);                
+            };
+            
             return response.body
         } catch (error) {
              console.error("❌ Error en createPreference:", error);
