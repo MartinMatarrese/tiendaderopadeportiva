@@ -53,7 +53,8 @@ class PaymentService {
                 sandbox_mode: isProduction,
                 metadata: {
                     userId: userId,
-                    cartId: cartId
+                    cartId: cartId,
+                    preferencid: preferenceResponse.body.id
                 }
             };
 

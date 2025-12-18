@@ -111,7 +111,10 @@ class PaymentController {
                         cartId: cartId,
                         userId: resultadoCompra.userId,
                         amount: resultadoCompra.ticket.amount,
-                        ticketId: resultadoCompra.ticket._id
+                        ticketId: resultadoCompra.ticket._id,
+                        metadata: {
+                            preference_id: preferenceId
+                        }
                     };
 
                     await paymentService.createPayment(paymentData);
@@ -272,7 +275,10 @@ class PaymentController {
 
             console.log("🔄 Obteniendo preferencia...");
             const preference = await mercadopago.preferences.get(preferenceId);
-            // const cartId = preference.body.external_reference;
+            const cartId = preference.body.external_reference;
+
+            console.log("Preferencia obtenida:", cartId);
+            
 
 
             // if(!cartId) {
@@ -338,33 +344,81 @@ class PaymentController {
             //     current_preference_id: preferenceId
             // });
 
+            console.log("Buscando todos los pagos por cartId:", cartId);
+
+            const paymentSearch = await mercadopago.payment.search({
+                qs: {
+                    "external_reference": cartId,
+                    "sort": "date_created",
+                    "criteria": "desc"
+                }
+            });
+
+            const allPayments = paymentSearch.body.results || [];
+            console.log("Total de pagos encontrados para este carrito:", allPayments.length);
+            
+            let currentPayment = null;
+
+            for(const payment of allPayments) {
+                const paymentData = new Date(payment.date_created);
+                const preferenceDate = new Date(preference.body.date_created);
+                const timeDiff = Math.abs(paymentData - preferenceDate) / 1000;
+                
+                if(timeDiff < 3000 ) {
+                    console.log(`Pago ${payment.id} es reciente (${timeDiff} segundos despúes)`);
+                    currentPayment = payment;
+                    break;                    
+                };
+            };
+
+            if(!currentPayment && allPayments > 0) {
+                currentPayment = allPayments[0];
+                console.log(`Usamdp el pago más reciente: ${currentPayment.id} (No confirmado por metadata)`);
+                
+            }
+
             let paymentStatus = "pending";
             let paymentId = null;
 
-            if(preference.body.payments && preference.body.length > 0) {
-                const latestPayment = preference.body.payments[preference.body.payments.length - 1];
-                paymentStatus = latestPayment.status;
-                paymentId = latestPayment.id;
-            } else if(preference.body.metadata && preference.body.metadata.payment_id) {
-                paymentId = preference.body.metadata.payment_id;
-                const paymentResponse = await mercadopago.payment.findById(paymentId);
-                paymentStatus = paymentResponse.body.status;
-            } else {
-                console.log("Buscando pagos con metadata.preference_id:", preferenceId);
-                const paymentSearch = await mercadopago.payment.search({
-                    qs: {
-                        "metadata_preference_id": `${preferenceId}`,
-                        "sort": "date_created",
-                        "criteria": "desc"
-                    }
-                });
+            // if(preference.body.payments && preference.body.length > 0) {
+            //     const latestPayment = preference.body.payments[preference.body.payments.length - 1];
+            //     paymentStatus = latestPayment.status;
+            //     paymentId = latestPayment.id;
+            // } else if(preference.body.metadata && preference.body.metadata.payment_id) {
+            //     paymentId = preference.body.metadata.payment_id;
+            //     const paymentResponse = await mercadopago.payment.findById(paymentId);
+            //     paymentStatus = paymentResponse.body.status;
+            // } else {
+            //     console.log("Buscando pagos con metadata.preference_id:", preferenceId);
+            //     const paymentSearch = await mercadopago.payment.search({
+            //         qs: {
+            //             "metadata_preference_id": `${preferenceId}`,
+            //             "sort": "date_created",
+            //             "criteria": "desc"
+            //         }
+            //     });
 
-                if(paymentSearch.body.results && paymentSearch.body.results.length > 0) {
-                    const latestPayment = paymentSearch.body.results[0];
-                    paymentStatus = latestPayment.status;
-                    paymentId = latestPayment.id;
-                };
-            };
+            //     if(paymentSearch.body.results && paymentSearch.body.results.length > 0) {
+            //         const latestPayment = paymentSearch.body.results[0];
+            //         paymentStatus = latestPayment.status;
+            //         paymentId = latestPayment.id;
+            //     };
+            // };
+
+            if(currentPayment) {
+                paymentStatus = currentPayment.status;
+                paymentId = currentPayment.id;
+
+                console.log("PAGO ENCONTRADO para análisis:", {
+                    id: currentPayment.id,
+                    status: currentPayment.status,
+                    date_created: currentPayment.date_created,
+                    res_reciente: (new Date() - new Date(currentPayment.date_created)) < 5 * 60000
+                });
+                
+            } else {
+                console.log("No hay pagos recientes para esa preferencia");                
+            }
 
             console.log("Estado deretminado:", { paymentStatus, paymentId });
 
@@ -372,11 +426,21 @@ class PaymentController {
                 status: paymentStatus,
                 payment_id: paymentId,
                 preference_id: preferenceId,
-                cartId: preference.body.external_reference
+                cartId: cartId,
+                total_payments_found: allPayments.length,
+                is_current_payment: !!currentPayment
             });
             
         } catch (error) {
-            console.error("Error en getPaymentStatus:", error);        
+            console.error("Error en getPaymentStatus:", error);
+
+            if(error.status === 404) {
+                return res.json({
+                    status: "preference_not_found",
+                    message: "Preferencia no encontrada"
+                });
+            };
+
             res.status(500).json({ 
                 error: "Error al consultar el estado del pago",
                 details: error.message 
