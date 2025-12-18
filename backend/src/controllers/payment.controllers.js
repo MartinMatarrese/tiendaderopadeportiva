@@ -78,7 +78,7 @@ class PaymentController {
                 return res.status(400).send("Firma requerida");
             };
 
-            const crypto = requiere("crypto");
+            const crypto = require("crypto");
             const expectedSignature = crypto.createhmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
 
             if(signature !== expectedSignature) {
