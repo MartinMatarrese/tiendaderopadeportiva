@@ -1,8 +1,9 @@
 import mercadopago from "mercadopago";
+import crypto from "crypto";
 import { cartServices } from "../services/cart.service.js";
-import { sendGmail } from "../services/email.service.js";
+// import { sendGmail } from "../services/email.service.js";
 import { paymentService } from "../services/payment.service.js";
-import { userService } from "../services/user.service.js";
+// import { userService } from "../services/user.service.js";
 
 const frontendUrl = process.env.FRONTEND_URL;
 const webhookSecret = process.env.WEBHOOK_SECRET_MP;
@@ -78,7 +79,6 @@ class PaymentController {
                 return res.status(400).send("Firma requerida");
             };
 
-            const crypto = require("crypto");
             const expectedSignature = crypto.createhmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
 
             if(signature !== expectedSignature) {
