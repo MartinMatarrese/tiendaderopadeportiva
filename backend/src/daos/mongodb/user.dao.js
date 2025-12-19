@@ -16,7 +16,8 @@ class userDaoMongo extends MongoDao {
 
     async getById(id) {
         try {
-            return await this.model.findById(id).populate("cart");
+            // return await this.model.findById(id).populate("cart");
+            return await this.model.findById(id).select("email _id first_name last_name cart").populeta("cart");
         } catch (error) {
             throw new Error(error);
         }

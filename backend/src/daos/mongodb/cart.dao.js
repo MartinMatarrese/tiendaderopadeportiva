@@ -17,7 +17,8 @@ class CartDaoMongo extends MongoDao {
 
     getCartById = async(id) => {
         try {
-            return await cartModel.findById(id).populate("products.id_prod").populate({ path: "userId", model: "users"});
+            // return await cartModel.findById(id).populate("products.id_prod").populate({ path: "userId", model: "users"});
+            return await cartModel.findById(id).populate("products.id_prod", "title price stock").populate("userId", "email _id first_name last_name")
         } catch (error) {
             throw new Error(error);                  
         };
