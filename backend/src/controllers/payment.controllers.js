@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { cartServices } from "../services/cart.service.js";
 // import { sendGmail } from "../services/email.service.js";
 import { paymentService } from "../services/payment.service.js";
+import { error } from "console";
+import { buffer } from "stream/consumers";
 // import { userService } from "../services/user.service.js";
 
 const frontendUrl = process.env.FRONTEND_URL;
@@ -72,64 +74,123 @@ class PaymentController {
     };
 
     handleWebhook = async(req, res, next) => {
-        try {
-            const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
-            if(!signature || !webhookSecret) {
-                console.warn("intento de webhook sin firma");
-                return res.status(400).send("Firma requerida");
-            };
+        console.log("[WEBHOOK] Solicitud recibida");
+            
+        const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
 
-            const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
+        if(!webhookSecret) {
+            console.error("webHookSecret no configurado");
+            return res.status(500).send("Error de configuracion");                
+        };
 
-            if(signature !== expectedSignature) {
-                console.error("Firma de Webhook inválida - Posible ataque");
-                return res.status(403).send("Firma inválida")
-            };
+        if(!signature) {
+            console.warn("webhook sin firma - rechazado");
+            return res.status(400).send("Firma requerida");
+        };
 
-            console.log("Webhook autenticado correctamente");
+        const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex")
+        const signatureMath = crypto.timingSafeEqual(buffer.from(signature), buffer.from(expectedSignature));
 
-            const { type, data } = req.body;
-            if(type === "payment") {
-                const paymentId = data.id;
-                console.log(`Procesando notificación para pago ID: ${paymentId}`);
+        if(!signatureMath) {
+            console.error("Firma inválida - posible ataque");
+            return res.status(403).send("Firma inválida");
+        };
+
+        console.log("Webhook autenticado (firma válida)");
+            
+        if(signature !== expectedSignature) {
+            console.error("Firma de Webhook inválida - Posible ataque");
+            return res.status(403).send("Firma inválida")
+        };
+
+        console.log("Webhook autenticado correctamente");
+
+        const { type, data } = req.body;
+            // if(type === "payment") {
+            //     const paymentId = data.id;
+            //     console.log(`Procesando notificación para pago ID: ${paymentId}`);
                 
-                const mpResponse = await mercadopago.payment.findById(paymentId);
-                const paymentDetails = mpResponse.body;
+            //     const mpResponse = await mercadopago.payment.findById(paymentId);
+            //     const paymentDetails = mpResponse.body;
 
-                const { status, external_reference } = paymentDetails;
-                const cartId = external_reference;
-                console.log(`Estado: ${status}, carrito: ${cartId}`);
+            //     const { status, external_reference } = paymentDetails;
+            //     const cartId = external_reference;
+            //     console.log(`Estado: ${status}, carrito: ${cartId}`);
 
-                if(status === "approved") {
-                    console.log(`Pago aprobado, procesando compra para carrito: ${cartId}`);
-                    const resultadoCompra = await cartServices.purchaseCart(cartId);
-                    console.log(`Ticket creado: ${resultadoCompra.ticket.code}`);
-                    console.log(`Email enviado a: ${resultadoCompra.userEmail}`);
-                    const paymentData = {
-                        payment_id: paymentId,
-                        status: status,
-                        cartId: cartId,
-                        userId: resultadoCompra.userId,
-                        amount: resultadoCompra.ticket.amount,
-                        ticketId: resultadoCompra.ticket._id,
-                        metadata: {
-                            preference_id: preferenceId
-                        }
-                    };
+            //     if(status === "approved") {
+            //         console.log(`Pago aprobado, procesando compra para carrito: ${cartId}`);
+            //         const resultadoCompra = await cartServices.purchaseCart(cartId);
+            //         console.log(`Ticket creado: ${resultadoCompra.ticket.code}`);
+            //         console.log(`Email enviado a: ${resultadoCompra.userEmail}`);
+            //         const paymentData = {
+            //             payment_id: paymentId,
+            //             status: status,
+            //             cartId: cartId,
+            //             userId: resultadoCompra.userId,
+            //             amount: resultadoCompra.ticket.amount,
+            //             ticketId: resultadoCompra.ticket._id,
+            //             metadata: {
+            //                 preference_id: preferenceId
+            //             }
+            //         };
 
-                    await paymentService.createPayment(paymentData);
-                    console.log(`Pago guardado en BD con ID: ${paymentData.payment_id}`);
-                } else {
-                    console.log(`Pago no aprobado (${status}), no se proceso la compra`);                    
-                }
+            //         await paymentService.createPayment(paymentData);
+            //         console.log(`Pago guardado en BD con ID: ${paymentData.payment_id}`);
+            //     } else {
+            //         console.log(`Pago no aprobado (${status}), no se proceso la compra`);                    
+            //     }
+            // };
+
+        if(type != "payment") {
+            console.log(`Webhook de tipo ${type} ignorado`);
+            return res.status(200).send("OK");
+        };
+
+        const paymentId = data.id;
+
+        if(!paymentId || typeof paymentId != "string") {
+            console.error("ID de pago inválida");
+            return res.status(400).send("ID inválido");                
+        };
+
+        try {
+            console.log(`Verificando pago ${paymentId} con MP...`);
+            const mpResponse = await mercadopago.payment.findById(paymentId);
+            const payment = mpResponse.body;
+
+            if(!payment || !payment.external_reference) {
+                console.error("Datos de pago incompletos");
+                return res.status(400).send("Datos incompletos");
+            };
+
+            console.log(`Pago verificado ${payment.status}, Carrito ${payment.external_reference}`);
+
+            const existPayment = await paymentService.getPaymentById(paymentId);
+            if(existPayment) {
+                console.log(`Pago ${paymentId} ya procesado - ignorado`);
+                return res.status(200).send("OK");                
+            };
+
+            if(payment.status === "approved") {
+                console.log(`Pago aprobado, procesando carrito ${payment.external_reference}`);
+                const resultado = await cartServices.purchaseCart(payment.external_reference);
+                console.log(`Email enviado a: ${resultado.userEmail}`);
+                
+                await paymentService.createPayment({
+                    payment_id: paymentId,
+                    status: payment.status,
+                    cartId: payment.external_reference,
+                    processedAt: new Date()
+                });
+                
             };
 
             res.status(200).send("OK");
-            
+                
         } catch (error) {
-            console.error("Error en webhook:", error.message);
-            res.status(200).send("Error procesado");
-        };
+            console.error("Error procesando webhook: ", error.message);
+            return res.status(200).send("Error procesado")
+        }
     };
 
     handleSuccess = async(req, res, next) => {
