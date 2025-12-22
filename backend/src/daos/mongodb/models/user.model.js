@@ -81,7 +81,7 @@ const userSchema = new Schema( {
     }
 });
 
-userSchema.pre("save", function(next) {
+userSchema.pre("validate", function(next) {
     const adminEmails = [
         "admin@tdr.com",
         "tu_email_personal@gmail.com",
