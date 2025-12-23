@@ -255,7 +255,7 @@ class PaymentController {
             };
 
             if(payment.status === "approved") {
-                console.log(`Pagp aprobado, procesando carrito ${cartId}`);
+                console.log(`Pago aprobado, procesando carrito ${cartId}`);
                 try {
                     const resultado = await cartServices.purchaseCart(cartId);
                     console.log(`Email enviado a: ${resultado.userEmail}`);
@@ -522,14 +522,14 @@ class PaymentController {
                 const preferenceDate = new Date(preference.body.date_created);
                 const timeDiff = Math.abs(paymentData - preferenceDate) / 1000;
                 
-                if(timeDiff < 3000 ) {
+                if(timeDiff < 300 ) {
                     console.log(`Pago ${payment.id} es reciente (${timeDiff} segundos despúes)`);
                     currentPayment = payment;
                     break;                    
                 };
             };
 
-            if(!currentPayment && allPayments > 0) {
+            if(!currentPayment && allPayments.length > 0) {
                 currentPayment = allPayments[0];
                 console.log(`Usamdp el pago más reciente: ${currentPayment.id} (No confirmado por metadata)`);
                 
@@ -573,6 +573,56 @@ class PaymentController {
                     date_created: currentPayment.date_created,
                     res_reciente: (new Date() - new Date(currentPayment.date_created)) < 5 * 60000
                 });
+
+                if(paymentStatus === "approved") {
+                    console.log(`Pago aprobado! Verificando si procesar carrito ${cartId}...`);
+
+                    try {
+                        const existingPayment = await paymentService.getPaymentById(paymentId);
+
+                        if(!existingPayment) {
+                            console.log(`Procesando compra para carrito ${cartId}...`);
+                            
+                            try {
+                                const userId = req.user?._id;
+                                console.log("Usuario ID:", userId);
+
+                                const resultado = await cartServices.purchaseCart(cartId);
+                                console.log(`Compra porcesada. Email enviado a: ${resultado.userEmail}`);
+                                console.log(`Ticket creado: ${resultado.ticket.code}`);
+                                
+                                await paymentService.createPayment({
+                                    payment_id: paymentId,
+                                    status: paymentStatus,
+                                    cartId: cartId,
+                                    userId: resultado.userId || userId,
+                                    amount: resultado.ticket.amount,
+                                    ticketId: resultado.ticket._id,
+                                    processeAt: new Date(),
+                                    emailSent: true
+                                });
+
+                                console.log(`Pago ${paymentId} guardado en la BD`);                               
+                                
+                            } catch (error) {
+                                console.error("Error en purchaseCart:", error.message);
+                                await paymentService.createPayment({
+                                    payment_id: paymentId,
+                                    status: paymentStatus,
+                                    cartId: cartId,
+                                    error: error.message,
+                                    processeAt: new Date(),
+                                    emailSent: false
+                                });                                
+                            };
+                        } else {
+                            console.log(`Pago ${paymentId} ya fue procesado`);                            
+                        };
+
+                    } catch (error) {
+                        console.error("Error verificando pago en BD:", error.message);                        
+                    };
+                };
                 
             } else {
                 console.log("No hay pagos recientes para esa preferencia");                
