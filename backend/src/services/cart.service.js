@@ -191,10 +191,82 @@ class CartServices {
         console.log("Intentando enviar email a:", userEmail);
         
         try {
-            await sendGmail(ticket, cart.userId.email, productsToPurchase);
+            const productForEmail = [];
+
+            for(const item of productsToPurchase) {
+                try {
+                    const product = await productService.getById(item.id_prod);
+                    if(product) {
+                        productForEmail.push({
+                            title: product.title || product.name || `Producto ${item.id_prod}`,
+                            quantity: item.quantity || 1,
+                            precio: product.price || 0,
+                        });
+                    } else {
+                        console.warn(`Producto ${item.id_prod} No encontrado por email`);
+                        productForEmail.push({
+                            title: `Producto ${item.id_prod}`,
+                            quantity: item.quantity || 1,
+                            price: 0
+                        });          
+                    };   
+                } catch (error) {
+                    console.error(`Error obteniendo producto ${item.id_prod}:`, error.message);
+                    throw new Error(`Error obteniendo producto ${item.id_prod}:`, error.message);
+                      
+                };
+            };
+
+            console.log("Productos para email: ", productWithDetails.length);
+
+            // await sendGmail(ticket, cart.userId.email, productsToPurchase);
+            console.log("=== DEBUG SENDGMAIL ===");
+            console.log("Datos para sendGmail:", {
+                ticketCode: ticket.code,
+                userEmail: userEmail,
+                productsCount: productForEmail.length,
+                firstProduct: productForEmail[0]
+            });
+            
+            console.log("1. Ticket:", {
+                code: ticket?.code,
+                amount: ticket?.amount,
+                purchaser: ticket?.purchaser,
+                _id: ticket?._id
+            });
+
+            console.log("2. userEmail:", userEmail);
+            console.log("3. Tipo de userEmail:", typeof userEmail);
+            console.log("4. Es string email?", typeof userEmail === 'string' && userEmail.includes('@'));
+
+            console.log("5. productsToPurchase:", {
+                length: productsToPurchase?.length,
+                firstItem: productsToPurchase?.[0],
+                items: productsToPurchase?.map(p => ({
+                    id_prod: p.id_prod,
+                    quantity: p.quantity
+                }))
+            });
+
+            console.log("6. ¿sendGmail function existe?", typeof sendGmail);
+            console.log("=== FIN DEBUG ===");
+
+            await sendGmail({
+                ticket,
+                userEmail,
+                productForEmail
+            });
+
             console.log(`Email enviado exitosamente a ${userEmail}`);            
         } catch (error) {
-            console.error("Error enviando email (no falla la compra):", error.message);            
+            console.error("Error enviando email (no falla la compra):", {
+                message: error.message,
+                stack: error.stack,
+                userEmail: userEmail,
+                
+            });
+            throw new Error("Error enviando email (no falla la compra):", error.message);
+            
         }
 
         const productosRestantes = cart.products.filter(item => !productsOutStock.find(out => out.id_prod === item.id_prod));
