@@ -40,8 +40,8 @@ class PaymentController {
 
     createPayment = async(req, res, next) => {
         try {
-            const { paymentId, userId, amount, status, cartId, ticketId} = req.body
-            const respuesta = await this.paymentService.createPayment({paymentId, userId, amount, status, cartId, ticketId});
+            const { payment_id, userId, amount, status, cartId, ticketId} = req.body
+            const respuesta = await this.paymentService.createPayment({payment_id, userId, amount, status, cartId, ticketId});
             res.status(201).send(respuesta);
         } catch (error) {
             next(error);
@@ -235,7 +235,7 @@ class PaymentController {
                 return res.status(400).send("ID inválido");
             };
 
-            console.log(`Prpcesando pago ${paymentId}`);
+            console.log(`Procesando pago ${paymentId}`);
             
             const mpResponse = await mercadopago.payment.findById(paymentId)
             const payment = mpResponse.body;
@@ -418,7 +418,7 @@ class PaymentController {
             
         } catch (error) {
             console.error("Error en handleSuccess: ", error.message);
-            console.error("Stack trace:", error.stacj);             
+            console.error("Stack trace:", error.stack);             
             res.redirect(`${frontendUrl}#/payments/failure?message=error_interno`);
         };
     };
@@ -427,6 +427,7 @@ class PaymentController {
         try {
             const { preferenceId } = req.params;
             console.log("Consultando estado para preferenceId:", preferenceId);
+
             if(!preferenceId) {
                 return res.status(400).json({error: "preferenceId es requerido"});
             };
@@ -435,7 +436,7 @@ class PaymentController {
             const preference = await mercadopago.preferences.get(preferenceId);
             const cartId = preference.body.external_reference;
 
-            console.log("Preferencia obtenida:", cartId);
+            console.log("Preferencia obtenida cartId:", cartId);
             
 
 
@@ -502,7 +503,38 @@ class PaymentController {
             //     current_preference_id: preferenceId
             // });
 
-            console.log("Buscando todos los pagos por cartId:", cartId);
+            console.log("Fecha creacion preferencia:", preference.body.date_created);
+
+            console.log(`Buscando pagos en nuestra BD para carrito: ${cartId}`);
+            
+            const existingPayment = await paymentService.getPaymentsByCartId(cartId)
+
+            if(existingPayment && existingPayment.length > 0) {
+                console.log(`Encontrados ${existingPayment.length} pagos en nuestra BD`);
+
+                const latestPayment = existingPayment[0];
+                console.log("Pago encontrado en BD local::", {
+                    payment_id: latestPayment.payment_id,
+                    satus: latestPayment.status,
+                    processedAt: latestPayment.processedAt
+                });
+
+                return res.json({
+                    status: latestPayment.status,
+                    payment_id: latestPayment.payment_id,
+                    preference_id: preferenceId,
+                    cartId: cartId,
+                    total_payments_found: existingPayment.length,
+                    from_database: true,
+                    emailSent: latestPayment.emailSent,
+                    ticketId: latestPayment.ticketId
+                });               
+            };
+
+            console.log("No hay pagos en BD local, consultando a Mercado Pago...");
+            console.log("Buscando pagos en Mercado Pago por cartId:", cartId);
+            
+            
 
             const paymentSearch = await mercadopago.payment.search({
                 qs: {
@@ -517,23 +549,23 @@ class PaymentController {
             
             let currentPayment = null;
 
-            for(const payment of allPayments) {
-                const paymentData = new Date(payment.date_created);
-                const preferenceDate = new Date(preference.body.date_created);
-                const timeDiff = Math.abs(paymentData - preferenceDate) / 1000;
+            // for(const payment of allPayments) {
+            //     const paymentData = new Date(payment.date_created);
+            //     const preferenceDate = new Date(preference.body.date_created);
+            //     const timeDiff = Math.abs(paymentData - preferenceDate) / 1000;
                 
-                if(timeDiff < 300 ) {
-                    console.log(`Pago ${payment.id} es reciente (${timeDiff} segundos despúes)`);
-                    currentPayment = payment;
-                    break;                    
-                };
-            };
+            //     if(timeDiff < 300 ) {
+            //         console.log(`Pago ${payment.id} es reciente (${timeDiff} segundos despúes)`);
+            //         currentPayment = payment;
+            //         break;                    
+            //     };
+            // };
 
-            if(!currentPayment && allPayments.length > 0) {
-                currentPayment = allPayments[0];
-                console.log(`Usamdp el pago más reciente: ${currentPayment.id} (No confirmado por metadata)`);
+            // if(!currentPayment && allPayments.length > 0) {
+            //     currentPayment = allPayments[0];
+            //     console.log(`Usamdp el pago más reciente: ${currentPayment.id} (No confirmado por metadata)`);
                 
-            }
+            // }
 
             let paymentStatus = "pending";
             let paymentId = null;
@@ -563,29 +595,30 @@ class PaymentController {
             //     };
             // };
 
-            if(currentPayment) {
+            if(allPayments.length > 0) {
+                currentPayment = allPayments[0];
                 paymentStatus = currentPayment.status;
-                paymentId = currentPayment.id;
+                paymentId = currentPayment.id
 
-                console.log("PAGO ENCONTRADO para análisis:", {
+                console.log("Pago más reciente en Mercado Pago:", {
                     id: currentPayment.id,
                     status: currentPayment.status,
                     date_created: currentPayment.date_created,
-                    res_reciente: (new Date() - new Date(currentPayment.date_created)) < 5 * 60000
+                    res_reciente: Math.abs(new Date() - new Date(currentPayment.date_created)) / 60000
                 });
 
                 if(paymentStatus === "approved") {
-                    console.log(`Pago aprobado! Verificando si procesar carrito ${cartId}...`);
+                    console.log(`Pago aprobado! procesando carrito ${cartId}...`);
 
                     try {
                         const existingPayment = await paymentService.getPaymentById(paymentId);
 
                         if(!existingPayment) {
-                            console.log(`Procesando compra para carrito ${cartId}...`);
-                            
+                            console.log(`Ejecutando purchaseCart para ${cartId}...`);
+                            const userId = req.user?._id;
+                            console.log("Usuario ID:", userId);
+
                             try {
-                                const userId = req.user?._id;
-                                console.log("Usuario ID:", userId);
 
                                 const resultado = await cartServices.purchaseCart(cartId);
                                 console.log(`Compra porcesada. Email enviado a: ${resultado.userEmail}`);
@@ -598,7 +631,7 @@ class PaymentController {
                                     userId: resultado.userId || userId,
                                     amount: resultado.ticket.amount,
                                     ticketId: resultado.ticket._id,
-                                    processeAt: new Date(),
+                                    processedAt: new Date(),
                                     emailSent: true
                                 });
 
@@ -616,7 +649,7 @@ class PaymentController {
                                 });                                
                             };
                         } else {
-                            console.log(`Pago ${paymentId} ya fue procesado`);                            
+                            console.log(`Pago ${paymentId} ya fue procesado anteriormente`);                            
                         };
 
                     } catch (error) {
@@ -625,7 +658,7 @@ class PaymentController {
                 };
                 
             } else {
-                console.log("No hay pagos recientes para esa preferencia");                
+                console.log("No hay pagos en Mercado Pago para esta preferencia");                
             }
 
             console.log("Estado deretminado:", { paymentStatus, paymentId });
@@ -636,6 +669,7 @@ class PaymentController {
                 preference_id: preferenceId,
                 cartId: cartId,
                 total_payments_found: allPayments.length,
+                from_database: false,
                 is_current_payment: !!currentPayment
             });
             
@@ -658,8 +692,8 @@ class PaymentController {
 
     getPaymentById = async(req, res, next) => {
         try {
-            const { paymentid } = req.params
-            const payment = await this.paymentService.getPaymentById(paymentid)
+            const { paymentId } = req.params
+            const payment = await this.paymentService.getPaymentById(paymentId)
             if(!payment) {
                 return res.status(404).send({ message: "Pago no encontrado" });
             };

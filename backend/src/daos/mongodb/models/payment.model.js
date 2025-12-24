@@ -1,6 +1,13 @@
 import { model, Schema } from "mongoose";
 
 const paymentSchema = new Schema ({
+    payment_id: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true
+    },
+
     userId: {
         type: Schema.Types.ObjectId,
         ref: "users",
@@ -20,7 +27,8 @@ const paymentSchema = new Schema ({
 
     cartId: {
         type: Schema.Types.ObjectId,
-        ref: "carts"
+        ref: "carts",
+        index: true
     },
 
     ticketId: {
@@ -28,10 +36,26 @@ const paymentSchema = new Schema ({
         ref: "ticket"
     },
 
-    createdAt: {
+    emailSent: {
+        type: Boolean,
+        default: false
+    },
+
+    processedAt: {
         type: Date,
         default: Date.now
+    },
+
+    error: {
+        type: String
     }
+
+}, {
+    timestamps: true
 });
+
+// paymentSchema.index({ payment_id: 1 });
+// paymentSchema.index({ cartId: 1 });
+// paymentSchema.index({ userId: 1 });
 
 export const paymentModel = model("payment", paymentSchema);

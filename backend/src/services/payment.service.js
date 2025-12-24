@@ -86,17 +86,25 @@ class PaymentService {
         };
     };
 
-    createPayment = async(payment) => {
-        try {            
-            return await this.paymentRepository.createPayment(payment);
+    createPayment = async(paymentData) => {
+        try {
+            console.log("Services: creando pago con datos:", {
+                payment_id: paymentData.payment_id,
+                status: paymentData.status,
+                cartId: paymentData.cartId
+            });
+                        
+            return await this.paymentRepository.createPayment(paymentData);
         } catch (error) {
-            throw new Error(error.message || "Error al crear los pagos");
+            console.error("Service Error creando pago:", error);
+            
+            throw new Error(`Error al crear el pago ${error.message}`);
         };
     };
 
-    getAllPayment = async() => {
+    getAllPayment = async(userId) => {
         try {
-            return await this.paymentRepository.getAllPayment();
+            return await this.paymentRepository.getAllPayment(userId);
         } catch (error) {
             throw new Error(error.message || "Error al obtener los pagos")
         };
@@ -106,19 +114,35 @@ class PaymentService {
         try {
             const payment = await this.paymentRepository.getById(id);
             if(!payment) {
-                throw new Error(`No se encontró el payment con el id; ${id}`);
+                throw new Error(`No se encontró el payment con el id: ${id}`);
             }
             return payment;
         } catch (error) {
-            throw new Error(error.message || "Error al obtener al pago por ID");
+            console.error("Service Error obteniendo pago por ID:", error);
+            
+            throw new Error(`Error al obtener al pago por ID: ${error.message}`);
         };
     };
 
     getPaymentById = async(paymentId) => {
         try {
+            console.log("Service: Buscando pago por payment_id:", paymentId);
+            
             return await this.paymentRepository.getPaymentById(paymentId);
         } catch (error) {
-            throw new Error(error.message || "Error al obtener el pago por paymentId");
+            console.error("Service: Error en getPaymentId:", error.message);
+            
+            throw new Error(`Error al obtener el pago por paymentId: ${error.message}`);
+        };
+    };
+
+    getPaymentsByCartId = async(cartId) => {
+        try {
+            const payments = await this.paymentRepository.getPaymentsByCartId(cartId);
+            return payments;
+        } catch (error) {
+            console.error("Service Error obteniendo pagos por cartId:", error);
+            return [];            
         };
     };
 
@@ -126,7 +150,9 @@ class PaymentService {
         try {
             return await this.paymentRepository.update(id, dataToUpdate);
         } catch (error) {
-            throw new Error(error.message || "Error al actualizar el pago");
+            console.error("Service: Error actualizando pago:", error);
+            
+            throw new Error(`Error al actualizar el pago: ${error.message}`);
         };
     };
 
@@ -134,7 +160,9 @@ class PaymentService {
         try {
             return await this.paymentRepository.delete(id);
         } catch (error) {
-            throw new Error(error.message || "Error al eliminar el pago");
+            console.error("Service Error eliminando el pago:", error);
+            
+            throw new Error(`Error al eliminar el pago: ${error.message}`);
         };
     };
 };

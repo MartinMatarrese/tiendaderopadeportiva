@@ -11,10 +11,14 @@ class PaymentRepository {
 
     createPayment = async(paymentData) => {
         try {
+            console.log("Creando pago con payment_id:", paymentData.payment_id);
+            
             const response = new PaymentReqDto(paymentData);
             const payment = await this.dao.create(response)
             return payment    
         } catch (error) {
+            console.error("REPOSITORY Error creando pago:", error);
+            
             throw new Error(`Error en paymentRepository al crear el payment: ${error.message}`);
         };
     };
@@ -34,17 +38,37 @@ class PaymentRepository {
             if(!payment) return null
             return new PaymentResDto(payment);
         } catch (error) {
-            throw new Error(`Error al buscar el paymant: ${error.message}`);
+            throw new Error(`Error al obtener el pago por ID: ${error.message}`);
         };
     };
 
     getPaymentById = async(paymentId) => {
         try {
+            console.log("REPOSITORY Buscando pago por payment_id:", paymentId);
+            
             const payment = await this.dao.getById(paymentId);
-            if(!payment) return null;
+            if(!payment) {
+                console.log(`Repository: Pago ${paymentId} no encontrado`);
+
+                return null;
+            } else {
+                console.log(`Repository: Pago ${paymentId} encontrado`);                
+            };
+
             return new PaymentResDto(payment);
         } catch (error) {
-            throw new Error(`Error al buscar el payment por el id: ${error.message}`);
+            console.error("Repository: Error en getPaymentId:", error.message);
+            return null;
+            // throw new Error(`Error al buscar el payment por el id: ${error.message}`);
+        };
+    };
+
+    getPaymentsByCartId = async(cartId) => {
+        try {
+            return await this.dao.getByCartId(cartId);
+        } catch (error) {
+            console.error("Repository: Error obteniendo pagos por cartId:", error);
+            return [];            
         };
     };
 
@@ -53,7 +77,7 @@ class PaymentRepository {
             const updatePayment = await this.dao.update(id, dataToUpdate);
             return updatePayment;
         } catch (error) {
-            throw new Error(`Error en paymentRepository: ${error.message}`);
+            throw new Error(`Error al actualizar el pago: ${error.message}`);
         };
     };
 
@@ -62,7 +86,7 @@ class PaymentRepository {
             const payment = await this.dao.delete(id);
             return payment;
         } catch (error) {
-            throw new Error(`Error al borrar el payment: ${error.message}`);
+            throw new Error(`Error al eliminar el pago: ${error.message}`);
         };
     };
 };
