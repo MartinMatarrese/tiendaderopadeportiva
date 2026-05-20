@@ -56,9 +56,26 @@ app.use((req, res, next) => {
     next();
 });
 
+// app.get("/", (req, res) => {
+//     res.render("index", { title: "Inicio"});
+// });
+
 app.get("/", (req, res) => {
-    res.render("index", { title: "Inicio"});
-});
+    res.json({
+        status: "OK",
+        message: '🏪 Tienda de Ropa Deportiva - API',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            docs: `/docs`,
+            products: '/api/products',
+            users: '/users', 
+            cart: '/api/cart',
+            payments: '/api/payments'
+        },
+        status: '✅ Online'
+    });
+})
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs))
 
@@ -74,25 +91,9 @@ app.use("/public", express.static(__dirname + "/public"));
 
 app.use("/api/chat", chatRouter);
 
-app.get("/", (req, res) => {
-    res.status(200).send("Ok");
-});
-
-app.get("/", (req, res) => {
-    res.json({
-        message: '🏪 Tienda de Ropa Deportiva - API',
-        version: '1.0.0',
-        timestamp: new Date().toISOString(),
-        endpoints: {
-            docs: `/docs`,
-            products: '/api/products',
-            users: '/users', 
-            cart: '/api/cart',
-            payments: '/api/payments'
-        },
-        status: '✅ Online'
-    });
-})
+// app.get("/", (req, res) => {
+//     res.status(200).send("Ok");
+// });
 
 app.use(errorHandler);
 

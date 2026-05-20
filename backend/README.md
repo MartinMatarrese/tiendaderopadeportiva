@@ -73,7 +73,7 @@ Para ejecutar el proyecto de manera local sigue estos pasos
     npm start
     ```
 
-5. **La API estara disponible en:** `https://tiendaderopadeportiva-production.up.railway.app/`
+5. **La API estara disponible en:** `https://tiendaderopadeportiva.onrender.com`
 
 ### Scripts disponibles
 - `npm start`- Servidor de producción
@@ -105,7 +105,7 @@ docker run -d -p 8080:8080 martin1694/api-tienda:1.0.0
 ## Documentación de la API
 Una vez que la API esta ejecutandose accede a la api completa con Swagger en:
 
-[https://tiendaderopadeportiva-production.up.railway.app/docs](https://tiendaderopadeportiva-production.up.railway.app/docs)
+[https://tiendaderopadeportiva.onrender.com/docs](https://tiendaderopadeportiva.onrender.com/docs)
 
 ### La documentación incluye
 - Endpoints disponibles
@@ -157,9 +157,9 @@ Una vez que la API esta ejecutandose accede a la api completa con Swagger en:
 - **DELETE /api/payments/:paymentid** - Elimina el pago
 
 ## Deployment
-- **Producción:** Railway
+- **Producción:** Render
 - **Base de datos:** MongoDB Atlas
-- **URL de producción:** https:/tu_app_railway.app
+- **URL de producción:** https:/tu_app_.onrender.com
 
 ## Autor
 Martin Matarrese
