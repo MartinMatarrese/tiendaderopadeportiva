@@ -5,13 +5,6 @@ Ecommerce completo de ropa deportiva con frontend en React y backend en Node.js.
 
 ## Características
 
-### Frontend (React)
-- Catálogo de productos por categorías
-- Carrito de compras
-- Autenticación de usuarios
-- Integración con Mercado Pago
-- Diseño responsive y moderno
-
 ### Backend (Node.js/Express)
 - API RESTfull completa
 - Autenticación con JWT
@@ -19,16 +12,15 @@ Ecommerce completo de ropa deportiva con frontend en React y backend en Node.js.
 - Pasarela de pago (Mercado Pago)
 - Emails transaccionales
 
+### Frontend (React)
+- Catálogo de productos por categorías
+- Carrito de compras
+- Autenticación de usuarios
+- Integración con Mercado Pago
+- Diseño responsive y moderno
+
 
 ## Tecnologías Utilizadas
-
-### Frontend
-- React
-- Reac Router DOM
-- Context API
-- Axios
-- SweetAlert2
-- CSS Modules
 
 ### Backend
 - Node.js
@@ -38,10 +30,19 @@ Ecommerce completo de ropa deportiva con frontend en React y backend en Node.js.
 - Mercado Pago SDK
 - Nodemailer
 
+### Frontend
+- React
+- Reac Router DOM
+- Context API
+- Axios
+- SweetAlert2
+- CSS Modules
+
+
 ## Estructura del Proyecto
 tiendaderopadeportiva/
-├── frontend/ # Aplicación React
 ├── backend/ # API Node.js/Express
+├── frontend/ # Aplicación React
 └── README.md # Este archivo
 
 ## Instalación y Desarrollo
@@ -63,8 +64,8 @@ Para ejecutar el proyecto de manera local, sigue estos pasos:
 
 
 ## Deployment
+Backend: Render
 Frontend: Github Pages
-Backend: Railway
 Base de datos: MongoDB Atlas
 
 ## Autor
