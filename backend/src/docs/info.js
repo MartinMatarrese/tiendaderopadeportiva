@@ -8,7 +8,7 @@ export const info = {
         },
         servers: [
             {
-                url: "https://tiendaderopadeportiva-production.up.railway.app/"
+                url: "https://tiendaderopadeportiva.onrender.com"
             }
         ]
     },
