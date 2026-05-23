@@ -13,8 +13,6 @@ export const corsOptions = {
         };
 
         const productionOrigin = [
-            "http://localhost:3000",
-            "http://192.168.0.7:3000",
             "https://martinmatarrese.github.io",
             "https://martinmatarrese.github.io/tiendaderopadeportiva",
         ]
