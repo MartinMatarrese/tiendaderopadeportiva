@@ -56,10 +56,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// app.get("/", (req, res) => {
-//     res.render("index", { title: "Inicio"});
-// });
-
 app.get("/", (req, res) => {
     res.json({
         status: "OK",
@@ -90,10 +86,6 @@ app.use("/api/payments", paymentRouter);
 app.use("/public", express.static(__dirname + "/public"));
 
 app.use("/api/chat", chatRouter);
-
-// app.get("/", (req, res) => {
-//     res.status(200).send("Ok");
-// });
 
 app.use(errorHandler);
 
