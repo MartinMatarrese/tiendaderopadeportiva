@@ -25,7 +25,7 @@ Frontend de la tienda de ropa deportiva desarrollado en React. Los usuarios pued
 
 ### Prerequisitos
 - Node.js 16+
-- Backend ejecutandose en `https://tiendaderopadeportiva-production.up.railway.app/`
+- Backend ejecutandose en `https://tiendaderopadeportiva.onrender.com/`
 
 ### Pasos para ejecutar
 
