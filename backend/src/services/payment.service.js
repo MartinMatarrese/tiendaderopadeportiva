@@ -43,6 +43,9 @@ class PaymentService {
 
             const preference = {
                 items: items,
+                payer: {
+                    email: TESTUSER7489919212398470149
+                },
                 back_urls: {
                     success: successUrl,
                     failure: failureUrl,
