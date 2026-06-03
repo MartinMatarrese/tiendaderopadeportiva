@@ -1,14 +1,17 @@
 import { paymentRepository } from "../repository/payment.repository.js";
-import mercadopago from "mercadopago";
+// import mercadopago from "mercadopago";
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 import "dotenv/config";
 
-mercadopago.configure({
-    access_token: process.env.ACCES_TOKEN_MP
-});
+// mercadopago.configure({
+//     access_token: process.env.ACCES_TOKEN_MP
+// });
 
 const frontendUrl = process.env.FRONTEND_URL;
 const frontendLocal = process.env.FRONTEND_LOCAL;
 // const backendUrl = process.env.BACKEND_URL;
+const tokenMp = process.env.ACCES_TOKEN_MP
+const client = new MercadoPagoConfig({ accessToken: tokenMp });
 
 class PaymentService {
     constructor() {
@@ -41,24 +44,46 @@ class PaymentService {
                 
             }
 
-            const preference = {
-                items: items,
-                payer: {
-                    email: "TESTUSER7489919212398470149@testuser.com"
-                },
-                back_urls: {
-                    success: successUrl,
-                    failure: failureUrl,
-                    pending: pendingUrl
-                },
-                external_reference: cartId,
-                auto_return: "approved",
-                sandbox_mode: true,
-                metadata: {
-                    userId: userId,
-                    cartId: cartId,
+            // const preference = {
+            //     items: items,
+            //     payer: {
+            //         email: "TESTUSER7489919212398470149@testuser.com"
+            //     },
+            //     back_urls: {
+            //         success: successUrl,
+            //         failure: failureUrl,
+            //         pending: pendingUrl
+            //     },
+            //     external_reference: cartId,
+            //     auto_return: "approved",
+            //     sandbox_mode: true,
+            //     metadata: {
+            //         userId: userId,
+            //         cartId: cartId,
+            //     }
+            // };
+            const preference = new Preference(client);
+            preference.create({
+                body: {
+                    items: items,
+                    payer: {
+                        email: "TESTUSER7489919212398470149@testuser.com"
+                    },
+                    back_urls: {
+                       success: successUrl,
+                       pennding: pendingUrl,
+                       failure: failureUrl 
+                    },
+                    external_reference: cartId,
+                    auto_return: "approved",
+                    auto_return: "approved",
+                    sandbox_mode: true,
+                    metadata: {
+                        userId: userId,
+                        cartId: cartId
+                    }
                 }
-            };
+            })
 
             console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
 
