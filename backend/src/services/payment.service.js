@@ -11,6 +11,7 @@ const frontendUrl = process.env.FRONTEND_URL;
 const frontendLocal = process.env.FRONTEND_LOCAL;
 // const backendUrl = process.env.BACKEND_URL;
 const tokenMp = process.env.ACCES_TOKEN_MP
+const client = new MercadoPagoConfig({ accessToken: tokenMp });
 
 class PaymentService {
     constructor() {
@@ -61,7 +62,6 @@ class PaymentService {
             //         cartId: cartId,
             //     }
             // };
-            const client = new MercadoPagoConfig({ accessToken: tokenMp });
 
             const preference = new Preference(client);
             const response = await preference.create({
@@ -131,6 +131,34 @@ class PaymentService {
             
             throw new Error(`Error al crear el pago ${error.message}`);
         };
+    };
+
+    getPreference = async(preferenceId) => {
+        try {
+            const preference = new Preference(client);
+            const response = await preference.get({ preferenceId });
+            return response;
+        } catch (error) {
+            throw new Error("Error al obtener la preferencia:" + error.message);
+        }
+    };
+
+    searchPaymentByExternalReference = async(externalReference) => {
+        try {
+            const url = `https://api.mercadopago.com/v1/payments/search?external_reference=${externalReference}&sort=date_created&criteria=desc`;
+            const response = await fetch(url, {
+                headers: {
+                    "Authorization": `Bearer ${tokenMp}`,
+                    "Content-type": "application/json"
+                }
+            })
+            const data = await response.json();
+            console.log(`Buscados ${data.results?.length || 0} pagos para referencia: ${externalReference}`);
+            return data;            
+        } catch (error) {
+            console.error("Error en searchPaymentByExternalReference:" + error);
+            throw new Error("Error al buscar pagos: " + error.message);
+        }
     };
 
     getAllPayment = async(userId) => {
