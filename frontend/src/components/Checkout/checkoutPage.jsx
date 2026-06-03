@@ -2,13 +2,15 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { initMercadoPago } from "@mercadopago/sdk-react";
 import "./checkoutPage.css";
 
 const backUrl = process.env.REACT_APP_BACK_URL;
-// const claveMp = process.env.REACT_APP_PUBLIC_KEY_MP;
+const claveMp = process.env.REACT_APP_PUBLIC_KEY_MP;
 
 const CheckoutPage = () => {
     const cartContext = useCart();
+    initMercadoPago(claveMp);
     useEffect(() => {
         console.log("🔍 DEBUG COMPLETO CheckoutPage:");
         console.log("1. CartContext completo:", cartContext);
