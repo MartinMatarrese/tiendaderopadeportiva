@@ -64,9 +64,9 @@ Para ejecutar el proyecto de manera local, sigue estos pasos:
 
 
 ## Deployment
-Backend: Render
-Frontend: Github Pages
-Base de datos: MongoDB Atlas
+- Backend: Render
+- Frontend: Github Pages
+- Base de datos: MongoDB Atlas
 
 ## Autor
 Martin Matarrese
