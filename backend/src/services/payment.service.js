@@ -11,7 +11,6 @@ const frontendUrl = process.env.FRONTEND_URL;
 const frontendLocal = process.env.FRONTEND_LOCAL;
 // const backendUrl = process.env.BACKEND_URL;
 const tokenMp = process.env.ACCES_TOKEN_MP
-const client = new MercadoPagoConfig({ accessToken: tokenMp });
 
 class PaymentService {
     constructor() {
@@ -62,8 +61,10 @@ class PaymentService {
             //         cartId: cartId,
             //     }
             // };
+            const client = new MercadoPagoConfig({ accessToken: tokenMp });
+
             const preference = new Preference(client);
-            preference.create({
+            const response = await preference.create({
                 body: {
                     items: items,
                     payer: {
@@ -71,7 +72,7 @@ class PaymentService {
                     },
                     back_urls: {
                        success: successUrl,
-                       pennding: pendingUrl,
+                       pending: pendingUrl,
                        failure: failureUrl 
                     },
                     external_reference: cartId,
@@ -85,29 +86,31 @@ class PaymentService {
                 }
             })
 
-            console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
+            // console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
 
-            const response = await mercadopago.preferences.create(preference);
-            const preferenceId = response.body.id;
+            // const response = await mercadopago.preferences.create(preference);
+            // const preferenceId = response.body.id;
+            const preferenceId = response.id
             console.log("Preferencia creada en MP. ID:", preferenceId);
 
-            try {
-                const updatePreference = {
-                    ...preference,
-                    metadata: {
-                        ...preference.metadata,
-                        preferenceId: preferenceId
-                    }
-                };
+            // try {
+            //     const updatePreference = {
+            //         ...preference,
+            //         metadata: {
+            //             ...preference.metadata,
+            //             preferenceId: preferenceId
+            //         }
+            //     };
 
-                await mercadopago.preferences.update(preferenceId, updatePreference);
-                console.log("Metadata actualizado con preferenceId:", preferenceId);
+            //     await mercadopago.preferences.update(preferenceId, updatePreference);
+            //     console.log("Metadata actualizado con preferenceId:", preferenceId);
                 
-            } catch (updateError) {
-                console.warn("No se pudo actualizar metadata (no crítico):", updateError.message);                
-            };
+            // } catch (updateError) {
+            //     console.warn("No se pudo actualizar metadata (no crítico):", updateError.message);                
+            // };
             
-            return response.body
+            // return response.body
+            return response
         } catch (error) {
              console.error("❌ Error en createPreference:", error);
             throw new Error("Error al crear la preferencia de pago: " + error.message);
