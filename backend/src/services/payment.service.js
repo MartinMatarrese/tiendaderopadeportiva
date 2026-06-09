@@ -1,4 +1,5 @@
 import { paymentRepository } from "../repository/payment.repository.js";
+import axios from "axios";
 // import mercadopago from "mercadopago";
 // import { MercadoPagoConfig, Preference } from 'mercadopago';
 import "dotenv/config";
