@@ -1,6 +1,6 @@
 import { paymentRepository } from "../repository/payment.repository.js";
 // import mercadopago from "mercadopago";
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+// import { MercadoPagoConfig, Preference } from 'mercadopago';
 import "dotenv/config";
 
 // mercadopago.configure({
@@ -11,7 +11,7 @@ const frontendUrl = process.env.FRONTEND_URL;
 const frontendLocal = process.env.FRONTEND_LOCAL;
 // const backendUrl = process.env.BACKEND_URL;
 const tokenMp = process.env.ACCES_TOKEN_MP
-const client = new MercadoPagoConfig({ accessToken: tokenMp });
+// const client = new MercadoPagoConfig({ accessToken: tokenMp });
 
 class PaymentService {
     constructor() {
@@ -63,35 +63,35 @@ class PaymentService {
             //     }
             // };
 
-            const preference = new Preference(client);
-            const response = await preference.create({
-                body: {
-                    items: items,
-                    payer: {
-                        email: "TESTUSER7489919212398470149@testuser.com"
-                    },
-                    back_urls: {
-                       success: successUrl,
-                       pending: pendingUrl,
-                       failure: failureUrl 
-                    },
-                    external_reference: cartId,
-                    auto_return: "approved",
-                    auto_return: "approved",
-                    sandbox_mode: true,
-                    metadata: {
-                        userId: userId,
-                        cartId: cartId
-                    }
-                }
-            })
+            // const preference = new Preference(client);
+            // const response = await preference.create({
+            //     body: {
+            //         items: items,
+            //         payer: {
+            //             email: "TESTUSER7489919212398470149@testuser.com"
+            //         },
+            //         back_urls: {
+            //            success: successUrl,
+            //            pending: pendingUrl,
+            //            failure: failureUrl 
+            //         },
+            //         external_reference: cartId,
+            //         auto_return: "approved",
+            //         auto_return: "approved",
+            //         sandbox_mode: true,
+            //         metadata: {
+            //             userId: userId,
+            //             cartId: cartId
+            //         }
+            //     }
+            // })
 
             // console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
 
             // const response = await mercadopago.preferences.create(preference);
             // const preferenceId = response.body.id;
-            const preferenceId = response.id
-            console.log("Preferencia creada en MP. ID:", preferenceId);
+            // const preferenceId = response.id
+            // console.log("Preferencia creada en MP. ID:", preferenceId);
 
             // try {
             //     const updatePreference = {
@@ -110,7 +110,37 @@ class PaymentService {
             // };
             
             // return response.body
-            return response
+            // return response
+            const url = "https://api.mercadopago.com/checkout/preferences"
+            const body = {
+                payer_email: "test_user_2064215874214499040@testuser.com",
+                items: items,
+                payment_methods: {
+                    installments: 1,
+                    exclued_payments_methods: [],
+                    exlued_payments_types: []
+                },
+                back_urls: {
+                    success: successUrl,
+                    failure: failureUrl,
+                    pending: pendingUrl
+                },
+                external_reference: cartId,
+                auto_return: "approved",
+                metadata: {
+                    userId: userId,
+                    cartId: cartId,
+                }
+            }
+
+            const payment = await axios.post(url, body, {
+                headers: {
+                    "Conten-Type": "application/json",
+                    Authorization: `Bearer ${tokenMp}`
+                }
+            });
+
+            return payment.data
         } catch (error) {
              console.error("❌ Error en createPreference:", error);
             throw new Error("Error al crear la preferencia de pago: " + error.message);
