@@ -222,65 +222,66 @@ class PaymentController {
 
             console.log("webhook autenticado (Firma Válida)");
 
-            const { type, data } = req.body;
+            // const { type, data } = req.body;
 
-            if(type != "payment") {
-                console.log(`Webhook de tipeo ${type} ignorado`);
-                return res.status(200).send("OK");
-            };
+            // if(type != "payment") {
+            //     console.log(`Webhook de tipeo ${type} ignorado`);
+            //     return res.status(200).send("OK");
+            // };
 
-            const paymentId = data.id;
-            if(!paymentId || typeof paymentId != "string") {
-                console.error("ID de pago inválida");
-                return res.status(400).send("ID inválido");
-            };
+            // const paymentId = data.id;
+            // if(!paymentId || typeof paymentId != "string") {
+            //     console.error("ID de pago inválida");
+            //     return res.status(400).send("ID inválido");
+            // };
 
-            console.log(`Procesando pago ${paymentId}`);
+            // console.log(`Procesando pago ${paymentId}`);
             
-            const mpResponse = await mercadopago.payment.findById(paymentId)
-            const payment = mpResponse.body;
+            // const mpResponse = await mercadopago.payment.findById(paymentId)
+            // const payment = mpResponse.body;
 
-            if(!payment || !payment.external_reference) {
-                console.error("Datos incompletos");
-                return res.status(400).send("Datos incompletos");
-            };
+            // if(!payment || !payment.external_reference) {
+            //     console.error("Datos incompletos");
+            //     return res.status(400).send("Datos incompletos");
+            // };
 
-            const cartId = payment.external_reference;
-            console.log(`Pago verificado ${payment.status}, Carrito ${cartId}`);
+            // const cartId = payment.external_reference;
+            // console.log(`Pago verificado ${payment.status}, Carrito ${cartId}`);
 
-            const existingPayment = await paymentService.getPaymentById(paymentId);
-            if(existingPayment) {
-                console.log(`Pago ${paymentId} ya procesado, ignorado`);
-                return res.status(200).send("OK")                
-            };
+            // const existingPayment = await paymentService.getPaymentById(paymentId);
+            // if(existingPayment) {
+            //     console.log(`Pago ${paymentId} ya procesado, ignorado`);
+            //     return res.status(200).send("OK")                
+            // };
 
-            if(payment.status === "approved") {
-                console.log(`Pago aprobado, procesando carrito ${cartId}`);
-                try {
-                    const resultado = await cartServices.purchaseCart(cartId);
-                    console.log(`Email enviado a: ${resultado.userEmail}`);
-                    console.log(`Ticket creado: ${resultado.ticket.code}`);
+            // if(payment.status === "approved") {
+            //     console.log(`Pago aprobado, procesando carrito ${cartId}`);
+            //     try {
+            //         const resultado = await cartServices.purchaseCart(cartId);
+            //         console.log(`Email enviado a: ${resultado.userEmail}`);
+            //         console.log(`Ticket creado: ${resultado.ticket.code}`);
                     
-                    await paymentService.createPayment({
-                        payment_id: paymentId,
-                        status: payment.status,
-                        cartId: cartId,
-                        userId: resultado.userId,
-                        amount: resultado.ticket.amount,
-                        ticketId: resultado.ticket._id,
-                        processedAt: new Date()
-                    });
+            //         await paymentService.createPayment({
+            //             payment_id: paymentId,
+            //             status: payment.status,
+            //             cartId: cartId,
+            //             userId: resultado.userId,
+            //             amount: resultado.ticket.amount,
+            //             ticketId: resultado.ticket._id,
+            //             processedAt: new Date()
+            //         });
 
-                    console.log(`Pago guardado en BD: ${paymentId}`);                    
+            //         console.log(`Pago guardado en BD: ${paymentId}`);                    
                     
-                } catch (error) {
-                    console.error("Error en purchaseCart:", error.message);
+            //     } catch (error) {
+            //         console.error("Error en purchaseCart:", error.message);
                     
-                };
+            //     };
                 
-            } else {
-                console.log(`Pago no aprobado (${payment.status}), ignorado`);                
-            };
+            // } else {
+            //     console.log(`Pago no aprobado (${payment.status}), ignorado`);                
+            // };
+            const result = await paymentService.webHook(req.body);
             
             res.status(200).send("OK")
         } catch (error) {

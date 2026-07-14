@@ -14,6 +14,12 @@ const paymentSchema = new Schema ({
         required: true
     },
 
+    buyerEmail: {
+        type: String,
+        required: true,
+        index: true
+    },
+
     status: {
         type: String,
         enum: ["success", "pending", "failure", "approved"],
@@ -25,6 +31,13 @@ const paymentSchema = new Schema ({
         required: true
     },
 
+    items: [{
+        title: String,
+        quantity: Number,
+        unit_price: Number,
+        subtotal: Number
+    }],
+
     cartId: {
         type: Schema.Types.ObjectId,
         ref: "carts",
@@ -34,6 +47,15 @@ const paymentSchema = new Schema ({
     ticketId: {
         type: Schema.Types.ObjectId,
         ref: "ticket"
+    },
+
+    paymentMethod: {
+        type: String,
+        default: "unknown"
+    },
+
+    dateApproved: {
+        type: Date
     },
 
     emailSent: {
@@ -53,9 +75,5 @@ const paymentSchema = new Schema ({
 }, {
     timestamps: true
 });
-
-// paymentSchema.index({ payment_id: 1 });
-// paymentSchema.index({ cartId: 1 });
-// paymentSchema.index({ userId: 1 });
 
 export const paymentModel = model("payment", paymentSchema);

@@ -1,18 +1,16 @@
 import { paymentRepository } from "../repository/payment.repository.js";
 import axios from "axios";
-// import mercadopago from "mercadopago";
-// import { MercadoPagoConfig, Preference } from 'mercadopago';
 import "dotenv/config";
+import { paymentModel } from "../daos/mongodb/models/payment.model.js";
+import { paymentDao } from "../daos/mongodb/payment.dao.js";
+import { sendGmail } from "./email.service.js";
+import { cartServices } from "./cart.service.js";
+import mercadopago from "mercadopago";
 
-// mercadopago.configure({
-//     access_token: process.env.ACCES_TOKEN_MP
-// });
 
 const frontendUrl = process.env.FRONTEND_URL;
 const frontendLocal = process.env.FRONTEND_LOCAL;
-// const backendUrl = process.env.BACKEND_URL;
 const tokenMp = process.env.ACCES_TOKEN_MP
-// const client = new MercadoPagoConfig({ accessToken: tokenMp });
 
 class PaymentService {
     constructor() {
@@ -45,73 +43,6 @@ class PaymentService {
                 
             }
 
-            // const preference = {
-            //     items: items,
-            //     payer: {
-            //         email: "TESTUSER7489919212398470149@testuser.com"
-            //     },
-            //     back_urls: {
-            //         success: successUrl,
-            //         failure: failureUrl,
-            //         pending: pendingUrl
-            //     },
-            //     external_reference: cartId,
-            //     auto_return: "approved",
-            //     sandbox_mode: true,
-            //     metadata: {
-            //         userId: userId,
-            //         cartId: cartId,
-            //     }
-            // };
-
-            // const preference = new Preference(client);
-            // const response = await preference.create({
-            //     body: {
-            //         items: items,
-            //         payer: {
-            //             email: "TESTUSER7489919212398470149@testuser.com"
-            //         },
-            //         back_urls: {
-            //            success: successUrl,
-            //            pending: pendingUrl,
-            //            failure: failureUrl 
-            //         },
-            //         external_reference: cartId,
-            //         auto_return: "approved",
-            //         auto_return: "approved",
-            //         sandbox_mode: true,
-            //         metadata: {
-            //             userId: userId,
-            //             cartId: cartId
-            //         }
-            //     }
-            // })
-
-            // console.log("📋 Preferencia a crear:", JSON.stringify(preference, null, 2));
-
-            // const response = await mercadopago.preferences.create(preference);
-            // const preferenceId = response.body.id;
-            // const preferenceId = response.id
-            // console.log("Preferencia creada en MP. ID:", preferenceId);
-
-            // try {
-            //     const updatePreference = {
-            //         ...preference,
-            //         metadata: {
-            //             ...preference.metadata,
-            //             preferenceId: preferenceId
-            //         }
-            //     };
-
-            //     await mercadopago.preferences.update(preferenceId, updatePreference);
-            //     console.log("Metadata actualizado con preferenceId:", preferenceId);
-                
-            // } catch (updateError) {
-            //     console.warn("No se pudo actualizar metadata (no crítico):", updateError.message);                
-            // };
-            
-            // return response.body
-            // return response
             const url = "https://api.mercadopago.com/checkout/preferences"
             const body = {
                 payer_email: "test_user_2064215874214499040@testuser.com",
@@ -131,7 +62,8 @@ class PaymentService {
                 metadata: {
                     userId: userId,
                     cartId: cartId,
-                }
+                },
+                notification_url: "https://tiendaderopadeportiva.onrender.com/api/payments/webhook/notifications?source_news=webhooks"
             }
 
             const payment = await axios.post(url, body, {
@@ -145,6 +77,140 @@ class PaymentService {
         } catch (error) {
              console.error("❌ Error en createPreference:", error);
             throw new Error("Error al crear la preferencia de pago: " + error.message);
+        };
+    };
+
+    // getPaymentDetails = async(paymentId) => {
+    //     try {
+    //         const url = `https://api.mercadopago.com/v1/payments/${paymentId}`;
+    //         const response = await axios.get(url, {
+    //             headers: {
+    //                 Authorization: `Bearer ${tokenMp}`
+    //             }
+    //         });
+
+    //         return response.data;
+    //     } catch (error) {
+    //         throw new Error(error)
+    //     }
+    // };
+
+    getPaymentFromMp = async(paymentId) => {
+        try {
+            const mpResponse = await mercadopago.payment.findById(paymentId);
+            return mercadopago.body;
+        } catch (error) {
+            console.error(`Error obteniendo pago ${paymentId} de MP:`, error.message);
+            throw new Error(`Error al obtener el pago de MP: ${error.message}`);                        
+        };
+    };
+
+    processApprovedPayment = async(payment) => {
+        try {
+            const cartId = payment.external_reference;
+            console.log(`Pago aprobado, procesando carrito: ${cartId}`);
+            const resultado = await cartServices.purchaseCart(cartId);
+
+            console.log(`Email enviado a: ${resultado.userEmail}`);
+            console.log(`Ticket creado: ${resultado.ticket.code}`);           
+            
+            await this.createPayment({
+                payment_id: payment.id,
+                status: payment.status,
+                cartId: payment.cartId,
+                userId: resultado.userId,
+                amount: resultado.ticket.amount,
+                ticketId: resultado.ticket._id,
+                processedAt: new Date()
+            });
+            console.log(`Pago guardado en la BD: ${payment.id}`);
+
+            return {
+                userId: resultado.userId,
+                ticket: resultado.ticket,
+                userEmail: resultado.userEmail
+            }
+            
+        } catch (error) {
+            console.error(`Error al procesar el pago:`, error.message);
+            throw new Error(`Error al procesar el pago: ${error.message}`);           
+        }
+    }
+
+    webHook = async(notification) => {
+        try {
+            console.log("Notificación recibida:", notification);
+
+            const {type, data } = notification;
+
+            // if(notification.type !== "payment")             {
+            //     console.log("Ignorando notifiación que no se pago");
+            //     return;                
+            // };
+            if(type !== "payment") {
+                console.log(`webhook de tipo ${type} ignorado`);
+                return { processed: false, reason: "Notificación no se pagó" }
+            }
+
+            // const paymentData = await this.getPaymentDetails(notification.data_id);
+            const paymentId = data.id;
+
+            // if(paymentData.status === "approved") {
+            //     const cartId = paymentData.external_reference;
+
+            //     if(!cartId) {
+            //         console.error("No se encontró cartId en external_reference");
+            //         return;                    
+            //     };
+
+            //     console.log(`Procesando compra para carrito: ${cartId}`);
+
+            //     const result = await cartServices.purchaseCart(cartId);
+
+            //     console.log(`Compra completada para carrito: ${cartId}`);
+            //     console.log(`Email enviado a: ${result.userEmail}`);
+            //     console.log(`Ticket generado: ${result.ticket.code}`);           
+                
+            //     await this.savePaymentToDatabase(paymentData, result.ticket._id);
+
+            //     console.log(`Pago ${paymentData.id} procesado completamente`);                
+            // } else {
+            //     console.log(`Pago ${paymentData.id} en estado: ${paymentData.status} - No se procesa`);                
+            // };
+            if(!paymentId || typeof paymentId !== "string") {
+                throw new Error("ID de pago inváñido");                
+            }
+            console.log(`Consultando pago ${paymentId} a la API de MP...`);
+
+            const payment = await this.getPaymentFromMp(paymentId);
+
+            if(!payment || !payment.external_reference) {
+                throw new Error("Datos de pago incompletos - falta external_reference");
+            }
+
+            const cartId = payment.external_reference;
+            console.log(`Pago obtenido: ${payment.status}, Carrito: ${cartId}`);
+
+            const existingPayment = await this.getPaymentById(paymentId);
+            if(existingPayment) {
+                console.log(`Pago ${paymentId} ya procesado`);
+                return { processed: false, reason: "Pago duplicado" };                
+            };
+
+            if(payment.status === "approved") {
+                const resultado = await this.processApprovedPayment(payment);
+                return { process: true, data: resultado };
+            } else {
+                console.log(`Pago ${paymentId} no aprobado (${payment.status})`);
+                return { process: false, reason: `pago no aprobado: ${payment.status}`};
+                
+            }
+            
+            
+        } catch (error) {
+            console.error("Error en webHook:", error.message);
+            throw new Error(error);           
+            
         };
     };
 
@@ -174,24 +240,6 @@ class PaymentService {
         }
     };
 
-    searchPaymentByExternalReference = async(externalReference) => {
-        try {
-            const url = `https://api.mercadopago.com/v1/payments/search?external_reference=${externalReference}&sort=date_created&criteria=desc`;
-            const response = await fetch(url, {
-                headers: {
-                    "Authorization": `Bearer ${tokenMp}`,
-                    "Content-type": "application/json"
-                }
-            })
-            const data = await response.json();
-            console.log(`Buscados ${data.results?.length || 0} pagos para referencia: ${externalReference}`);
-            return data;            
-        } catch (error) {
-            console.error("Error en searchPaymentByExternalReference:" + error);
-            throw new Error("Error al buscar pagos: " + error.message);
-        }
-    };
-
     getAllPayment = async(userId) => {
         try {
             return await this.paymentRepository.getAllPayment(userId);
@@ -202,11 +250,20 @@ class PaymentService {
 
     getById = async(id) => {
         try {
-            const payment = await this.paymentRepository.getById(id);
-            if(!payment) {
-                throw new Error(`No se encontró el payment con el id: ${id}`);
-            }
-            return payment;
+            const url = `https://api.mercadopago.com/v1/orders/${id}`
+            const payment = await axios.get(url, {
+                headers: {
+                    "Conten-Type": "application/json",
+                    Authorization: `Bearer ${tokenMp}`
+                }
+            });
+
+            return payment.data;
+            // const payment = await this.paymentRepository.getById(id);
+            // if(!payment) {
+            //     throw new Error(`No se encontró el payment con el id: ${id}`);
+            // }
+            // return payment;
         } catch (error) {
             console.error("Service Error obteniendo pago por ID:", error);
             
@@ -216,9 +273,17 @@ class PaymentService {
 
     getPaymentById = async(paymentId) => {
         try {
-            console.log("Service: Buscando pago por payment_id:", paymentId);
+            // console.log("Service: Buscando pago por payment_id:", paymentId);
             
-            return await this.paymentRepository.getPaymentById(paymentId);
+            // return await this.paymentRepository.getPaymentById(paymentId);
+            const url = `https://api.mercadopago.com/v1/payments/${paymentId}`;
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${tokenMp}`
+                }
+            });
+
+            return response.data;
         } catch (error) {
             console.error("Service: Error en getPaymentId:", error.message);
             
@@ -235,6 +300,42 @@ class PaymentService {
             return [];            
         };
     };
+
+    savePaymentToDatabase = async(paymentData) => {
+        try {
+            const items = paymentData.additional_info?.items || [];
+            const itemsFormatted = items.map(item => ({
+                title: item.title,
+                quantity: item.quantity,
+                unit_price: item.unit_price,
+                subtotal: item.quantity * item.unit_price
+            }));
+
+            const payment = new paymentModel({
+                payment_id: paymentData.id,
+                userId: paymentData.metadata?.userId,
+                buyerEmail: paymentData.payer.email,
+                status: paymentData.status,
+                amount: paymentData.transaction_amount,
+                items: itemsFormatted,
+                cartId: paymentData.external_reference,
+                ticketId: ticketId,
+                paymentMethod: paymentData.payment_type_id,
+                dateApproved: paymentData.date_approved,
+                emailSent: true,
+                processedAt: new Date()
+            });
+
+            const savedPayment = await payment.save();
+            console.log(`Pago guardado en la BD: ${savedPayment.payment_id}`);
+            return savedPayment;
+            
+        } catch (error) {
+            console.error("Error al guardar el pago:", error);
+            throw new Error("Error al guardar el pago:", error)
+            return null;
+        }
+    }
 
     update = async(id, dataToUpdate) => {
         try {

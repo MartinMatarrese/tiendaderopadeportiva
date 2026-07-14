@@ -14,7 +14,7 @@ export const corsOptions = {
 
         const productionOrigin = [
             "https://martinmatarrese.github.io",
-            "https://martinmatarrese.github.io/tiendaderopadeportiva",
+            "https://martinmatarrese.github.io/tiendaderopadeportiva"
         ]
 
         if(productionOrigin.includes(origin)) {
