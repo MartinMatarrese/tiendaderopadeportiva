@@ -430,97 +430,122 @@ class PaymentController {
             console.log("Consultando estado para preferenceId:", preferenceId);
 
             if(!preferenceId) {
-                return res.status(400).json({error: "preferenceId es requerido"});
-            };
-
-            console.log("🔄 Obteniendo preferencia...");
-            // const preference = await mercadopago.preferences.get(preferenceId);
-            // const cartId = preference.body.external_reference;
-            const preference = await this.paymentService.getPreference(preferenceId);
-            const cartId = preference.body?.external_reference || preference.external_reference;
-
-            console.log("Preferencia obtenida cartId:", cartId);
-            
-            if(!cartId) {
-                return res.json({
-                    status: "not_found",
-                    message: "No se encontró external_preferencece en la preferencia"
+                return res.status(400).json({
+                    success: false,
+                    message: "preferenceId es requerido"
                 });
             };
 
-            const existingPayment = await this.paymentService.getPaymentsByCartId(cartId);
-            
-            if(existingPayment && existingPayment.length > 0) {
-                const latestPayment = existingPayment[0];
-                console.log("Pago encontrado en la BD local");
-                return res.json({
-                    status: latestPayment.status,
-                    payment_id: latestPayment.payment_id,
-                    preference_id: preferenceId,
-                    cartId: cartId,
-                    from_database: true,
-                    ticketId: latestPayment.ticketId
-                })
+            console.log("🔄 Obteniendo preferencia...");
+            const preference = await paymentService.getPreference(preferenceId);
+
+            if(!preference) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Preferencia no encontrada"
+                });
             };
 
-            console.log("Buscando pagos en Mercado pago....");
-            const paymentSearch = await this.paymentService.searchPaymentByExternalReference(cartId);
-            const allPayments = paymentSearch.results || [];
-            let paymentStatus = "pending";
-            let paymentId = null;
-            let currentPayment = null;
-
-            if (allPayments.length > 0) {
-                currentPayment = allPayments[0];
-                paymentStatus = currentPayment.status;
-                paymentId = currentPayment.id;
-
-                console.log("Pago encontrado:", { id: paymentId, status: paymentStatus });
-
-                // 4. Si el pago está aprobado, procesar la compra
-                if (paymentStatus === "approved") {
-                    console.log(`✅ Pago aprobado! Procesando carrito ${cartId}...`);
-                    
-                    try {
-                        const userId = req.user?._id;
-                        const resultado = await this.cartServices.purchaseCart(cartId);
-                        
-                        // Guardar el pago en tu BD
-                        await this.paymentService.createPaymentRecord({
-                            payment_id: paymentId,
-                            status: paymentStatus,
-                            cartId: cartId,
-                            userId: resultado.userId || userId,
-                            amount: resultado.ticket?.amount,
-                            ticketId: resultado.ticket?._id,
-                            processedAt: new Date(),
-                            emailSent: true
-                        });
-                        
-                        console.log(`✅ Compra procesada. Ticket: ${resultado.ticket?.code}`);
-                        
-                    } catch (error) {
-                        console.error("Error procesando compra:", error.message);
-                        await this.paymentService.createPaymentRecord({
-                            payment_id: paymentId,
-                            status: paymentStatus,
-                            cartId: cartId,
-                            error: error.message,
-                            processedAt: new Date(),
-                            emailSent: false
-                        });
-                    }
+            return res.status(200).json({
+                success: true,
+                data: {
+                    id: preference.id,
+                    status: preference.status || "pending",
+                    init_point: preference.init_point,
+                    sandbox_init_point: preference.sandbox_init_point,
+                    external_reference: preference.external_reference,
+                    items: preference.items,
+                    payer: preference.payer,
+                    date_created: preference.date_created
                 }
-            }
-
-            res.json({
-                status: paymentStatus,
-                payment_id: paymentId,
-                preference_id: preferenceId,
-                cartId: cartId,
-                total_payments_found: allPayments.length,
-                from_database: false
             });
+            // const preference = await mercadopago.preferences.get(preferenceId);
+            // const cartId = preference.body.external_reference;
+            
+            // const cartId = preference.body?.external_reference || preference.external_reference;
+
+            // console.log("Preferencia obtenida cartId:", cartId);
+            
+            // if(!cartId) {
+            //     return res.json({
+            //         status: "not_found",
+            //         message: "No se encontró external_preferencece en la preferencia"
+            //     });
+            // };
+
+            // const existingPayment = await this.paymentService.getPaymentsByCartId(cartId);
+            
+            // if(existingPayment && existingPayment.length > 0) {
+            //     const latestPayment = existingPayment[0];
+            //     console.log("Pago encontrado en la BD local");
+            //     return res.json({
+            //         status: latestPayment.status,
+            //         payment_id: latestPayment.payment_id,
+            //         preference_id: preferenceId,
+            //         cartId: cartId,
+            //         from_database: true,
+            //         ticketId: latestPayment.ticketId
+            //     })
+            // };
+
+            // console.log("Buscando pagos en Mercado pago....");
+            // const paymentSearch = await this.paymentService.searchPaymentByExternalReference(cartId);
+            // const allPayments = paymentSearch.results || [];
+            // let paymentStatus = "pending";
+            // let paymentId = null;
+            // let currentPayment = null;
+
+            // if (allPayments.length > 0) {
+            //     currentPayment = allPayments[0];
+            //     paymentStatus = currentPayment.status;
+            //     paymentId = currentPayment.id;
+
+            //     console.log("Pago encontrado:", { id: paymentId, status: paymentStatus });
+
+            //     // 4. Si el pago está aprobado, procesar la compra
+            //     if (paymentStatus === "approved") {
+            //         console.log(`✅ Pago aprobado! Procesando carrito ${cartId}...`);
+                    
+            //         try {
+            //             const userId = req.user?._id;
+            //             const resultado = await this.cartServices.purchaseCart(cartId);
+                        
+            //             // Guardar el pago en tu BD
+            //             await this.paymentService.createPaymentRecord({
+            //                 payment_id: paymentId,
+            //                 status: paymentStatus,
+            //                 cartId: cartId,
+            //                 userId: resultado.userId || userId,
+            //                 amount: resultado.ticket?.amount,
+            //                 ticketId: resultado.ticket?._id,
+            //                 processedAt: new Date(),
+            //                 emailSent: true
+            //             });
+                        
+            //             console.log(`✅ Compra procesada. Ticket: ${resultado.ticket?.code}`);
+                        
+            //         } catch (error) {
+            //             console.error("Error procesando compra:", error.message);
+            //             await this.paymentService.createPaymentRecord({
+            //                 payment_id: paymentId,
+            //                 status: paymentStatus,
+            //                 cartId: cartId,
+            //                 error: error.message,
+            //                 processedAt: new Date(),
+            //                 emailSent: false
+            //             });
+            //         }
+            //     }
+            // }
+
+            // res.json({
+            //     status: paymentStatus,
+            //     payment_id: paymentId,
+            //     preference_id: preferenceId,
+            //     cartId: cartId,
+            //     total_payments_found: allPayments.length,
+            //     from_database: false
+            // });
 
 
             // console.log("🔄 Buscando pagos por cartId:", cartId);
@@ -750,18 +775,26 @@ class PaymentController {
             // });
             
         } catch (error) {
-            console.error("Error en getPaymentStatus:", error);
+            console.error("Error en getPaymentStatus:", error.message);
 
-            if(error.status === 404) {
-                return res.json({
-                    status: "preference_not_found",
-                    message: "Preferencia no encontrada"
+            if(error.message.includes("404")) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Preferencia no encontrada en Mercado Pago"
                 });
             };
 
+            if(error.message.includes("401") || error.message.includes("403")) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Error de autenticación de Mercado Pago"
+                })
+            }
+
             res.status(500).json({ 
-                error: "Error al consultar el estado del pago",
-                details: error.message 
+                success: false,
+                message: "Error al obtener el estado del pago",
+                error: process.env.NODE_ENV === "devolpment" ? error.message : undefined
             });
         };
     };

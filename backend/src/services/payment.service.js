@@ -232,10 +232,42 @@ class PaymentService {
 
     getPreference = async(preferenceId) => {
         try {
-            const preference = new Preference(client);
-            const response = await preference.get({ preferenceId });
-            return response;
+            console.log(`Obteniendo preferencia ${preferenceId}`);
+
+            try {
+                if(mercadopago?.preference) {
+                    const response = mercadopago.preference.get(preferenceId);
+                    console.log("Preferencia obtenida con SDK");
+                    return response.body;                    
+                }
+            } catch (error) {
+                console.log("SDK falló, intentando con Axios:", error.message);
+                
+            };
+
+            const url = `https://api.mercadopago.com/checkout/preferences/${preferenceId}`
+            const response = await axios.get(url, {
+                headers: {
+                    "Authorization": `Bearer ${tokenMp}`,
+                    "Content-type": "application/json"
+                }
+            });
+
+            console.log("Preferencia obtenida con axios");
+            return response.data
+            
+            
+            // const preference = new Preference(client);
+            // const response = await preference.get({ preferenceId });
+            // return response;
         } catch (error) {
+            console.error("Error al obtener la preferencia:", error.message);
+            if(error.response) {
+                console.error("Detalles del error:", {
+                    status: error.response.status,
+                    data: error.response.data
+                });
+            };            
             throw new Error("Error al obtener la preferencia:" + error.message);
         }
     };
