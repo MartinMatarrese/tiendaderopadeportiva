@@ -64,7 +64,7 @@ class PaymentService {
                     cartId: cartId,
                     userEmail: userEmail
                 },
-                notification_url: "https://tiendaderopadeportiva.onrender.com/api/payments/webhook/notifications?source_news=webhooks"
+                notification_url: "https://tiendaderopadeportiva.onrender.com/api/payments/webhook"
             }
 
             const payment = await axios.post(url, body, {
