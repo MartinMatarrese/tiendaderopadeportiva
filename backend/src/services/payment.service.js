@@ -143,40 +143,13 @@ class PaymentService {
 
             const {type, data } = notification;
 
-            // if(notification.type !== "payment")             {
-            //     console.log("Ignorando notifiación que no se pago");
-            //     return;                
-            // };
             if(type !== "payment") {
                 console.log(`webhook de tipo ${type} ignorado`);
                 return { processed: false, reason: "Notificación no se pagó" }
             }
 
-            // const paymentData = await this.getPaymentDetails(notification.data_id);
             const paymentId = data.id;
 
-            // if(paymentData.status === "approved") {
-            //     const cartId = paymentData.external_reference;
-
-            //     if(!cartId) {
-            //         console.error("No se encontró cartId en external_reference");
-            //         return;                    
-            //     };
-
-            //     console.log(`Procesando compra para carrito: ${cartId}`);
-
-            //     const result = await cartServices.purchaseCart(cartId);
-
-            //     console.log(`Compra completada para carrito: ${cartId}`);
-            //     console.log(`Email enviado a: ${result.userEmail}`);
-            //     console.log(`Ticket generado: ${result.ticket.code}`);           
-                
-            //     await this.savePaymentToDatabase(paymentData, result.ticket._id);
-
-            //     console.log(`Pago ${paymentData.id} procesado completamente`);                
-            // } else {
-            //     console.log(`Pago ${paymentData.id} en estado: ${paymentData.status} - No se procesa`);                
-            // };
             if(!paymentId || typeof paymentId !== "string") {
                 throw new Error("ID de pago inváñido");                
             }
