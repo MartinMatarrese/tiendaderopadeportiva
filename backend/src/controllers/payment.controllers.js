@@ -30,8 +30,9 @@ class PaymentController {
             };
 
             const userId = req.user._id;
+            const userEmail = req.user.email
 
-            const preference = await this.paymentService.createPreference({ userId, cartId, cart });
+            const preference = await this.paymentService.createPreference({ userId, cartId, cart, userEmail });
 
             res.status(200).json({ id: preference.id });
         } catch (error) {            

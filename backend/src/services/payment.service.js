@@ -17,7 +17,7 @@ class PaymentService {
         this.paymentRepository = paymentRepository;
     };
 
-    createPreference = async( { userId, cartId, cart }) => {
+    createPreference = async( { userId, cartId, cart, userEmail }) => {
         try {
             const env = process.env.NODE_ENV || "development"
             const isProduction = env === "production";
@@ -45,7 +45,7 @@ class PaymentService {
 
             const url = "https://api.mercadopago.com/checkout/preferences"
             const body = {
-                payer_email: "test_user_2064215874214499040@testuser.com",
+                payer_email: userEmail,
                 items: items,
                 payment_methods: {
                     installments: 1,
@@ -62,6 +62,7 @@ class PaymentService {
                 metadata: {
                     userId: userId,
                     cartId: cartId,
+                    userEmail: userEmail
                 },
                 notification_url: "https://tiendaderopadeportiva.onrender.com/api/payments/webhook/notifications?source_news=webhooks"
             }
