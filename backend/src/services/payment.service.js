@@ -149,7 +149,7 @@ class PaymentService {
                 return { processed: false, reason: "Notificación no se pagó" }
             }
 
-            const paymentId = data.id;
+            const paymentId = data.id.toString();
 
             if(!paymentId || typeof paymentId !== "string") {
                 throw new Error("ID de pago inváñido");                

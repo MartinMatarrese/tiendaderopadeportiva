@@ -103,7 +103,7 @@ class PaymentController {
                         
                         const result = await paymentService.webHook({
                             type: "payment",
-                            data: { id: payment.id }
+                            data: { id: payment.id.toString() }
                         });
                         console.log("Pago procesado:", result);
                         
@@ -114,9 +114,10 @@ class PaymentController {
                 }
             } else if(notification.type === "payment") {
                 console.log(`Procesando pago ID ${notification.data.id}`);
+                const paymentId = notification.data.id.toString();
                 const result = await paymentService.webHook({
                     type: "payment",
-                    data: { id: notification.data.id }
+                    data: { id: paymentId }
                 });
                 console.log("Pago procesado:", result);
             } else {
