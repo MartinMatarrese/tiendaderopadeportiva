@@ -81,54 +81,98 @@ class PaymentController {
         console.log("Body:", req.body);
 
         try {
-            if(webhookSecret) {
-                const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
-
-                if(signature) {
-                    const parts = signature.split(",");
-                    const signatureMap = {};
-                    parts.forEach(part => {
-                        const [ key, value ] = part.split("=");
-                        signatureMap[key] = value;
-                    });
-                    const timesTamp = signatureMap.ts;
-                    const signatureHash = signatureMap.v1;
-                    const message = `${timesTamp}.${JSON.stringify(req.body)}`
-                    const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(message).digest("hex");
-                    const signatureMath = crypto.timingSafeEqual(Buffer.from(signatureHash), Buffer.from(expectedSignature));
-                    if(!signatureMath) {
-                        console.warn("Firma inválida - Continuando de todas formas");                        
-                    } else {
-                        console.log("Firma verdificada correctamente");                        
-                    };
-                };
-            };
             const notification = {
-                type: req.query.type || req.body?.type,
+                type: req.query.topic || req.query.type || req.body?.topic || req.body?.type,
                 data: {
-                    id: req.query["data.id"] || req.body?.data?.id
+                    id: req.query.id || req.query["data.id"] || req.body?.data?.id || req.body?.id
                 }
             };
-
             console.log("Notificación procesada:", notification);
-
             if(!notification.type || !notification.data.id) {
                 console.error("Datos incompletos en la notificación");
-                return res.status(400).send("Datos incompleltos");
-            }
-
-            if(notification.type === "payment") {
-                console.log(`Procesando pago ID: ${notification.data.id}`);
+                return res.status(400).send("Datos incompletos")                
+            };
+            if(notification.type === "merchant_order") {
+                console.log(`Procesando orden comercial ID: ${notification.data.id}`);
+                const merchantOrder =  await paymentService.getMerchantOrder(notification.data.id);
+                const payments = merchantOrder.payments || [];
+                console.log(`Orden tiene ${payments.length} pagos asociados`);
+                for(const payment of payments) {
+                    if(payment.status === "approved") {
+                        console.log(`Pago aprobado en orden ${payment.id}`);
+                        
+                        const result = await paymentService.webHook({
+                            type: "payment",
+                            data: { id: payment.id }
+                        });
+                        console.log("Pago procesado:", result);
+                        
+                    } else {
+                        console.log(`Pago ${payment.id} en estado ${payment.status}`);
+                        
+                    }
+                }
+            } else if(notification.type === "payment") {
+                console.log(`Procesando pago ID ${notification.data.id}`);
                 const result = await paymentService.webHook({
                     type: "payment",
                     data: { id: notification.data.id }
                 });
-                console.log("Pago procesado:", result);               
+                console.log("Pago procesado:", result);
             } else {
-                console.log(`Tipo de notificación no manejado: ${notification.type}`);                
-            };
-
+                console.log(`Tipo de notificación no manejado: ${notification.type}`);
+                
+            }
             res.status(200).send("OK")
+            
+            // if(webhookSecret) {
+            //     const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
+
+            //     if(signature) {
+            //         const parts = signature.split(",");
+            //         const signatureMap = {};
+            //         parts.forEach(part => {
+            //             const [ key, value ] = part.split("=");
+            //             signatureMap[key] = value;
+            //         });
+            //         const timesTamp = signatureMap.ts;
+            //         const signatureHash = signatureMap.v1;
+            //         const message = `${timesTamp}.${JSON.stringify(req.body)}`
+            //         const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(message).digest("hex");
+            //         const signatureMath = crypto.timingSafeEqual(Buffer.from(signatureHash), Buffer.from(expectedSignature));
+            //         if(!signatureMath) {
+            //             console.warn("Firma inválida - Continuando de todas formas");                        
+            //         } else {
+            //             console.log("Firma verdificada correctamente");                        
+            //         };
+            //     };
+            // };
+            // const notification = {
+            //     type: req.query.type || req.body?.type,
+            //     data: {
+            //         id: req.query["data.id"] || req.body?.data?.id
+            //     }
+            // };
+
+            // console.log("Notificación procesada:", notification);
+
+            // if(!notification.type || !notification.data.id) {
+            //     console.error("Datos incompletos en la notificación");
+            //     return res.status(400).send("Datos incompleltos");
+            // }
+
+            // if(notification.type === "payment") {
+            //     console.log(`Procesando pago ID: ${notification.data.id}`);
+            //     const result = await paymentService.webHook({
+            //         type: "payment",
+            //         data: { id: notification.data.id }
+            //     });
+            //     console.log("Pago procesado:", result);               
+            // } else {
+            //     console.log(`Tipo de notificación no manejado: ${notification.type}`);                
+            // };
+
+            // res.status(200).send("OK")
             
         } catch (error) {
             console.error("Error general en webhook:", error.message);

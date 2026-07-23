@@ -188,6 +188,24 @@ class PaymentService {
         };
     };
 
+    getMerchantOrder = async(orderId) => {
+        try {
+            console.log(`Obteniendo marchant_order ${orderId} de Mercado Pago...`);
+            const url = `https://api.mercadopago.com/merchant_orders/${orderId}`;
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${tokenMp}`
+                }
+            });
+            console.log(`Merchant_order obtenida ${response.data.id}`);
+            return response.data;
+                        
+        } catch (error) {
+            console.error("Error obteniendo merchant_oder:", error.message);
+            throw new Error(error);                        
+        }
+    }
+
     createPayment = async(paymentData) => {
         try {
             console.log("Services: creando pago con datos:", {
