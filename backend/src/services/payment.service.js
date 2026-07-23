@@ -98,10 +98,25 @@ class PaymentService {
 
     getPaymentFromMp = async(paymentId) => {
         try {
-            const mpResponse = await mercadopago.payment.findById(paymentId);
-            return mercadopago.body;
+            console.log(`Obteniendo pago ${paymentId} desde la API de Mercado Pago...`);
+            const url = `https://api.mercadopago.com/v1/payments/${paymentId}`
+            const response = await axios.get(url, {
+                headers: {
+                    "Authorization": `Bearer ${tokenMp}`
+                }
+            });
+            console.log(`Pago ${paymentId} obtenido correctamente`);
+            return response.data;
+            
         } catch (error) {
             console.error(`Error obteniendo pago ${paymentId} de MP:`, error.message);
+            if(error.response) {
+                console.error("Detalles del error:", {
+                    status: error.response.status,
+                    data: error.response.data
+                });
+            };
+            
             throw new Error(`Error al obtener el pago de MP: ${error.message}`);                        
         };
     };
