@@ -182,26 +182,26 @@ const CheckoutPage = () => {
                                     `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.data.id}`;
             
             // setCheckoutUrl(url)
-            // window.location.replace(mercadoPagoUrl);
-            const paymentWindow = window.open(mercadoPagoUrl, "_blank");
+            window.location.replace(mercadoPagoUrl);
+            // const paymentWindow = window.open(mercadoPagoUrl, "_blank");
 
-            if(!paymentWindow) {
-                alert("Por favor permite ventanas emergentes para una mejora experiencia de pago. Redirigiendo...");
-                window.location.href = mercadoPagoUrl;
-                return;
-            };
+            // if(!paymentWindow) {
+            //     alert("Por favor permite ventanas emergentes para una mejora experiencia de pago. Redirigiendo...");
+            //     window.location.href = mercadoPagoUrl;
+            //     return;
+            // };
 
-            window.paymentWindow = paymentWindow;
+            // window.paymentWindow = paymentWindow;
             
-            setPollingCount(1);
+            // setPollingCount(1);
 
-            const checkWindowClosed = setInterval(() => {
-                if(paymentWindow.closed) {
-                    clearInterval(checkWindowClosed);
-                    console.log("Ventana de pago cerrada");
-                    setPollingCount(prev => Math.min(prev + 1, 30))
-                };
-            }, 1000);
+            // const checkWindowClosed = setInterval(() => {
+            //     if(paymentWindow.closed) {
+            //         clearInterval(checkWindowClosed);
+            //         console.log("Ventana de pago cerrada");
+            //         setPollingCount(prev => Math.min(prev + 1, 30))
+            //     };
+            // }, 1000);
             
         } catch (error) {
             console.error("Error al crear la preferencia de pago:", error);
