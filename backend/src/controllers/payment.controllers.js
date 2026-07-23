@@ -4,6 +4,7 @@ import { cartServices } from "../services/cart.service.js";
 // import { sendGmail } from "../services/email.service.js";
 import { paymentService } from "../services/payment.service.js";
 import { error } from "console";
+import { type } from "os";
 // import { userService } from "../services/user.service.js";
 
 const frontendUrl = process.env.FRONTEND_URL;
@@ -78,66 +79,122 @@ class PaymentController {
         console.log("[WEBHOOK] Solicitud recibida");
         console.log("Query params:", req.query);
         console.log("Body:", req.body);
-                
+
         try {
+            if(webhookSecret) {
+                const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
+
+                if(signature) {
+                    const parts = signature.split(",");
+                    const signatureMap = {};
+                    parts.forEach(part => {
+                        const [ key, value ] = part.split("=");
+                        signatureMap[key] = value;
+                    });
+                    const timesTamp = signatureMap.ts;
+                    const signatureHash = signatureMap.v1;
+                    const message = `${timesTamp}.${JSON.stringify(req.body)}`
+                    const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(message).digest("hex");
+                    const signatureMath = crypto.timingSafeEqual(Buffer.from(signatureHash), Buffer.from(expectedSignature));
+                    if(!signatureMath) {
+                        console.warn("Firma inválida - Continuando de todas formas");                        
+                    } else {
+                        console.log("Firma verdificada correctamente");                        
+                    };
+                };
+            };
             const notification = {
                 type: req.query.type || req.body?.type,
                 data: {
                     id: req.query["data.id"] || req.body?.data?.id
                 }
-            }
+            };
+
             console.log("Notificación procesada:", notification);
 
             if(!notification.type || !notification.data.id) {
                 console.error("Datos incompletos en la notificación");
-                return res.status(400).send("Datos incompletos");
+                return res.status(400).send("Datos incompleltos");
+            }
+
+            if(notification.type === "payment") {
+                console.log(`Procesando pago ID: ${notification.data.id}`);
+                const result = await paymentService.webHook({
+                    type: "payment",
+                    data: { id: notification.data.id }
+                });
+                console.log("Pago procesado:", result);               
+            } else {
+                console.log(`Tipo de notificación no manejado: ${notification.type}`);                
             };
 
-            try {
-                if(!webhookSecret) {
-                    console.error("MP_WEBHOOK_SECRET No configurada");
-                    return res.status(500).send("Error de configuración")                
-                }
-
-                const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
-
-                if(!signature) {
-                    console.warn("Webhook sin firma - Rechazado");
-                    return res.status(400).send("Firma requerida");
-                };
-
-                const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex");
-
-                let signatureMath = false;
-                try {
-                    signatureMath = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
-                } catch (error) {
-                    console.error("Error en comparacion de firmas:", error.message);
-                    return res.status(400).send("Firma inválida");                
-                };
-
-                if(!signatureMath) {
-                    console.error("Firma inválida - Posible ataque");
-                    return res.status(403).send("Firma inválida");
-                };
-
-                console.log("webhook autenticado (Firma Válida)");
-
-            } catch (error) {
-                console.error("Error verificando firma:", error.message);
-                return res.status(200).send("Error procesado");            
-            };
-
-            console.log(`Procesando notificación: ${notification.type} - ${notification.data.id}`);
-            const result = await paymentService.webHook(notification);
-            
             res.status(200).send("OK")
             
         } catch (error) {
-            console.error("Error general en Webhook:", error.message);
-            console.error("Stack:", error.stack);           
-            return res.status(200).send("OK")
-        };       
+            console.error("Error general en webhook:", error.message);
+            console.error("Stack:", error.stack);
+            return res.status(200).send("OK");
+        };
+                
+        // try {
+        //     const notification = {
+        //         type: req.query.type || req.body?.type,
+        //         data: {
+        //             id: req.query["data.id"] || req.body?.data?.id
+        //         }
+        //     }
+        //     console.log("Notificación procesada:", notification);
+
+        //     if(!notification.type || !notification.data.id) {
+        //         console.error("Datos incompletos en la notificación");
+        //         return res.status(400).send("Datos incompletos");
+        //     };
+
+        //     try {
+        //         if(!webhookSecret) {
+        //             console.error("MP_WEBHOOK_SECRET No configurada");
+        //             return res.status(500).send("Error de configuración")                
+        //         }
+
+        //         const signature = req.headers["x-signature"] || req.headers["x-signature-sha256"];
+
+        //         if(!signature) {
+        //             console.warn("Webhook sin firma - Rechazado");
+        //             return res.status(400).send("Firma requerida");
+        //         };
+
+        //         const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(JSON.stringify(req.body)).digest("hex");
+
+        //         let signatureMath = false;
+        //         try {
+        //             signatureMath = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+        //         } catch (error) {
+        //             console.error("Error en comparacion de firmas:", error.message);
+        //             return res.status(400).send("Firma inválida");                
+        //         };
+
+        //         if(!signatureMath) {
+        //             console.error("Firma inválida - Posible ataque");
+        //             return res.status(403).send("Firma inválida");
+        //         };
+
+        //         console.log("webhook autenticado (Firma Válida)");
+
+        //     } catch (error) {
+        //         console.error("Error verificando firma:", error.message);
+        //         return res.status(200).send("Error procesado");            
+        //     };
+
+        //     console.log(`Procesando notificación: ${notification.type} - ${notification.data.id}`);
+        //     const result = await paymentService.webHook(notification);
+            
+        //     res.status(200).send("OK")
+            
+        // } catch (error) {
+        //     console.error("Error general en Webhook:", error.message);
+        //     console.error("Stack:", error.stack);           
+        //     return res.status(200).send("OK")
+        // };       
         
     };
 
