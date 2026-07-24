@@ -7,6 +7,7 @@ import { sendGmail } from "./email.service.js";
 import { cartServices } from "./cart.service.js";
 import mercadopago from "mercadopago";
 import { error } from "console";
+import { cartRepository } from "../repository/cart.repository.js";
 
 
 const frontendUrl = process.env.FRONTEND_URL;
@@ -82,20 +83,6 @@ class PaymentService {
         };
     };
 
-    // getPaymentDetails = async(paymentId) => {
-    //     try {
-    //         const url = `https://api.mercadopago.com/v1/payments/${paymentId}`;
-    //         const response = await axios.get(url, {
-    //             headers: {
-    //                 Authorization: `Bearer ${tokenMp}`
-    //             }
-    //         });
-
-    //         return response.data;
-    //     } catch (error) {
-    //         throw new Error(error)
-    //     }
-    // };
 
     getPaymentFromMp = async(paymentId) => {
         try {
@@ -122,30 +109,48 @@ class PaymentService {
         };
     };
 
-    processApprovedPayment = async(payment) => {
+    processApprovedPayment = async(payment, cartId) => {
+        console.log(`Pago aprobado, procesando carrito ${cartId}`);
+        
         try {
-            const cartId = payment.external_reference;
-            console.log(`Pago aprobado, procesando carrito: ${cartId}`);
+            // const cartId = payment.external_reference;
+            // console.log(`Pago aprobado, procesando carrito: ${cartId}`);
+            const cart = await cartRepository.getCartById(cartId);
+            if(!cart || !cart.products || cart.products.length === 0) {
+                console.warn("El carrito esta vacio o no existe");
+                return {
+                    userId: payment.metadata?.userId,
+                    ticket: null,
+                    userEmail: payment.payer?.email || payment.metadata?.userEmail,
+                    warning: "Carrito vacio"
+                };
+            }
+            console.log("Llamando a cartService.purchaseCart...");
+            
             const resultado = await cartServices.purchaseCart(cartId);
 
             console.log(`Email enviado a: ${resultado.userEmail}`);
-            console.log(`Ticket creado: ${resultado.ticket.code}`);           
+            console.log(`Ticket creado: ${resultado.ticket?.code}`);           
+            console.log(`Guardando pago ${payment.id} en la BD...`);
             
-            await this.createPayment({
-                payment_id: payment.id,
-                status: payment.status,
-                cartId: payment.cartId,
-                userId: resultado.userId,
-                amount: resultado.ticket.amount,
-                ticketId: resultado.ticket._id,
-                processedAt: new Date()
-            });
-            console.log(`Pago guardado en la BD: ${payment.id}`);
+            // await this.createPayment({
+            //     payment_id: payment.id,
+            //     status: payment.status,
+            //     cartId: payment.cartId,
+            //     userId: resultado.userId,
+            //     amount: resultado.ticket.amount,
+            //     ticketId: resultado.ticket._id,
+            //     processedAt: new Date()
+            // });
+            await this.savePaymentToDatabase(payment, resultado.ticket?._id);
+
+            console.log(`Pago ${payment.id} guardado en la BD correctamente`);
 
             return {
                 userId: resultado.userId,
                 ticket: resultado.ticket,
-                userEmail: resultado.userEmail
+                userEmail: resultado.userEmail,
+                productsOutStock: resultado.productsOutStock
             }
             
         } catch (error) {
@@ -154,9 +159,48 @@ class PaymentService {
         }
     }
 
+    getPaymentFromDatabase = async(paymentId) => {
+        try {
+            console.log(`Buscando pago ${paymentId} en la base de datos...`);
+            const payment = await paymentModel.findOne({ payment_id: paymentId});
+
+            if(payment) {
+                console.log(`Pago encontrado en la BD: ${payment._id}`);
+                return payment                
+            } else {
+                console.error(`No se encontró pago ${paymentId} en la BD`);
+                return null;
+            }
+            
+        } catch (error) {
+            console.error("Error buscando pago en BD:", error.message);
+            return null;
+        };
+    };
+
+    getPaymentFromMp = async(paymentId) => {
+        try {
+            // console.log("Service: Buscando pago por payment_id:", paymentId);
+            
+            // return await this.paymentRepository.getPaymentById(paymentId);
+            const url = `https://api.mercadopago.com/v1/payments/${paymentId}`;
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${tokenMp}`
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error("Service: Error en getPaymentId:", error.message);
+            
+            throw new Error(`Error al obtener el pago por paymentId: ${error.message}`);
+        };
+    };
+
     webHook = async(notification) => {
         try {
-            console.log("Notificación recibida:", notification);
+            console.log("Notificación recibida en webHook:", notification);
 
             const { type, data } = notification;
 
@@ -167,22 +211,29 @@ class PaymentService {
 
             const paymentId = data.id.toString();
 
-            // if(!paymentId || typeof paymentId !== "string") {
-            //     throw new Error("ID de pago inváñido");                
-            // }
-            console.log(`Consultando pago ${paymentId} a la API de MP...`);
+            console.log(`Consultando pago ${paymentId}...`);
+
+            const existingPayment = await this.getPaymentFromDatabase(paymentId);
+            if(existingPayment) {
+                console.log(`Pago ${paymentId} ya procesado`);
+                return { processed: false, reason: "Pago duplicado" };                
+            };
 
             const payment = await this.getPaymentFromMp(paymentId);
 
-            // if(!payment || !payment.external_reference) {
-            //     throw new Error("Datos de pago incompletos - falta external_reference");
-            // }
             if(!payment) {
                 throw new Error("No se recibieron datos del pago");                
-            }
+            };
 
-            // const cartId = payment.external_reference;
-            // console.log(`Pago obtenido: ${payment.status}, Carrito: ${cartId}`);
+            if(payment.status === "approved") {
+                const resultado = await this.processApprovedPayment(payment);
+                return { process: true, data: resultado };
+            } else {
+                console.log(`Pago ${paymentId} no aprobado (${payment.status})`);
+                return { process: false, reason: `pago no aprobado: ${payment.status}`};
+                
+            };
+
             let cartId = payment.external_reference;
             if(!cartId && payment.metadata) {
                 cartId = payment.metadata.cartId || payment.metadata.cart_id;
@@ -200,23 +251,10 @@ class PaymentService {
             };
             console.log(`Pago obtenido: ${payment.status}, Carrito: ${cartId}`);
             
+            const resultado = await this.processApprovedPayment(payment, cartId)
 
-            const existingPayment = await this.getPaymentById(paymentId);
-            if(existingPayment) {
-                console.log(`Pago ${paymentId} ya procesado`);
-                return { processed: false, reason: "Pago duplicado" };                
-            };
+            return { processed: true, data: resultado };
 
-            if(payment.status === "approved") {
-                const resultado = await this.processApprovedPayment(payment);
-                return { process: true, data: resultado };
-            } else {
-                console.log(`Pago ${paymentId} no aprobado (${payment.status})`);
-                return { process: false, reason: `pago no aprobado: ${payment.status}`};
-                
-            }
-            
-            
         } catch (error) {
             console.error("Error en webHook:", error.message);
             throw new Error(error);           
@@ -331,26 +369,6 @@ class PaymentService {
         };
     };
 
-    getPaymentById = async(paymentId) => {
-        try {
-            // console.log("Service: Buscando pago por payment_id:", paymentId);
-            
-            // return await this.paymentRepository.getPaymentById(paymentId);
-            const url = `https://api.mercadopago.com/v1/payments/${paymentId}`;
-            const response = await axios.get(url, {
-                headers: {
-                    Authorization: `Bearer ${tokenMp}`
-                }
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error("Service: Error en getPaymentId:", error.message);
-            
-            throw new Error(`Error al obtener el pago por paymentId: ${error.message}`);
-        };
-    };
-
     getPaymentsByCartId = async(cartId) => {
         try {
             const payments = await this.paymentRepository.getPaymentsByCartId(cartId);
@@ -361,7 +379,7 @@ class PaymentService {
         };
     };
 
-    savePaymentToDatabase = async(paymentData) => {
+    savePaymentToDatabase = async(paymentData, ticketId = null) => {
         try {
             const items = paymentData.additional_info?.items || [];
             const itemsFormatted = items.map(item => ({

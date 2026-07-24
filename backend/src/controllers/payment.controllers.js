@@ -88,14 +88,17 @@ class PaymentController {
                 }
             };
             console.log("Notificación procesada:", notification);
+
             if(!notification.type || !notification.data.id) {
                 console.error("Datos incompletos en la notificación");
                 return res.status(400).send("Datos incompletos")                
             };
+
             if(notification.type === "merchant_order") {
                 console.log(`Procesando orden comercial ID: ${notification.data.id}`);
 
                 const merchantOrder =  await paymentService.getMerchantOrder(notification.data.id);
+
                 const payments = merchantOrder.payments || [];
                 console.log(`Orden tiene ${payments.length} pagos asociados`);
 
@@ -103,7 +106,7 @@ class PaymentController {
                     if(payment.status === "approved") {
                         console.log(`Pago aprobado en orden ${payment.id}`);
 
-                        const existingPayment = await paymentService.getPaymentById(payment.id.toString())
+                        const existingPayment = await paymentService.getPaymentFromDatabase(payment.id.toString())
 
                         if(existingPayment) {
                             console.log(`Pago ${payment.id} ya procesado, ignorando`);
@@ -114,6 +117,7 @@ class PaymentController {
                             type: "payment",
                             data: { id: payment.id.toString() }
                         });
+                        
                         console.log("Pago procesado:", result);
                         
                     } else {
