@@ -46,6 +46,24 @@ class CartRepository {
         };
     };
 
+    findActiveCartByUserId = async(userId) => {
+        try {
+            console.log(`Buscando carrito activo para userId: ${userId}`);
+            const cart = await cartModel.findOne({ userId: userId }).populate("products")
+            if(cart && cart.products && cart.products.length > 0) {
+                console.log(`Carrito activo encontrado: ${cart._id}`);
+                return cart;                
+            } else {
+                console.log(`No se encontró carrito activo para userId: ${userId}`);
+                return null;
+            };
+                
+        } catch (error) {
+            console.error("Error buscando carrito activo:", error.message);
+            return null;
+        };
+    };
+
     update = async(cartId, updateData) => {
         try {
             const updateCart = await this.dao.update(cartId, updateData);

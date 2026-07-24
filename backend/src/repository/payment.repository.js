@@ -1,3 +1,4 @@
+import cartModel from "../daos/mongodb/models/cart.model.js";
 import persistence from "../daos/persistence.js";
 import PaymentReqDto from "../dtos/payment.req.dto.js";
 import PaymentResDto from "../dtos/payment.res.dto.js";

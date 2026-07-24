@@ -225,13 +225,10 @@ class PaymentService {
                 throw new Error("No se recibieron datos del pago");                
             };
 
-            if(payment.status === "approved") {
-                const resultado = await this.processApprovedPayment(payment);
-                return { process: true, data: resultado };
-            } else {
-                console.log(`Pago ${paymentId} no aprobado (${payment.status})`);
-                return { process: false, reason: `pago no aprobado: ${payment.status}`};
+            if(payment.status !== "approved") {
+                console.log(`Pago ${paymentId} no aprobado ${payment.status}`);
                 
+                return { process: false, data: `Pago no aprobado ${payment.status}`};
             };
 
             let cartId = payment.external_reference;
@@ -243,11 +240,23 @@ class PaymentService {
             if(!cartId) {
                 console.error("No se pudo entontrar cartId");
                 console.log("Payment completo:", JSON.stringify(payment, null, 2));
-                return {
-                    processed: false,
-                    reason: "No se encontró cartId - Se procesara con merchant_order",
-                    paymentId: paymentId
-                };                
+                const userId = payment.metadata?.userId || payment.payer?.id;
+                if(userId) {
+                    console.log(`Buscando carrito activo para userId: ${userId}`);
+                    const cart = await cartRepository.findActiveCartByUserId(userId);
+                    if(cart) {
+                        cartId = cart._id.toString();
+                        console.log(`Carrito encontrado por userId: ${cartId}`);                        
+                    };
+                };
+
+                if(!cartId) {
+                    return {
+                        processed: false,
+                        reason: "No se encontró cartId - Se procesara con merchant_order",
+                        paymentId: paymentId
+                    };                
+                };
             };
             console.log(`Pago obtenido: ${payment.status}, Carrito: ${cartId}`);
             
