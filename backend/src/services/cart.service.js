@@ -216,9 +216,8 @@ class CartServices {
                       
                 };
             };
-
-            console.log("Productos para email: ", productWithDetails.length);
-
+            console.log("Productos para email:", productForEmail.length);
+            
             // await sendGmail(ticket, cart.userId.email, productsToPurchase);
             console.log("=== DEBUG SENDGMAIL ===");
             console.log("Datos para sendGmail:", {
@@ -251,11 +250,7 @@ class CartServices {
             console.log("6. ¿sendGmail function existe?", typeof sendGmail);
             console.log("=== FIN DEBUG ===");
 
-            await sendGmail({
-                ticket,
-                userEmail,
-                productForEmail
-            });
+            await sendGmail(ticket, userEmail, productForEmail );
 
             console.log(`Email enviado exitosamente a ${userEmail}`);            
         } catch (error) {
@@ -265,7 +260,7 @@ class CartServices {
                 userEmail: userEmail,
                 
             });
-            throw new Error("Error enviando email (no falla la compra):", error.message);
+            // throw new Error("Error enviando email (no falla la compra):", error.message);
             
         }
 
