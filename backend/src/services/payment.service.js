@@ -6,6 +6,7 @@ import { paymentDao } from "../daos/mongodb/payment.dao.js";
 import { sendGmail } from "./email.service.js";
 import { cartServices } from "./cart.service.js";
 import mercadopago from "mercadopago";
+import { error } from "console";
 
 
 const frontendUrl = process.env.FRONTEND_URL;
@@ -157,28 +158,48 @@ class PaymentService {
         try {
             console.log("Notificación recibida:", notification);
 
-            const {type, data } = notification;
+            const { type, data } = notification;
 
             if(type !== "payment") {
                 console.log(`webhook de tipo ${type} ignorado`);
                 return { processed: false, reason: "Notificación no se pagó" }
-            }
+            };
 
             const paymentId = data.id.toString();
 
-            if(!paymentId || typeof paymentId !== "string") {
-                throw new Error("ID de pago inváñido");                
-            }
+            // if(!paymentId || typeof paymentId !== "string") {
+            //     throw new Error("ID de pago inváñido");                
+            // }
             console.log(`Consultando pago ${paymentId} a la API de MP...`);
 
             const payment = await this.getPaymentFromMp(paymentId);
 
-            if(!payment || !payment.external_reference) {
-                throw new Error("Datos de pago incompletos - falta external_reference");
+            // if(!payment || !payment.external_reference) {
+            //     throw new Error("Datos de pago incompletos - falta external_reference");
+            // }
+            if(!payment) {
+                throw new Error("No se recibieron datos del pago");                
             }
 
-            const cartId = payment.external_reference;
+            // const cartId = payment.external_reference;
+            // console.log(`Pago obtenido: ${payment.status}, Carrito: ${cartId}`);
+            let cartId = payment.external_reference;
+            if(!cartId && payment.metadata) {
+                cartId = payment.metadata.cartId || payment.metadata.cart_id;
+                console.log(`CartId encontrado en metadata: ${cartId}`);                
+            };
+
+            if(!cartId) {
+                console.error("No se pudo entontrar cartId");
+                console.log("Payment completo:", JSON.stringify(payment, null, 2));
+                return {
+                    processed: false,
+                    reason: "No se encontró cartId - Se procesara con merchant_order",
+                    paymentId: paymentId
+                };                
+            };
             console.log(`Pago obtenido: ${payment.status}, Carrito: ${cartId}`);
+            
 
             const existingPayment = await this.getPaymentById(paymentId);
             if(existingPayment) {

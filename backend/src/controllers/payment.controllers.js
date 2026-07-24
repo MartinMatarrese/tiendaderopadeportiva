@@ -94,12 +94,21 @@ class PaymentController {
             };
             if(notification.type === "merchant_order") {
                 console.log(`Procesando orden comercial ID: ${notification.data.id}`);
+
                 const merchantOrder =  await paymentService.getMerchantOrder(notification.data.id);
                 const payments = merchantOrder.payments || [];
                 console.log(`Orden tiene ${payments.length} pagos asociados`);
+
                 for(const payment of payments) {
                     if(payment.status === "approved") {
                         console.log(`Pago aprobado en orden ${payment.id}`);
+
+                        const existingPayment = await paymentService.getPaymentById(payment.id.toString())
+
+                        if(existingPayment) {
+                            console.log(`Pago ${payment.id} ya procesado, ignorando`);
+                            continue;                            
+                        };
                         
                         const result = await paymentService.webHook({
                             type: "payment",
@@ -113,13 +122,15 @@ class PaymentController {
                     }
                 }
             } else if(notification.type === "payment") {
-                console.log(`Procesando pago ID ${notification.data.id}`);
-                const paymentId = notification.data.id.toString();
-                const result = await paymentService.webHook({
-                    type: "payment",
-                    data: { id: paymentId }
-                });
-                console.log("Pago procesado:", result);
+                console.log(`Notificación directa de payment (${notification.data.id}) ignorada. Se procesara a traves de merchant_order`);
+                
+                // console.log(`Procesando pago ID ${notification.data.id}`);
+                // const paymentId = notification.data.id.toString();
+                // const result = await paymentService.webHook({
+                //     type: "payment",
+                //     data: { id: paymentId }
+                // });
+                // console.log("Pago procesado:", result);
             } else {
                 console.log(`Tipo de notificación no manejado: ${notification.type}`);
                 
